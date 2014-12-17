@@ -22,8 +22,8 @@
 
 NAME := lightctrl
 BOARD_TYPE := teensy2
-OBJ := $(NAME).o pwm.o pid_control.o temp_curve.o cmd_queue.o
-LIBS := util led lufa-descriptor-usbdualserial anyio
+OBJ := $(NAME).o
+LIBS := util led lufa-descriptor-usbdualserial
 EXTERNAL_LIBS := lufa
 RESET_FUNC := ../tools/reset_lufa_cdc
 RESET_PARAM := 'R'
@@ -38,8 +38,8 @@ LUFA_OPTS += -D USE_FLASH_DESCRIPTORS
 LUFA_OPTS += -D USE_STATIC_OPTIONS="(USB_DEVICE_OPT_FULLSPEED | USB_OPT_REG_ENABLED | USB_OPT_AUTO_PLL)"
 LUFA_OPTS += -D INTERRUPT_CONTROL_ENDPOINT
 
-LUFA_OPTS += -D USB_MANUFACTURER="L\"xro\""
-LUFA_OPTS += -D USB_PRODUCT="L\"$(NAME)\""
+LUFA_OPTS += -D USB_MANUFACTURER="L\"xro\"" -D USB_MANUFACTURER_LEN=3
+LUFA_OPTS += -D USB_PRODUCT="L\"lightctrl\"" -D USB_PRODUCT_LEN=9
 
 LUFA_COMPONENTS := USB USBCLASS SERIAL
 

@@ -1,5 +1,5 @@
 /*
- *  r3PCR Teensy Controller Code
+ *  r3LightSwitchPanel Teensy Controller Code
  *
  *
  *  Copyright (C) 2013 Bernhard Tittelbach <xro@realraum.at>
@@ -29,8 +29,10 @@
 
 #include "util.h"
 #include "led.h"
-#include "anyio.h"
 #include "mypins.h"
+
+#include "acm01.c"
+#include "rf433.c"
 
 uint8_t relais_state_ = 0;
 uint16_t buttons_pressed_ = 0;
@@ -49,8 +51,6 @@ ISR(TIMER3_COMPA_vect)
 	system_clk_++;
   //set up "clock" comparator for next tick
   OCR3A = (OCR3A + TICK_TIME) & 0xFFFF;
-  if (debug_)
-    led_toggle();
 }
 
 void initSysClkTimer3(void)
@@ -66,6 +66,14 @@ void initSysClkTimer3(void)
 	OCR3A = TICK_TIME & 0xFFFF;
 	// enable interrupt
 	TIMSK3 = _BV(OCIE3A);
+}
+
+void bzero (uint8_t *to, int count)
+{
+  while (count-- > 0)
+    {
+      *to++ = 0;
+    }
 }
 
 void printStatus(void)
@@ -90,12 +98,12 @@ void readButtons(uint16_t *buttons)
   {
     if (TEST_BTN_SIG(c))
     {
-      *buttons |= (1<<c+12);
+      *buttons |= (1<<(c+12));
     }
   }
 }
 
-void buttonsToNewState()
+void buttonsToNewState(void)
 {
   if (buttons_pressed_ & (1<<12)) {
     relais_state_ = 0;
@@ -124,48 +132,74 @@ void applyRelaisState(uint8_t new_state)
   RELAIS_PORT = (RELAIS_PORT & ~RELAIS_MASK) | (relais_state_ ^ RELAIS_INVERT_MASK);
 }
 
-//reads exactly bufflen-1 chars
+typedef struct {
+  uint8_t bufindex;
+  uint8_t start_seen;
+  uint8_t escape_seen;
+} startescapereader;
+
+//reads exactly bufflen chars
 //does not start to fill buffer until start_escape char is seen
 //further occurances of start_escape have to be escaped by an additional start_escape char
-void readFixedLenSeqIntoBufferWStartEscapeSymbol(char *buffer, uint8_t buflen, char start_escape, uint8_t start_with_startescape_seen)
+bool readFixedLenSeqIntoBufferWStartEscapeSymbol(uint8_t *buffer, startescapereader *pst, uint8_t buflen, uint8_t start_escape)
 {
-  while (anyio_bytes_received() == 0);
   int ReceivedByte=0;
-  uint8_t index=0;
-  uint8_t startescape_seen = start_with_startescape_seen & 0x01;
-  do {
-    ReceivedByte = fgetc(stdin);
-    if (ReceivedByte != EOF)
+  ReceivedByte = fgetc(&usb1_stream_);
+  if (ReceivedByte == EOF)
+    return false;
+
+  if ((uint8_t) ReceivedByte == start_escape)
+  {
+    if (pst->escape_seen == 0)
     {
-      if ((char) ReceivedByte == start_escape)
-      {
-        if (startescape_seen == 0)
-        {
-          startescape_seen=1;
-          continue;
-        }
-      } else {
-        if (startescape_seen)
-        {
-          index=0;
-        }
-      }
-      startescape_seen=0;
-      buffer[index++] = (char) ReceivedByte;
+      pst->escape_seen=1;
+      return false;
     }
-  } while (index < buflen-1);
-  buffer[index] = 0;
+  } else {
+    if (pst->escape_seen)
+    {
+      pst->bufindex=0;
+      pst->start_seen=1;
+    }
+  }
+  pst->escape_seen=0;
+  buffer[pst->bufindex] = (char) ReceivedByte;
+  pst->bufindex++;
+  pst->bufindex %= buflen;
+  if (pst->start_seen && pst->bufindex == 0) {
+    pst->start_seen = 0;
+    return true;
+  } else {
+    return false;
+  }
+  //return (*bufindex == 0)
 }
 
 int main(void)
 {
+  uint8_t btns_on_pins[6] = {BTN_L1_ON_PIN,BTN_L2_ON_PIN,BTN_L3_ON_PIN,BTN_L4_ON_PIN,BTN_L5_ON_PIN,BTN_L6_ON_PIN};
+  btns_on_pins_ = btns_on_pins;
+  uint16_t btns_on_pinreg[6] = {BTN_L1_ON_PORT,BTN_L2_ON_PORT,BTN_L3_ON_PORT,BTN_L4_ON_PORT,BTN_L5_ON_PORT,BTN_L6_ON_PORT};
+  btns_on_pinreg_ = btns_on_pinreg;
+  uint8_t btns_off_pins[6] = {BTN_L1_OFF_PIN,BTN_L2_OFF_PIN,BTN_L3_OFF_PIN,BTN_L4_OFF_PIN,BTN_L5_OFF_PIN,BTN_L6_OFF_PIN};
+  btns_off_pins_ = btns_off_pins;
+  uint16_t btns_off_pinreg[6] = {BTN_L1_OFF_PORT,BTN_L2_OFF_PORT,BTN_L3_OFF_PORT,BTN_L4_OFF_PORT,BTN_L5_OFF_PORT,BTN_L6_OFF_PORT};
+  btns_off_pinreg_ = btns_off_pinreg;
+  uint8_t btns_sig_pins[3] = {BTN_C1_PIN,BTN_C2_PIN,BTN_C3_PIN};
+  btns_sig_pins_ = btns_sig_pins;
+  uint16_t btns_sig_pinreg[3] = {BTN_C1_PORT,BTN_C2_PORT,BTN_C3_PORT};
+  btns_sig_pinreg_ = btns_sig_pinreg;
+
+
   /* Disable watchdog if enabled by bootloader/fuses */
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
 
   cpu_init();
   led_init();
-  anyio_init(115200, 0);
+  USB_Init();
+  stdio_init();
+  usbserial_init();
   sei();
 
   led_off();
@@ -198,9 +232,15 @@ int main(void)
 
   applyRelaisState(0);
 
+  startescapereader rf433_parseinfo;
+  uint8_t rf433_send_buffer[4];
+  bzero((uint8_t*) rf433_send_buffer,4);
+  bzero((uint8_t*) &rf433_parseinfo,sizeof(rf433_parseinfo));
+
   for(;;)
   {
-    int16_t BytesReceived = anyio_bytes_received();
+    //read|send on ser2 for ceiling lights and relais state
+    int16_t BytesReceived = CDC_Device_BytesReceived(&VirtualSerial2_CDC_Interface);
     while(BytesReceived > 0)
     {
       int ReceivedByte = fgetc(stdin);
@@ -212,8 +252,6 @@ int main(void)
       BytesReceived--;
     }
 
-    //if got rf sequence
-    //rf433_start_timer();
 
     readButtons(&buttons_pressed_);
 
@@ -224,6 +262,20 @@ int main(void)
     } else {
     }
 
-    anyio_task();
+
+    //Read rf433 poweroutlet sequence to send
+    BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
+    while(BytesReceived > 0)
+    {
+      BytesReceived--;
+      if (readFixedLenSeqIntoBufferWStartEscapeSymbol(rf433_send_buffer,&rf433_parseinfo,3,(uint8_t)'>'))
+        rf433_send_rf_cmd(rf433_send_buffer);
+    }
+
+    usbserial_task();
+    CDC_Device_USBTask(&VirtualSerial1_CDC_Interface);
+    CDC_Device_USBTask(&VirtualSerial2_CDC_Interface);
+    USB_USBTask();
   }
+  led_toggle();
 }

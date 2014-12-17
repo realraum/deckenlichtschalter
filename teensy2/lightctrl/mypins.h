@@ -1,3 +1,5 @@
+#ifndef PINS_H
+#define PINS_H
 #include <avr/io.h>
 
 
@@ -77,3 +79,26 @@
 #define BTN_C3_PIN PINB5
 #define BTN_C3_PORT PORTB
 #define BTN_C3_DDR DDRB
+
+#define RELAIS_PORT PORTF
+#define RELAIS_MASK 0x3F
+#define RELAIS_DDR DDRF
+#define RELAIS_INVERT_MASK 0x03
+
+uint8_t *btns_on_pins_;
+uint16_t *btns_on_pinreg_;
+uint8_t *btns_off_pins_;
+uint16_t *btns_off_pinreg_;
+uint8_t *btns_sig_pins_;
+uint16_t *btns_sig_pinreg_;
+
+#define TEST_BTN_ON(x) ((*((uint16_t *)btns_on_pinreg_[x]) & (1<<btns_on_pins_[x])) == 0)
+#define TEST_BTN_OFF(x) ((*((uint16_t *)btns_off_pinreg_[x]) & (1<<btns_off_pins_[x])) == 0)
+#define TEST_BTN_SIG(x) ((*((uint16_t *)btns_sig_pinreg_[x]) & (1<<btns_sig_pins_[x])) == 0)
+
+#define PULLUP_DDRB ((1<<PINB7) | (1<<PINB2) | (1<<PINB3) | (1<<PINB0) | (1<<PINB1) | (1<<PINB4) | (1<<PINB5))
+#define PULLUP_DDRC ((1<<PINC7) | (1<<PINC6))
+#define PULLUP_DDRD ((1<<PIND0) | (1<<PIND6) | (1<<PIND3) | (1<<PIND1) | (1<<PIND2) | (1<<PIND7))
+#define PULLUP_DDRF 0
+
+#endif

@@ -1,8 +1,31 @@
+/*
+ *  rf433 power outlet control Teensy Controller Code
+ *
+ *
+ *  Copyright (C) 2013 Bernhard Tittelbach <xro@realraum.at>
+*   uses avr-utils, anyio & co by Christian Pointner <equinox@spreadspace.org>
+ *
+ *  This file is part of spreadspace avr utils.
+ *
+ *  spreadspace avr utils is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  spreadspace avr utils is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with spreadspace avr utils. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "mypins.h"
 
 #define TIMER_RUNNING (TIMSK1 & (1<<OCIE1A))
 
-void rf433_start_timer()
+void rf433_start_timer(void)
 {
   // timer 1: 2 ms
   TCCR1A = 0;                    // prescaler 1:8, WGM = 4 (CTC)
@@ -16,7 +39,7 @@ void rf433_start_timer()
   TIMSK1 = 1<<OCIE1A; // enable Interrupt
 }
 
-void rf433_stop_timer() // stop the timer
+void rf433_stop_timer(void) // stop the timer
 {
   // timer1
   TCCR1B = 0; // no clock source
@@ -28,21 +51,21 @@ void rf433_stop_timer() // stop the timer
 #define RF_SIGNAL_BITS RF_SIGNAL_BYTES * 8
 
 typedef struct {
-  byte duration_short_pulse;  //mulitple of 0.08ms, should be === 0 (mod 4)
-  byte short_mult;
-  byte long_mult;
-  byte sync_mult;
-  byte signal[RF_SIGNAL_BYTES];  //24bit signal info, excluding sync signal (short 1 followed by long pause (~128*0.08ms))
+  uint8_t duration_short_pulse;  //mulitple of 0.08ms, should be === 0 (mod 4)
+  uint8_t short_mult;
+  uint8_t long_mult;
+  uint8_t sync_mult;
+  uint8_t signal[RF_SIGNAL_BYTES];  //24bit signal info, excluding sync signal (short 1 followed by long pause (~128*0.08ms))
                             //for each bit: 0 means 1/4 Tau high followed by 3/4 Tau low;    1 means 3/4 Tau high followed by 1/4 Tau low
 } rf_signal;
 
 rf_signal current_signal = {6, 1, 3, 31, {0,0,0}};
 
 typedef struct {
-  byte atime; // time counter
-  byte bit;  //index for current bit
-  byte repeatc; //downward couner of repetition
-  byte state; // current output to RF Pin (position within the bit)
+  uint8_t atime; // time counter
+  uint8_t bit;  //index for current bit
+  uint8_t repeatc; //downward couner of repetition
+  uint8_t state; // current output to RF Pin (position within the bit)
 } rf_state;
 
 rf_state current_state = { 0, 0, 0, 0};
@@ -104,11 +127,11 @@ ISR(TIMER1_COMPA_vect)
 }
 //********************************************************************//
 
-void rf433_send_rf_cmd(const char sr[])
+void rf433_send_rf_cmd(uint8_t sr[])
 {
   while (TIMER_RUNNING)
   {}
-  for (byte chr=0; chr < 3; chr++)
+  for (uint8_t chr=0; chr < 3; chr++)
   {
     current_signal.signal[chr]=sr[chr];
   }
@@ -116,7 +139,7 @@ void rf433_send_rf_cmd(const char sr[])
   rf433_start_timer();
 }
 
-void rf433_check_frame_done()
+void rf433_check_frame_done(void)
 {
   while (rf_num_transmissions_to_acknowledge > 0)
   {
@@ -124,7 +147,7 @@ void rf433_check_frame_done()
   }
 }
 
-void rf433_init()
+void rf433_init(void)
 {
 //  pinMode(RF_DATA_OUT_PIN, OUTPUT);
 //  digitalWrite(RF_DATA_OUT_PIN, HIGH);
