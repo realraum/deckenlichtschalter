@@ -86,15 +86,15 @@
 #define RELAIS_INVERT_MASK 0x03
 
 uint8_t *btns_on_pins_;
-uint16_t *btns_on_pinreg_;
+volatile uint8_t **btns_on_pinreg_;
 uint8_t *btns_off_pins_;
-uint16_t *btns_off_pinreg_;
+volatile uint8_t **btns_off_pinreg_;
 uint8_t *btns_sig_pins_;
-uint16_t *btns_sig_pinreg_;
+volatile uint8_t **btns_sig_pinreg_;
 
-#define TEST_BTN_ON(x) ((*((uint16_t *)btns_on_pinreg_[x]) & (1<<btns_on_pins_[x])) == 0)
-#define TEST_BTN_OFF(x) ((*((uint16_t *)btns_off_pinreg_[x]) & (1<<btns_off_pins_[x])) == 0)
-#define TEST_BTN_SIG(x) ((*((uint16_t *)btns_sig_pinreg_[x]) & (1<<btns_sig_pins_[x])) == 0)
+#define TEST_BTN_ON(x) ((*(btns_on_pinreg_[x]) & (1<<btns_on_pins_[x])) == 0)
+#define TEST_BTN_OFF(x) ((*(btns_off_pinreg_[x]) & (1<<btns_off_pins_[x])) == 0)
+#define TEST_BTN_SIG(x) ((*(btns_sig_pinreg_[x]) & (1<<btns_sig_pins_[x])) == 0)
 
 #define PULLUP_DDRB ((1<<PINB7) | (1<<PINB2) | (1<<PINB3) | (1<<PINB0) | (1<<PINB1) | (1<<PINB4) | (1<<PINB5))
 #define PULLUP_DDRC ((1<<PINC7) | (1<<PINC6))

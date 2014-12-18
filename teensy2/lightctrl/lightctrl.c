@@ -35,6 +35,8 @@
 #include "rf433.c"
 
 uint8_t relais_state_ = 0;
+uint16_t last_buttons_pressed_ = 0;
+uint16_t new_buttons_pressed_ = 0;
 uint16_t buttons_pressed_ = 0;
 // at f_system_clk = 10Hz, system_clk_ will not overrun for at least 13 years. PCR won't run that long
 volatile uint32_t system_clk_ = 0;
@@ -179,15 +181,15 @@ int main(void)
 {
   uint8_t btns_on_pins[6] = {BTN_L1_ON_PIN,BTN_L2_ON_PIN,BTN_L3_ON_PIN,BTN_L4_ON_PIN,BTN_L5_ON_PIN,BTN_L6_ON_PIN};
   btns_on_pins_ = btns_on_pins;
-  uint16_t btns_on_pinreg[6] = {BTN_L1_ON_PORT,BTN_L2_ON_PORT,BTN_L3_ON_PORT,BTN_L4_ON_PORT,BTN_L5_ON_PORT,BTN_L6_ON_PORT};
+  volatile uint8_t *btns_on_pinreg[6] = {&BTN_L1_ON_PORT-2,&BTN_L2_ON_PORT-2,&BTN_L3_ON_PORT-2,&BTN_L4_ON_PORT-2,&BTN_L5_ON_PORT-2,&BTN_L6_ON_PORT-2};
   btns_on_pinreg_ = btns_on_pinreg;
   uint8_t btns_off_pins[6] = {BTN_L1_OFF_PIN,BTN_L2_OFF_PIN,BTN_L3_OFF_PIN,BTN_L4_OFF_PIN,BTN_L5_OFF_PIN,BTN_L6_OFF_PIN};
   btns_off_pins_ = btns_off_pins;
-  uint16_t btns_off_pinreg[6] = {BTN_L1_OFF_PORT,BTN_L2_OFF_PORT,BTN_L3_OFF_PORT,BTN_L4_OFF_PORT,BTN_L5_OFF_PORT,BTN_L6_OFF_PORT};
+  volatile uint8_t *btns_off_pinreg[6] = {&BTN_L1_OFF_PORT-2,&BTN_L2_OFF_PORT-2,&BTN_L3_OFF_PORT-2,&BTN_L4_OFF_PORT-2,&BTN_L5_OFF_PORT-2,&BTN_L6_OFF_PORT-2};
   btns_off_pinreg_ = btns_off_pinreg;
   uint8_t btns_sig_pins[3] = {BTN_C1_PIN,BTN_C2_PIN,BTN_C3_PIN};
   btns_sig_pins_ = btns_sig_pins;
-  uint16_t btns_sig_pinreg[3] = {BTN_C1_PORT,BTN_C2_PORT,BTN_C3_PORT};
+  volatile uint8_t *btns_sig_pinreg[3] = {&BTN_C1_PORT-2,&BTN_C2_PORT-2,&BTN_C3_PORT-2};
   btns_sig_pinreg_ = btns_sig_pinreg;
 
 
@@ -253,24 +255,28 @@ int main(void)
     }
 
 
-    readButtons(&buttons_pressed_);
-
-    if (buttons_pressed_) {
+    readButtons(&new_buttons_pressed_);
+    buttons_pressed_ = new_buttons_pressed_ & (new_buttons_pressed_ ^ last_buttons_pressed_);
+    if (buttons_pressed_ != 0)
+    {
       buttonsToNewState();
       printStatus();
-      buttons_pressed_ = 0;
+      last_buttons_pressed_ = new_buttons_pressed_;
     } else {
     }
 
 
-    //Read rf433 poweroutlet sequence to send
-    BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
-    while(BytesReceived > 0)
-    {
-      BytesReceived--;
-      if (readFixedLenSeqIntoBufferWStartEscapeSymbol(rf433_send_buffer,&rf433_parseinfo,3,(uint8_t)'>'))
-        rf433_send_rf_cmd(rf433_send_buffer);
-    }
+    // Read rf433 poweroutlet sequence to send
+    // BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
+    // while(BytesReceived > 0)
+    // {
+    //   BytesReceived--;
+    //   if (readFixedLenSeqIntoBufferWStartEscapeSymbol(rf433_send_buffer,&rf433_parseinfo,3,(uint8_t)'>'))
+    //   {
+    //     printf("rf: %x%x%x\n",rf433_send_buffer[0],rf433_send_buffer[1],rf433_send_buffer[2]);
+    //     rf433_send_rf_cmd(rf433_send_buffer);
+    //   }
+    // }
 
     usbserial_task();
     CDC_Device_USBTask(&VirtualSerial1_CDC_Interface);

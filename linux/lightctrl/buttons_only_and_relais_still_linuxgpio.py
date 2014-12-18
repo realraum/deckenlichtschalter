@@ -4,6 +4,7 @@
 import os
 import sys
 import urllib
+import serial
 
 mswitchuri = "http://licht.realraum.at/cgi-bin/mswitch.cgi?"
 bit_to_query = ["ceiling1=0","ceiling1=1",
@@ -21,7 +22,7 @@ def touchURL(url):
   try:
     f = urllib.urlopen(url)
     rq_response = f.read()
-    logging.debug("touchURL: url: "+url)
+    #logging.debug("touchURL: url: "+url)
     #logging.debug("touchURL: Response "+rq_response)
     f.close()
     return rq_response
@@ -38,11 +39,9 @@ def buttonsToUris(btns):
 if len(sys.argv) < 2:
 	os.exit(0)
 
-with open(sys.argv[1],"r") as ttydev:
-	for line in ttydev:
-		if len(line) < 3:
-			continue
-		buttons_pressed = (ord(line[1]) << 8) | ord(line[2])
-
-		buttonsToUris(buttons_pressed)
+ttydev = serial.Serial(sys.argv[1], baudrate=115200)
+while True:
+	line = ttydev.read(4)
+	buttons_pressed = (ord(line[1]) << 8) | ord(line[2])
+	buttonsToUris(buttons_pressed)
 
