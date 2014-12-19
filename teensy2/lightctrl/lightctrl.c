@@ -215,6 +215,7 @@ int main(void)
   RELAIS_DDR |= RELAIS_MASK;
   //set pin for RF to OUTPUT
   PINMODE_OUTPUT(RF_DATA_OUT_DDR, RF_DATA_OUT_PIN);
+  PIN_LOW(RF_DATA_OUT_PORT,RF_DATA_OUT_PIN);
 
   //set PULL-UP on button pins
   //PORTB = ~DDRB & PULLUP_DDRB;
@@ -267,16 +268,16 @@ int main(void)
 
 
     // Read rf433 poweroutlet sequence to send
-    // BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
-    // while(BytesReceived > 0)
-    // {
-    //   BytesReceived--;
-    //   if (readFixedLenSeqIntoBufferWStartEscapeSymbol(rf433_send_buffer,&rf433_parseinfo,3,(uint8_t)'>'))
-    //   {
-    //     printf("rf: %x%x%x\n",rf433_send_buffer[0],rf433_send_buffer[1],rf433_send_buffer[2]);
-    //     rf433_send_rf_cmd(rf433_send_buffer);
-    //   }
-    // }
+    BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
+    while(BytesReceived > 0)
+    {
+      BytesReceived--;
+      if (readFixedLenSeqIntoBufferWStartEscapeSymbol(rf433_send_buffer,&rf433_parseinfo,3,(uint8_t)'>'))
+      {
+        // printf("rf: %x%x%x\n",rf433_send_buffer[0],rf433_send_buffer[1],rf433_send_buffer[2]);
+        rf433_send_rf_cmd(rf433_send_buffer);
+      }
+    }
 
     usbserial_task();
     CDC_Device_USBTask(&VirtualSerial1_CDC_Interface);

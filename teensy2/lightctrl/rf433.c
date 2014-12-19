@@ -76,8 +76,8 @@ int rf_num_transmissions_to_acknowledge = 0;
 #define RF_TIME_SHORT (current_signal.short_mult * current_signal.duration_short_pulse)
 #define RF_TIME_LONG (current_signal.long_mult * current_signal.duration_short_pulse)
 #define RF_TIME_SNYC (current_signal.sync_mult * current_signal.duration_short_pulse)
-#define RF_OFF PIN_HIGH(RF_DATA_OUT_PORT, RF_DATA_OUT_PIN)
-#define RF_ON PIN_LOW(RF_DATA_OUT_PORT, RF_DATA_OUT_PIN)
+#define RF_OFF PIN_LOW(RF_DATA_OUT_PORT, RF_DATA_OUT_PIN)
+#define RF_ON PIN_HIGH(RF_DATA_OUT_PORT, RF_DATA_OUT_PIN)
 
 ISR(TIMER1_COMPA_vect)
 {
@@ -145,10 +145,4 @@ void rf433_check_frame_done(void)
   {
     rf_num_transmissions_to_acknowledge--;
   }
-}
-
-void rf433_init(void)
-{
-//  pinMode(RF_DATA_OUT_PIN, OUTPUT);
-//  digitalWrite(RF_DATA_OUT_PIN, HIGH);
 }
