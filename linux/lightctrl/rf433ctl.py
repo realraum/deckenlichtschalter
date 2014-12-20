@@ -25,6 +25,10 @@ multinames = {
 namestoswitch=[]
 
 if len(sys.argv) > 2:
+  if sys.argv[1] == "1":
+    sys.argv[1] = "on"
+  elif sys.argv[1] == "0":
+    sys.argv[1] = "off"
   if sys.argv[2] in multinames:
     namestoswitch = multinames[sys.argv[2]]
   elif sys.argv[2] in rfcodes:

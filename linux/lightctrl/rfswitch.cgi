@@ -21,14 +21,12 @@ for QUERY in `echo $QUERY_STRING | tr '&' ' '`; do
 done
 
 
-VALID_ONOFF_IDS="regalleinwand labortisch bluebar couchred couchwhite all lichter ambientlights cxleds mashadecke boiler"
+VALID_RFONOFF_IDS="regalleinwand labortisch bluebar couchred couchwhite all lichter ambientlights cxleds mashadecke boiler"
 VALID_SEND_IDS=""
-#VALID_BANSHEE_IDS="playPause next prev"
-#VALID_CAM_MOTOR_IDS="c C w W"
 
 [ "$POWER" = "send" ] && POWER=on
 if [ "$POWER" = "on" -o "$POWER" = "off" ]; then
-  for CHECKID in $VALID_ONOFF_IDS $VALID_SEND_IDS; do
+  for CHECKID in $VALID_RFONOFF_IDS $VALID_SEND_IDS; do
     if [ "$CHECKID" = "$ID" ]; then
       /home/realraum/rf433ctl.py $POWER $ID &
       
@@ -157,11 +155,11 @@ echo "<body>"
 #echo "<div style=\"float:left; border:1px solid black;\">"
 echo "<div style=\"float:left;\">"
 echo "<div style=\"float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;\">"
-for DISPID in $VALID_ONOFF_IDS; do
+for DISPID in $VALID_RFONOFF_IDS; do
   NAME="$(eval echo \$DESC_$DISPID)"
   [ -z "$NAME" ] && NAME=$DISPID
 
-echo "<div class=\"switchbox\">"
+  echo "<div class=\"switchbox\">"
   echo "<span class=\"alignbuttonsleft\">"
   echo " <button class=\"onbutton\" onClick='sendButton(\"on\",\"$DISPID\");'>On</button>"
   echo " <button class=\"offbutton\" onClick='sendButton(\"off\",\"$DISPID\");'>Off</button>"
@@ -171,7 +169,7 @@ echo "<div class=\"switchbox\">"
   
   if [ "$NOFLOAT" = "1" ]; then
     echo "<br/>"
-  fi 
+  fi
 done
 
 echo "</div>"
