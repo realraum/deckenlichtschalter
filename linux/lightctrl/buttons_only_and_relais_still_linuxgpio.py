@@ -9,13 +9,13 @@ import serial
 mswitchuri = "http://licht.realraum.at/cgi-bin/mswitch.cgi?"
 bit_to_query = ["ceiling6=1","ceiling6=0",
 				"ceiling4=1","ceiling4=0",
-				"ceiling2=1","ceiling2=0",
+				"ceiling2=1&regalleinwand=1","ceiling2=0&regalleinwand=0",
 				"ceiling5=1","ceiling5=0",
 				"ceiling3=1","ceiling3=0",
 				"ceiling1=1","ceiling1=0",
-				"ceiling1=0&ceiling2=0&ceiling3=0&ceiling4=0&ceiling5=0&ceiling6=0",
-				"ceiling1=0&ceiling2=0&ceiling3=1&ceiling4=1&ceiling5=0&ceiling6=0",
-				"ceiling1=1&ceiling2=1&ceiling3=1&ceiling4=1&ceiling5=1&ceiling6=1"
+				"ceiling1=0&ceiling2=0&regalleinwand=0&ceiling3=0&ceiling4=0&ceiling5=0&ceiling6=0&cxleds=0",
+				"ceiling1=0&ceiling2=0&regalleinwand=0&ceiling3=1&ceiling4=1&ceiling5=0&ceiling6=0&cxleds=1",
+				"ceiling1=1&ceiling2=1&regalleinwand=1&ceiling3=1&ceiling4=1&ceiling5=1&ceiling6=1&cxleds=1"
 				]
 
 def touchURL(url):
