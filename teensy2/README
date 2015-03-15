@@ -1,1 +1,11 @@
-/home/bernhard/realraum/avr-quickstart-equinox/README
+Dependencies
+============
+
+spreadspace avr utils (and everything these depend on)
+
+
+Build
+=====
+
+make -C contrib/
+make -C lightctrl/
