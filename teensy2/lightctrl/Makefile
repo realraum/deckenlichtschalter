@@ -1,10 +1,10 @@
 ##
-##  spreadspace avr utils
+##  Deckenlichtschalter
 ##
 ##
-##  Copyright (C) 2013 Christian Pointner <equinox@spreadspace.org>
+##  Copyright (C) 2013 Christian Pointner <equinox@spreadspace.org> for avr-utils
+##  Copyright (C) 2014,2015 Bernhard Tittelbach <xro@realraum.at>
 ##
-##  This file is part of spreadspace avr utils.
 ##
 ##  spreadspace avr utils is free software: you can redistribute it and/or modify
 ##  it under the terms of the GNU General Public License as published by
@@ -25,10 +25,11 @@ BOARD_TYPE := teensy2
 OBJ := $(NAME).o
 LIBS := util led lufa-descriptor-usbdualserial
 EXTERNAL_LIBS := lufa
-RESET_FUNC := ../tools/reset_lufa_cdc
+SPREADAVR_PATH := ../contrib/avr-utils
+RESET_FUNC := ../contrib/avr-utils/tools/reset_lufa_cdc
 RESET_PARAM := 'R'
 
-LUFA_PATH := ../contrib/LUFA-120219
+LUFA_PATH := $(SPREADAVR_PATH)/contrib/LUFA-120219
 LUFA_OPTS  = -D USB_DEVICE_ONLY
 LUFA_OPTS += -D DEVICE_STATE_AS_GPIOR=0
 LUFA_OPTS += -D ORDERED_EP_CONFIG
@@ -43,4 +44,4 @@ LUFA_OPTS += -D USB_PRODUCT="L\"lightctrl\"" -D USB_PRODUCT_LEN=9
 
 LUFA_COMPONENTS := USB USBCLASS SERIAL
 
-include ../include.mk
+include $(SPREADAVR_PATH)/include.mk

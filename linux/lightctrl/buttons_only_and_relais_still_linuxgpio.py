@@ -37,9 +37,10 @@ def buttonsToUris(btns):
 			#print(mswitchuri + bit_to_query[i])
 
 if len(sys.argv) < 2:
-	os.exit(0)
+	sys.exit(0)
 
 ttydev = serial.Serial(sys.argv[1], baudrate=115200)
+ttydev.write("0");
 while True:
 	line = ttydev.read(4)
 	buttons_pressed = (ord(line[1]) << 8) | ord(line[2])

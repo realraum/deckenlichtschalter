@@ -80,7 +80,7 @@ void bzero (uint8_t *to, int count)
 
 void printStatus(void)
 {
-  printf("%c%c%c\n",relais_state_, buttons_pressed_>>8, buttons_pressed_&0xff);
+  printf("%c%c%c\n",relais_state_, (buttons_pressed_>>8) & 0xff, buttons_pressed_ & 0xff);
 }
 
 void readButtons(uint16_t *buttons)
@@ -257,7 +257,7 @@ int main(void)
 
 
     readButtons(&new_buttons_pressed_);
-    buttons_pressed_ = new_buttons_pressed_ & (new_buttons_pressed_ ^ last_buttons_pressed_);
+    buttons_pressed_ = 0xffff & (new_buttons_pressed_ & (new_buttons_pressed_ ^ last_buttons_pressed_));
     if (buttons_pressed_ != 0)
     {
       buttonsToNewState();
@@ -265,7 +265,6 @@ int main(void)
       last_buttons_pressed_ = new_buttons_pressed_;
     } else {
     }
-
 
     // Read rf433 poweroutlet sequence to send
     BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
