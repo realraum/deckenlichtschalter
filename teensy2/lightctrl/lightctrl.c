@@ -35,9 +35,12 @@
 #include "rf433.c"
 
 uint8_t relais_state_ = 0;
-uint16_t last_buttons_pressed_ = 0;
-uint16_t new_buttons_pressed_ = 0;
+uint8_t buttons_pressed_history_index_ = 0;
+#define HISTORY_ARRAY_LEN 3
+#define ENTPRELL_COUNT 100
+uint16_t buttons_pressed_history_[HISTORY_ARRAY_LEN];
 uint16_t buttons_pressed_ = 0;
+uint16_t last_buttons_pressed_ = 0;
 // at f_system_clk = 10Hz, system_clk_ will not overrun for at least 13 years. PCR won't run that long
 volatile uint32_t system_clk_ = 0;
 
@@ -196,6 +199,7 @@ int main(void)
   /* Disable watchdog if enabled by bootloader/fuses */
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
+  jtag_disable();
 
   cpu_init();
   led_init();
@@ -239,6 +243,7 @@ int main(void)
   uint8_t rf433_send_buffer[4];
   bzero((uint8_t*) rf433_send_buffer,4);
   bzero((uint8_t*) &rf433_parseinfo,sizeof(rf433_parseinfo));
+  bzero((uint8_t*) buttons_pressed_history_,sizeof(uint16_t)*HISTORY_ARRAY_LEN);
 
   for(;;)
   {
@@ -256,15 +261,19 @@ int main(void)
     }
 
 
-    readButtons(&new_buttons_pressed_);
-    buttons_pressed_ = 0xffff & (new_buttons_pressed_ & (new_buttons_pressed_ ^ last_buttons_pressed_));
-    if (buttons_pressed_ != 0)
+    readButtons(&buttons_pressed_history_[buttons_pressed_history_index_++]);
+    buttons_pressed_history_index_ %= HISTORY_ARRAY_LEN;
+
+    buttons_pressed_ = 0xffff;
+    for (uint8_t c=0; c<HISTORY_ARRAY_LEN; c++)
+      buttons_pressed_ &= buttons_pressed_history_[c];
+
+    if (last_buttons_pressed_ != buttons_pressed_ && buttons_pressed_ != 0)
     {
       buttonsToNewState();
       printStatus();
-      last_buttons_pressed_ = new_buttons_pressed_;
-    } else {
     }
+    last_buttons_pressed_ = buttons_pressed_;
 
     // Read rf433 poweroutlet sequence to send
     BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);

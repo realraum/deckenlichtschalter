@@ -16,9 +16,9 @@
 #define HIGHv OP_SETBIT
 #define LOWv OP_CLEARBIT
 
-#define RF_DATA_OUT_PIN   PINB6
-#define RF_DATA_OUT_PORT  PORTB
-#define RF_DATA_OUT_DDR   DDRB
+#define RF_DATA_OUT_PIN   PINF6
+#define RF_DATA_OUT_PORT  PORTF
+#define RF_DATA_OUT_DDR   DDRF
 
 #define BTN_L1_ON_PIN PINB7
 #define BTN_L1_ON_PORT PORTB
