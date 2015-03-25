@@ -20,6 +20,8 @@
 #define RF_DATA_OUT_PORT  PORTF
 #define RF_DATA_OUT_DDR   DDRF
 
+#define NUM_BUTTONS 15
+
 #define BTN_L1_ON_PIN PINB7
 #define BTN_L1_ON_PORT PORTB
 #define BTN_L1_ON_DDR DDRB

@@ -35,12 +35,11 @@
 #include "rf433.c"
 
 uint8_t relais_state_ = 0;
-uint8_t buttons_pressed_history_index_ = 0;
-#define HISTORY_ARRAY_LEN 3
-#define ENTPRELL_COUNT 100
-uint16_t buttons_pressed_history_[HISTORY_ARRAY_LEN];
+///ENTPRELL_COUNT max is 2^8-1
+#define ENTPRELL_COUNT 250
 uint16_t buttons_pressed_ = 0;
 uint16_t last_buttons_pressed_ = 0;
+uint8_t button_entprell_counts_[NUM_BUTTONS];
 // at f_system_clk = 10Hz, system_clk_ will not overrun for at least 13 years. PCR won't run that long
 volatile uint32_t system_clk_ = 0;
 
@@ -86,6 +85,24 @@ void printStatus(void)
   printf("%c%c%c\n",relais_state_, (buttons_pressed_>>8) & 0xff, buttons_pressed_ & 0xff);
 }
 
+uint16_t entprellButton(uint8_t button_id, bool buttonstate)
+{
+  if (buttonstate)
+  {
+    if (button_entprell_counts_[button_id] < ENTPRELL_COUNT)
+      button_entprell_counts_[button_id]++;
+  } else {
+    button_entprell_counts_[button_id]=0;
+  }
+
+  if (button_entprell_counts_[button_id] >= ENTPRELL_COUNT)
+  {
+    return 1<<button_id;
+  } else {
+    return 0;
+  }
+}
+
 void readButtons(uint16_t *buttons)
 {
   *buttons = 0;
@@ -93,18 +110,18 @@ void readButtons(uint16_t *buttons)
   {
     if (TEST_BTN_ON(c))
     {
-      *buttons |= (1<<(c*2));
-    } else if (TEST_BTN_OFF(c))
-    {
-      *buttons |= (1<<(c*2+1));
+      *buttons |= entprellButton(c*2, true);
+      //if on button is pressed, off button can't be pressed
+      *buttons |= entprellButton(c*2+1, false);
+    } else {
+      *buttons |= entprellButton(c*2, false);
+      //if on button is pressed, off button can't be pressed
+      *buttons |= entprellButton(c*2+1, TEST_BTN_OFF(c));
     }
   }
   for (uint8_t c=0; c<3; c++)
   {
-    if (TEST_BTN_SIG(c))
-    {
-      *buttons |= (1<<(c+12));
-    }
+    *buttons |= entprellButton(c+12, TEST_BTN_SIG(c));
   }
 }
 
@@ -243,7 +260,7 @@ int main(void)
   uint8_t rf433_send_buffer[4];
   bzero((uint8_t*) rf433_send_buffer,4);
   bzero((uint8_t*) &rf433_parseinfo,sizeof(rf433_parseinfo));
-  bzero((uint8_t*) buttons_pressed_history_,sizeof(uint16_t)*HISTORY_ARRAY_LEN);
+  bzero((uint8_t*) button_entprell_counts_,sizeof(uint8_t)*NUM_BUTTONS);
 
   for(;;)
   {
@@ -261,12 +278,7 @@ int main(void)
     }
 
 
-    readButtons(&buttons_pressed_history_[buttons_pressed_history_index_++]);
-    buttons_pressed_history_index_ %= HISTORY_ARRAY_LEN;
-
-    buttons_pressed_ = 0xffff;
-    for (uint8_t c=0; c<HISTORY_ARRAY_LEN; c++)
-      buttons_pressed_ &= buttons_pressed_history_[c];
+    readButtons(&buttons_pressed_);
 
     if (last_buttons_pressed_ != buttons_pressed_ && buttons_pressed_ != 0)
     {
