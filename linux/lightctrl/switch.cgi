@@ -21,7 +21,7 @@ for QUERY in `echo $QUERY_STRING | tr '&' ' '`; do
 done
 
 VALID_ONOFF_IDS="ceiling1 ceiling2 ceiling3 ceiling4 ceiling5 ceiling6"
-VALID_RFONOFF_IDS="regalleinwand labortisch bluebar couchred couchwhite all ambientlights cxleds mashadecke boiler"
+VALID_RFONOFF_IDS="regalleinwand labortisch bluebar abwasch couchred couchwhite all ambientlights cxleds mashadecke boiler"
 VALID_SEND_IDS=""
 
 DESC_ceiling1="Decke E-Labor (SSW)"
@@ -40,6 +40,7 @@ DESC_cxleds="CX Leds"
 DESC_mashadecke="MaSha Decke"
 DESC_ambientlights="Ambient Lichter"
 DESC_boiler="Warmwasser K&uuml;che"
+DESC_abwasch="Licht Waschbecken"
 DESC_all="Alle Funksteckdosen"
 DESC_ymhpoweron="Receiver On (off+tgl)"
 DESC_ymhpoweroff="Receiver Off"

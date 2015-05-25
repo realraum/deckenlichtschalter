@@ -14,11 +14,14 @@ rfcodes = {
   "cxleds":{"on":"\x8a\x88\x8a","off":"\x8a\x88\x2a"}, #pollin 00101 b
   "mashadecke":{"on":"\x8a\x28\x8a","off":"\x8a\x28\x2a"}, #pollin 00101 c
   "boiler":{"on":"\xa0\xa2\xa8","off":"\xa0\xa2\x28"}, #white remote A 2
-  "lichtpi":{"on:":"\x00\xa2\x8a","off":"\x00\xa2\x2a"}
+  "spots":{"on:":"\x00\xaa\x88","off":"\x00\xaa\x28"}, #polling 11110 d
+  "lichtpi":{"on:":"\x00\xa2\x8a","off":"\x00\xa2\x2a"},
+  "abwasch":{"on:":"\xaa\xa2\xa8","off":"\xaa\xa2\x28"}  #alte jk16 decke vorne
 }
+#  "jk16decke":{"on:":"\xaa\xa0\xa8","off":"\xaa\xa0\x28"},
 
 multinames = {
-  "ambientlights":["bluebar","couchred","couchwhite","regalleinwand","cxleds"],
+  "ambientlights":["bluebar","couchred","couchwhite","regalleinwand","cxleds","abwasch"],
   "all":list(set(rfcodes.keys()) - set(["lichtpi"]))
 }
 

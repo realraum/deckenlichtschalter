@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 VALID_ONOFF_IDS=(ceiling1 ceiling2 ceiling3 ceiling4 ceiling5 ceiling6)
-VALID_RFONOFF_IDS=(regalleinwand labortisch bluebar couchred couchwhite all lichter ambientlights cxleds mashadecke boiler)
+VALID_RFONOFF_IDS=(regalleinwand labortisch bluebar couchred couchwhite all abwasch lichter ambientlights cxleds mashadecke boiler)
 VALID_GPIO_IDS=(4 23 18 17 22 21)
 local -A IDGPIOMAP
 local -A GPIOIDMAP
@@ -84,7 +84,6 @@ for CHECKID in $VALID_ONOFF_IDS; do
   URISTATES+=("${CHECKID}=$(print_gpio_state_10 $CHECKID)")
 done
 for CHECKID VAL in ${(kv)RFIDS}; do
-  logger $VAL $CHECKID
   if [[ $VAL == 1 || $VAL == 0 ]]; then
     /home/realraum/rf433ctl.py $VAL $CHECKID &
   fi
