@@ -72,14 +72,6 @@ void initSysClkTimer3(void)
 	TIMSK3 = _BV(OCIE3A);
 }
 
-void bzero (uint8_t *to, int count)
-{
-  while (count-- > 0)
-    {
-      *to++ = 0;
-    }
-}
-
 void printStatus(void)
 {
   printf("%c%c%c\n",relais_state_, (buttons_pressed_>>8) & 0xff, buttons_pressed_ & 0xff);
@@ -266,10 +258,13 @@ int main(void)
   {
     //read|send on ser2 for ceiling lights and relais state
     int16_t BytesReceived = CDC_Device_BytesReceived(&VirtualSerial2_CDC_Interface);
+    //if we receive more than 16 states at once, it's propably an error
+    if (BytesReceived > 0xf)
+      BytesReceived = 0xf;
     while(BytesReceived > 0)
     {
       int ReceivedByte = fgetc(stdin);
-      if (ReceivedByte != EOF)
+      if (ReceivedByte != EOF && ReceivedByte <= 0xff)
       {
         applyRelaisState((uint8_t) ReceivedByte);
         printStatus();
@@ -289,6 +284,8 @@ int main(void)
 
     // Read rf433 poweroutlet sequence to send
     BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
+    if (BytesReceived > 0xf)
+      BytesReceived = 0xf;
     while(BytesReceived > 0)
     {
       BytesReceived--;
@@ -303,6 +300,6 @@ int main(void)
     CDC_Device_USBTask(&VirtualSerial1_CDC_Interface);
     CDC_Device_USBTask(&VirtualSerial2_CDC_Interface);
     USB_USBTask();
+    led_toggle();
   }
-  led_toggle();
 }

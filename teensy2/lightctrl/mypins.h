@@ -66,6 +66,8 @@
 #define BTN_L6_ON_PORT PORTD
 #define BTN_L6_ON_DDR DDRD
 
+// NOTE: PIND2 is also RXD1 USART1 Receive Pin
+// SO do NOT enable pin RXEN1 for USART1 (reg: UCSR1B), or it will force run ISR and slow down programm any time pin goes low/high
 #define BTN_L6_OFF_PIN PIND2
 #define BTN_L6_OFF_PORT PORTD
 #define BTN_L6_OFF_DDR DDRD

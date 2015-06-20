@@ -43,6 +43,7 @@ ttydev = serial.Serial(sys.argv[1], baudrate=115200)
 ttydev.write("0");
 while True:
 	line = ttydev.read(4)
+	#print  map(hex,map(ord,line))
 	buttons_pressed = (ord(line[1]) << 8) | ord(line[2])
 	buttonsToUris(buttons_pressed)
 

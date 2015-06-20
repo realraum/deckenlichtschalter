@@ -144,8 +144,11 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
   /* Reconfigure the USART in double speed mode for a wider baud rate range at the expense of accuracy */
   UCSR1C = ConfigMask;
   UCSR1A = (1 << U2X1);
-  UCSR1B = ((1 << RXCIE1) | (1 << TXEN1) | (1 << RXEN1));
+  //UCSR1B = ((1 << RXCIE1) | (1 << TXEN1) | (1 << RXEN1));
+  //do not enable RXEN1 and RXCIE1, to free pin PIND2
+  UCSR1B = ((1 << RXCIE1) | (1 << TXEN1));
 }
+
 
 ISR(USART1_RX_vect, ISR_BLOCK)
 {
@@ -155,8 +158,19 @@ ISR(USART1_RX_vect, ISR_BLOCK)
     RingBuffer_Insert(&USARTtoUSB_Buffer, ReceivedByte);
 }
 
+
+void bzero (uint8_t *to, int count)
+{
+  while (count-- > 0)
+    {
+      *to++ = 0;
+    }
+}
+
 void usbserial_init(void)
 {
+  bzero((uint8_t*)&USBtoUSART_Buffer_Data,sizeof(USBtoUSART_Buffer_Data));
+  bzero((uint8_t*)&USARTtoUSB_Buffer_Data,sizeof(USARTtoUSB_Buffer_Data));
   RingBuffer_InitBuffer(&USBtoUSART_Buffer, USBtoUSART_Buffer_Data, sizeof(USBtoUSART_Buffer_Data));
   RingBuffer_InitBuffer(&USARTtoUSB_Buffer, USARTtoUSB_Buffer_Data, sizeof(USARTtoUSB_Buffer_Data));
   TCCR0B = (1 << CS02);
