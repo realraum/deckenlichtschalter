@@ -1,0 +1,8 @@
+teensy2/contrib/avr-utils
+teensy2/contrib/.spreadavr.prepared
+teensy2/*/*.a
+teensy2/*/*.o
+teensy2/*/*.d
+teensy2/*/*.d.*
+teensy2/*/*.hex
+teensy2/*/*.elf

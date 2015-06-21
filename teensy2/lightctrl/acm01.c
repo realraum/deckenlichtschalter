@@ -81,7 +81,7 @@ USB_ClassInfo_CDC_Device_t VirtualSerial2_CDC_Interface =
         .NotificationEndpointDoubleBank   = false,
       },
   };
-  
+
 static RingBuffer_t USBtoUSART_Buffer;
 static uint8_t      USBtoUSART_Buffer_Data[128];
 static RingBuffer_t USARTtoUSB_Buffer;
@@ -90,14 +90,14 @@ static uint8_t      USARTtoUSB_Buffer_Data[128];
 
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
-	CDC_Device_ConfigureEndpoints(&VirtualSerial1_CDC_Interface);
-	CDC_Device_ConfigureEndpoints(&VirtualSerial2_CDC_Interface);
+  CDC_Device_ConfigureEndpoints(&VirtualSerial1_CDC_Interface);
+  CDC_Device_ConfigureEndpoints(&VirtualSerial2_CDC_Interface);
 }
 
 void EVENT_USB_Device_ControlRequest(void)
 {
-	CDC_Device_ProcessControlRequest(&VirtualSerial1_CDC_Interface);
-	CDC_Device_ProcessControlRequest(&VirtualSerial2_CDC_Interface);
+  CDC_Device_ProcessControlRequest(&VirtualSerial1_CDC_Interface);
+  CDC_Device_ProcessControlRequest(&VirtualSerial2_CDC_Interface);
 }
 
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
