@@ -21,7 +21,7 @@
  *  along with spreadspace avr utils. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIGHTCTRL_rf423_h_INCLUDED
+#ifndef LIGHTCTRL_rf433_h_INCLUDED
 #define LIGHTCTRL_rf433_h_INCLUDED
 
 void rf433_send_rf_cmd(uint8_t sr[]);

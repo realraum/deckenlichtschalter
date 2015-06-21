@@ -3,7 +3,7 @@
  *
  *
  *  Copyright (C) 2013 Bernhard Tittelbach <xro@realraum.at>
-*   uses avr-utils, anyio & co by Christian Pointner <equinox@spreadspace.org>
+ *   uses avr-utils, anyio & co by Christian Pointner <equinox@spreadspace.org>
  *
  *  This file is part of spreadspace avr utils.
  *
