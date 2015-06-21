@@ -22,7 +22,7 @@
 
 NAME := lightctrl
 BOARD_TYPE := teensy2
-OBJ := $(NAME).o
+OBJ := $(NAME).o rf433.o
 LIBS := util led lufa-descriptor-usbdualserial
 EXTERNAL_LIBS := lufa
 SPREADAVR_PATH := ../contrib/avr-utils

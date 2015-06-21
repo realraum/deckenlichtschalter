@@ -32,7 +32,7 @@
 #include "mypins.h"
 
 #include "acm01.c"
-#include "rf433.c"
+#include "rf433.h"
 
 uint8_t relais_state_ = 0;
 ///ENTPRELL_COUNT max is 2^8-1

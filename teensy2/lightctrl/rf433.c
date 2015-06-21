@@ -3,7 +3,7 @@
  *
  *
  *  Copyright (C) 2013 Bernhard Tittelbach <xro@realraum.at>
-*   uses avr-utils, anyio & co by Christian Pointner <equinox@spreadspace.org>
+ *   uses avr-utils, anyio & co by Christian Pointner <equinox@spreadspace.org>
  *
  *  This file is part of spreadspace avr utils.
  *
@@ -22,6 +22,9 @@
  */
 
 #include "mypins.h"
+#include "rf433.h"
+
+#include <avr/interrupt.h>
 
 #define TIMER_RUNNING (TIMSK1 & (1<<OCIE1A))
 
@@ -98,7 +101,7 @@ ISR(TIMER1_COMPA_vect)
            RF_TIME_SHORT
           :RF_TIME_LONG;
       current_state.state=0;
-    } 
+    }
     else if  (current_state.bit)  //still more than 0 bits to do
     {
       current_state.bit--;
@@ -108,7 +111,7 @@ ISR(TIMER1_COMPA_vect)
           :RF_TIME_SHORT;
       RF_ON;  //start sending
     }
-    else if (current_state.repeatc) 
+    else if (current_state.repeatc)
     {
       current_state.bit=RF_SIGNAL_BITS;
       current_state.repeatc--;
