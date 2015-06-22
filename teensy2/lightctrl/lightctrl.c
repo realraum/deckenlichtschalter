@@ -26,12 +26,14 @@
 #include <avr/interrupt.h>
 #include <avr/power.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include "util.h"
 #include "led.h"
 #include "mypins.h"
 
-#include "acm01.c"
+#include "dualusbio.h"
 #include "rf433.h"
 
 uint8_t relais_state_ = 0;
@@ -158,7 +160,7 @@ typedef struct {
 bool readFixedLenSeqIntoBufferWStartEscapeSymbol(uint8_t *buffer, startescapereader *pst, uint8_t buflen, uint8_t start_escape)
 {
   int ReceivedByte=0;
-  ReceivedByte = fgetc(&usb1_stream_);
+  ReceivedByte = fgetc(usbio[0]);
   if (ReceivedByte == EOF)
     return false;
 
@@ -212,9 +214,8 @@ int main(void)
 
   cpu_init();
   led_init();
-  USB_Init();
-  stdio_init();
-  usbserial_init();
+  dualusbio_init();
+  dualusbio_make_stdio(1);
   sei();
 
   led_off();
@@ -250,14 +251,14 @@ int main(void)
 
   startescapereader rf433_parseinfo;
   uint8_t rf433_send_buffer[4];
-  bzero((uint8_t*) rf433_send_buffer,4);
-  bzero((uint8_t*) &rf433_parseinfo,sizeof(rf433_parseinfo));
-  bzero((uint8_t*) button_entprell_counts_,sizeof(uint8_t)*NUM_BUTTONS);
+  memset((uint8_t*)rf433_send_buffer, 0, 4);
+  memset((uint8_t*)&rf433_parseinfo, 0, sizeof(rf433_parseinfo));
+  memset((uint8_t*)button_entprell_counts_, 0, sizeof(uint8_t)*NUM_BUTTONS);
 
   for(;;)
   {
     //read|send on ser2 for ceiling lights and relais state
-    int16_t BytesReceived = CDC_Device_BytesReceived(&VirtualSerial2_CDC_Interface);
+    int16_t BytesReceived = dualusbio_bytes_received_std();
     //if we receive more than 16 states at once, it's propably an error
     if (BytesReceived > 0xf)
       BytesReceived = 0xf;
@@ -283,7 +284,7 @@ int main(void)
     last_buttons_pressed_ = buttons_pressed_;
 
     // Read rf433 poweroutlet sequence to send
-    BytesReceived = CDC_Device_BytesReceived(&VirtualSerial1_CDC_Interface);
+    BytesReceived = dualusbio_bytes_received(0);
     if (BytesReceived > 0xf)
       BytesReceived = 0xf;
     while(BytesReceived > 0)
@@ -296,10 +297,7 @@ int main(void)
       }
     }
 
-    usbserial_task();
-    CDC_Device_USBTask(&VirtualSerial1_CDC_Interface);
-    CDC_Device_USBTask(&VirtualSerial2_CDC_Interface);
-    USB_USBTask();
+    dualusbio_task();
     led_toggle();
   }
 }

@@ -23,7 +23,7 @@
 NAME := lightctrl
 BOARD_TYPE := teensy2
 OBJ := $(NAME).o rf433.o
-LIBS := util led lufa-descriptor-usbdualserial
+LIBS := util led lufa-descriptor-usbdualserial dualusbio
 EXTERNAL_LIBS := lufa
 SPREADAVR_PATH := ../contrib/avr-utils
 RESET_FUNC := ../contrib/avr-utils/tools/reset_lufa_cdc
