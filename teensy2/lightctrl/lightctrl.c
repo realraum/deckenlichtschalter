@@ -41,37 +41,6 @@ uint8_t relais_state_ = 0;
 uint16_t buttons_pressed_ = 0;
 uint16_t last_buttons_pressed_ = 0;
 uint8_t button_entprell_counts_[NUM_BUTTONS];
-// at f_system_clk = 10Hz, system_clk_ will not overrun for at least 13 years. PCR won't run that long
-volatile uint32_t system_clk_ = 0;
-
-//with F_CPU = 16MHz and TIMER3 Prescaler set to /1024, TIMER3 increments with f = 16KHz. Thus if TIMER3 reaches 16, 1ms has passed.
-#define T3_MS     *16
-//set TICK_TIME to 1/10 of a second
-#define SYSCLKTICK_DURATION_IN_MS 100
-#define	TICK_TIME (SYSCLKTICK_DURATION_IN_MS T3_MS)
-
-ISR(TIMER3_COMPA_vect)
-{
-  //increment system_clk every TIME_TICK (aka 100ms)
-	system_clk_++;
-  //set up "clock" comparator for next tick
-  OCR3A = (OCR3A + TICK_TIME) & 0xFFFF;
-}
-
-void initSysClkTimer3(void)
-{
-  system_clk_ = 0;
-  // set counter to 0
-  TCNT3 = 0x0000;
-	// no outputs
-	TCCR3A = 0;
-	// Prescaler for Timer3: F_CPU / 1024 -> counts with f= 16KHz ms
-	TCCR3B = _BV(CS32) | _BV(CS30);
-	// set up "clock" comparator for first tick
-	OCR3A = TICK_TIME & 0xFFFF;
-	// enable interrupt
-	TIMSK3 = _BV(OCIE3A);
-}
 
 void printStatus(void)
 {
@@ -240,11 +209,6 @@ int main(void)
   PORTC = ~DDRC;
   PORTD = ~DDRD;
   PORTF = ~DDRF;
-
-//  pwm_init();
-//  pwm_b5_set(0);
-
-  initSysClkTimer3(); //start system clock
 
   applyRelaisState(0);
 
