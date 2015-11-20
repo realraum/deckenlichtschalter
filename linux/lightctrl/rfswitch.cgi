@@ -20,18 +20,18 @@ for QUERY in `echo $QUERY_STRING | tr '&' ' '`; do
   done
 done
 
-
 VALID_ONOFF_IDS="regalleinwand labortisch bluebar couchred couchwhite all lichter ambientlights cxleds mashadecke boiler abwasch"
-VALID_SEND_IDS=""
+VALID_SEND_IDS_CUSTOM_DISPLAY="ymhpoweroff ymhpower ymhvolup ymhvoldown"
+VALID_SEND_IDS="ymhpoweron ymhcd ymhwdtv ymhtuner ymhaux ymhsattv ymhvolmute ymhmenu ymhplus ymhminus ymhtest ymhtimelevel ymheffect ymhprgup ymhprgdown ymhtunplus ymhtunminus ymhtunabcde ymhtape ymhvcr ymhextdec ymhsleep ymhp5 panicled blueled"
 #VALID_BANSHEE_IDS="playPause next prev"
 #VALID_CAM_MOTOR_IDS="c C w W"
 
 [ "$POWER" = "send" ] && POWER=on
 if [ "$POWER" = "on" -o "$POWER" = "off" ]; then
-  for CHECKID in $VALID_ONOFF_IDS $VALID_SEND_IDS; do
+  for CHECKID in $VALID_ONOFF_IDS $VALID_SEND_IDS $VALID_SEND_IDS_CUSTOM_DISPLAY; do
     if [ "$CHECKID" = "$ID" ]; then
       /home/realraum/rf433ctl.py $POWER $ID &
-      
+
       echo "Content-type: text/html"
       echo ""
       echo "<html>"
@@ -99,7 +99,9 @@ echo ' //google chrome workaround'
 echo ' req.setRequestHeader("googlechromefix","");'
 echo ' req.send(null);'
 echo '}'
+tail -n+6 /var/www/ymhremote.html | head -n 58
 echo '</script>'
+tail -n+67 /var/www/ymhremote.html | head -n 37
 echo '<style>'
 echo 'div.switchbox {'
 echo '    float:left;'
@@ -111,7 +113,7 @@ echo '    border:1px solid black;'
 #echo '    height: 32px;'
 echo '    padding:0;'
 echo '}'
-  
+
 echo 'div.switchnameleft {'
 echo '    width:12em; display:inline-block; vertical-align:middle; margin-left:3px;'
 echo '}'
@@ -169,15 +171,38 @@ echo "<div class=\"switchbox\">"
   echo "</span>"
   echo "<div class=\"switchnameright\">$NAME</div>"
   echo "</div>"
-  
+
   if [ "$NOFLOAT" = "1" ]; then
     echo "<br/>"
-  fi 
+  fi
 done
+
+#Custom Buttons Start
+echo "<div class=\"switchbox\">"
+echo "<span class=\"alignbuttonsleft\">"
+echo " <button class=\"sendbutton\" onClick='sendButton(\"on\",\"ymhpower\");'>Tgl</button>"
+echo " <button class=\"offbutton\" onClick='sendButton(\"on\",\"ymhpoweroff\");'>Off</button>"
+echo "</span>"
+echo "<div class=\"switchnameright\">Receiver Power</div>"
+echo "</div>"
+  if [ "$NOFLOAT" == "1" ]; then
+    echo "<br/>"
+  fi
+echo "<div class=\"switchbox\">"
+echo "<span class=\"alignbuttonsleft\">"
+echo " <button class=\"sendbutton\" onClick='sendButton(\"on\",\"ymhvolup\");'>&uarr;</button>"
+echo " <button class=\"sendbutton\" onClick='sendButton(\"on\",\"ymhvoldown\");'>&darr;</button>"
+echo "</span>"
+echo "<div class=\"switchnameright\">Receiver Volume</div>"
+echo "</div>"
+  if [ "$NOFLOAT" == "1" ]; then
+    echo "<br/>"
+  fi
+#Custom Buttons End
 
 echo "</div>"
 
-if [ "$MOBILE" != "1" ]; then                                                             
+if [ "$MOBILE" != "1" ]; then
 
 echo "<div style=\"float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;\">"
 
@@ -187,7 +212,7 @@ for DISPID in $VALID_SEND_IDS; do
   ITEMCOUNT=$((ITEMCOUNT+1))
   NAME="$(eval echo \$DESC_$DISPID)"
   [ -z "$NAME" ] && NAME=$DISPID
-  
+
   echo "<div class=\"switchbox\">"
   echo "<span class=\"alignbuttonsleft\">"
   echo " <button class=\"sendbutton\" onClick='sendButton(\"on\",\"$DISPID\");'> </button>"
@@ -196,16 +221,16 @@ for DISPID in $VALID_SEND_IDS; do
   echo "</div>"
   if [ "$NOFLOAT" = "1" -a $((ITEMCOUNT % 2 )) -ne 1 ]; then
     echo "<br/>"
-  fi 
-  
+  fi
+
 done
 echo "</div>"
 
  if [ "$NOFLOAT" = "1" ]; then
     echo "<div style=\"float:left; border:1px solid black;\">"
-    tail -n+107 /www/ymhremote.html | head -n 5
+    tail -n+107 /var/www/ymhremote.html | head -n 5
     echo "</div>"
- fi 
+ fi
 
 fi
 echo "</div>"

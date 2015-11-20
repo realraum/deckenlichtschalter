@@ -114,7 +114,10 @@ echo 'function sendMultiButton( str ) {
 echo 'setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);'
 echo 'updateButtons("/cgi-bin/mswitch.cgi");'
 
+tail -n+6 /var/www/ymhremote.html | head -n 58
 echo '</script>'
+tail -n+67 /var/www/ymhremote.html | head -n 37
+
 echo '<style>'
 echo 'div.switchbox {'
 echo '    float:left;'
@@ -260,13 +263,18 @@ for DISPID in $VALID_RFONOFF_IDS; do
   echo "</span>"
   echo "<div class=\"switchnameright\">$NAME</div>"
   echo "</div>"
-  
+
   if [ "$NOFLOAT" = "1" ]; then
     echo "<br/>"
   fi
 
 done
 echo "</div>"
+
+    echo "<div style=\"float:left; border:1px solid black;\">"
+    tail -n+107 /var/www/ymhremote.html | head -n 5
+    echo "</div>"
+
 echo "</div>"
 
 echo "</body>"
