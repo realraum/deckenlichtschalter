@@ -28,7 +28,7 @@ LIBS := util led lufa-descriptor-usbdualserial dualusbio
 EXTERNAL_LIBS := lufa
 SPREADAVR_PATH := ../contrib/avr-utils
 
-LUFA_PATH := $(SPREADAVR_PATH)/contrib/lufa-LUFA-140928
+LUFA_PATH := $(SPREADAVR_PATH)/contrib/lufa-LUFA-151115
 LUFA_OPTS  = -D USB_DEVICE_ONLY
 LUFA_OPTS += -D DEVICE_STATE_AS_GPIOR=0
 LUFA_OPTS += -D ORDERED_EP_CONFIG
