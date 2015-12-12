@@ -17,9 +17,10 @@ for gpio in 4 17 18 21 22 23; do
  chown www-data /sys/class/gpio/gpio$gpio/value
  echo 1 > /sys/class/gpio/gpio$gpio/value
 done
+chmod a+rx /sys/class/gpio/
 
 #restore previous light state
-curl -o /dev/null -s "http://localhost/cgi-bin/mswitch.cgi?$(cat /var/log/licht/mswitch.state2)"
+curl -o /dev/null -s "http://localhost/cgi-bin/mswitch.cgi?$(cat /var/log/licht/mswitch.state)"
 
 
 # Print the IP address
