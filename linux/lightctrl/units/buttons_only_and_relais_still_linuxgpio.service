@@ -1,0 +1,16 @@
+[Unit]
+Description=React to Buttons from teensy and touch URIs
+Wants=network.target
+ConditionExists=/dev/ttyACM1
+
+[Service]
+#Nice=10
+Type=simple
+Restart=always
+WorkingDirectory=/home/realraum
+#EnvironmentFile=/home/realraum/.config/realraum/
+ExecStart=/home/realraum/bin/buttons_only_and_relais_still_linuxgpio.py /dev/ttyACM1
+SyslogIdentifier=%i
+
+[Install]
+WantedBy=default.target

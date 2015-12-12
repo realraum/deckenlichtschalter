@@ -1,0 +1,114 @@
+<html>
+<head>
+<title>Realraum Yamaha Remote</title>
+<script type="text/javascript">
+
+function sendYmhButton( btn )
+{
+  //alert(btn);
+  document.getElementById('indicator').style.backgroundColor="red";
+  document.getElementById('commandlabel').innerHTML=btn;
+  var req = new XMLHttpRequest();
+  url = "/cgi-bin/rfswitch.cgi?power=send&id="+btn;
+  req.open("GET", url ,true);
+  //google chrome workaround
+  req.setRequestHeader("googlechromefix","");
+  req.send(null);
+  //response = req.responseText;
+  //document.getElementById('output').innerHTML = response;
+  document.getElementById('indicator').style.backgroundColor="white";
+  document.getElementById('commandlabel').innerHTML='&nbsp;';
+}
+
+function remoteKeyboard( e )
+{
+        e = e || window.event;
+        switch( e.keyCode )
+        {
+                //case 81: sendYmhButton( ( e.altKey ? 'REBOOT' : 'w' ) ); break;       // ALT-Q = reboot, Q = Power
+                case 38: sendYmhButton( 'ymhprgup' ); break; //up
+                case 37: sendYmhButton( 'ymhminus' ); break; //left
+                //case 13: sendYmhButton( '' ); break;  //enter
+                case 39: sendYmhButton( 'ymhplus' ); break; //right
+                case 40: sendYmhButton( 'ymhprgdown' ); break; //down
+                //case  8: sendYmhButton( 'T_back' ); break; //backspace
+                //case 27: sendYmhButton( 't_stop' ); break;    // ESC
+                case 77: sendYmhButton( 'ymhmenu' ); break;     // M
+                case 84: sendYmhButton( 'ymhtimelevel' ); break;        // T
+                //case 32: sendYmhButton( '' ); break;  // Space
+                case 83: sendYmhButton( 'ymhsleep' ); break;            // S
+                case 36: sendYmhButton( 'ymhmute' ); break; //pos1
+                case 33: sendYmhButton( 'ymhvolup' ); break;    // P = 80, PAGEUP = 33
+                case 43: sendYmhButton( 'ymhvolup' ); break;    // +
+                case 34: sendYmhButton( 'ymhvoldown' ); break;  // N = 78, PAGEDOWN = 34
+                case 45: sendYmhButton( 'ymhvoldown' ); break;  // -
+                case 46: sendYmhButton( 'ymhtunplus' ); break;  // .
+                case 44: sendYmhButton( 'ymhtunminus' ); break; // ,
+                case 59: sendYmhButton( 'ymhtunabcde' ); break; // ;
+                case 69: sendYmhButton( 'ymheffect' ); break;   // E
+                case 80: sendYmhButton( 'ymhpower' ); break;    // P
+                case 48: sendYmhButton( 'ymhtest' ); break;     // 0
+                case 49: sendYmhButton( 'ymhcd' ); break;       // 1
+                case 50: sendYmhButton( 'ymhtuner' ); break;    // 2
+                case 51: sendYmhButton( 'ymhtape' ); break;     // 3
+                case 52: sendYmhButton( 'ymhwdtv' ); break;     // 4
+                case 53: sendYmhButton( 'ymhsattv' ); break;    // 5
+                case 54: sendYmhButton( 'ymhvcr' ); break;      // 6
+                case 55: sendYmhButton( 'ymh7' ); break;        // 7
+                case 56: sendYmhButton( 'ymhaux' ); break;      // 8
+                case 57: sendYmhButton( 'ymhextdec' ); break;   // 9
+        }
+}
+
+document.onkeydown = remoteKeyboard;
+
+
+</script>
+<map name="ymhremote">
+<area shape ="rect" coords ="57,36,121,59" onClick="sendYmhButton('ymhpower');"  />
+
+<area shape ="circle" coords ="36,98,17" onClick="sendYmhButton('ymhcd');" alt="ymhcd" />
+<area shape ="circle" coords ="88,98,17" onClick="sendYmhButton('ymhtuner');" alt="ymhtuner" />
+<area shape ="circle" coords ="142,98,17" onClick="sendYmhButton('ymhtape');" alt="ymhtape" />
+<area shape ="circle" coords ="36,145,17" onClick="sendYmhButton('ymhwdtv');" alt="ymhwdtv" />
+<area shape ="circle" coords ="88,145,17" onClick="sendYmhButton('ymhsattv');" alt="ymhsattv" />
+<area shape ="circle" coords ="142,145,17" onClick="sendYmhButton('ymhvcr');" alt="ymhvcr" />
+<area shape ="circle" coords ="36,192,17" onClick="sendYmhButton('ymh7');" alt="ymh7" />
+<area shape ="circle" coords ="88,192,17" onClick="sendYmhButton('ymhaux');" alt="ymhaux" />
+<area shape ="circle" coords ="142,192,17" onClick="sendYmhButton('ymhextdec');" alt="ymhextdec" />
+<area shape ="circle" coords ="36,240,17" onClick="sendYmhButton('ymhtest');" alt="ymhtest" />
+<area shape ="circle" coords ="88,240,17" onClick="sendYmhButton('ymhtunabcde');" alt="ymhtunabcde" />
+<area shape ="circle" coords ="142,240,17" onClick="sendYmhButton('ymheffect');" alt="ymheffect" />
+
+<!--area shape ="polygon" coords ="57,336,89,308,119,333,110,445,66,445" onClick="sendYmhButton('ymhtvlolup');" alt="ymhtvlolup" /-->
+<!--area shape ="polygon" coords ="57,418,66,407,110,407,119,418,89,445" onClick="sendYmhButton('ymhtvvoldown');"  alt="ymhtvvoldown"  /-->
+<area shape ="polygon" coords ="19,377,47,347,59,355,59,398,47,408" onClick="sendYmhButton('ymhvoldown');"  alt="ymhvoldown"  />
+<area shape ="polygon" coords ="118,355,129,346,158,377,130,408,118,398" onClick="sendYmhButton('ymhvolup');"  alt="ymhvolup"  />
+<area shape ="circle" coords ="89,377,16" onClick="sendYmhButton('ymhmute');" alt="ymhmute" />
+
+<area shape ="circle" coords ="36,455,17" onClick="sendYmhButton('ymhsleep');" alt="ymhsleep" />
+<area shape ="circle" coords ="142,455,17" onClick="sendYmhButton('ymhp5');" alt="ymhp5" />
+
+<area shape ="rect" coords ="18,278,67,301" onClick="sendYmhButton('ymhtunminus');"  />
+<area shape ="rect" coords ="111,278,160,301" onClick="sendYmhButton('ymhtunplus');"  />
+
+<area shape ="polygon" coords ="57,524,89,496,119,521,110,524,66,533" onClick="sendYmhButton('ymhprgup');" alt="ymhprgup" />
+<area shape ="polygon" coords ="57,606,66,595,110,595,119,606,89,634" onClick="sendYmhButton('ymhprgdown');"  alt="ymhprgdown"  />
+<area shape ="polygon" coords ="19,565,47,534,59,543,59,586,47,595" onClick="sendYmhButton('ymhminus');"  alt="ymhminus"  />
+<area shape ="polygon" coords ="118,543,129,534,158,565,130,595,118,586" onClick="sendYmhButton('ymhplus');"  alt="ymhplus"  />
+
+<area shape ="circle" coords ="36,634,17" onClick="sendYmhButton('ymhtimelevel');" alt="ymhtimelevel" />
+<area shape ="circle" coords ="142,634,17" onClick="sendYmhButton('ymhmenu');" alt="ymhmenu" />
+<!-- href ="./cgi-bin/switch.cgi" target ="_blank" -->
+</map>
+</head>
+<body>
+<center>
+<table border="0" cellspacing="0" cellpadding="0" width="180">
+<tr><td id="indicator" style="background-color:white; height:2px;"></td></tr>
+<tr><td><img src="/rx-v396-remote.png" width="180" height="714" usemap="#ymhremote" id="remoteimg" border="0" /></td></tr>
+</table>
+<p id="commandlabel" style="display:hidden; width:180px;">&nbsp;</p>
+</center>
+</body>
+</html>

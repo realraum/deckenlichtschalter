@@ -1,0 +1,30 @@
+auto lo
+iface lo inet loopback
+
+auto eth0
+#iface eth0 inet dhcp
+iface eth0 inet static
+  address 192.168.127.242
+  netmask 255.255.255.0
+  gateway 192.168.127.254
+  dns-nameserver 192.168.127.254
+  dns-nameserver 10.12.0.10
+  post-up echo -e "nameserver 192.168.127.254\nnameserver 10.12.0.10" | resolvconf -a eth0
+  down resolvconf -d eth0
+
+
+
+#auto wlan0
+#allow-hotplug wlan0
+#iface wlan0 inet dhcp
+#iface wlan0 inet static
+#  address 89.106.215.61
+#  netmask 255.255.255.224
+#  gateway 89.106.215.33
+##  up ip addr add 2a02:3e0:2002:1::61/64 dev eth0
+##  up ip route add default via 2a02:3e0:2002:1::1 dev eth0
+##  down ip route delete default via 2a02:3e0:2002:1::1 dev eth0
+##  down ip addr delete 2a02:3e0:2002:1::61/64 dev eth0
+#  wpa-ssid "realraum"
+#  wpa-psk "r3alraum"
+

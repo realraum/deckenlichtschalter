@@ -1,0 +1,16 @@
+[Unit]
+Description=Play Sound when member opens door
+Wants=network.target
+ConditionExists=/home/realraum/play-sound-status.cfg
+
+[Service]
+#Nice=10
+Type=simple
+Restart=always
+WorkingDirectory=/home/realraum
+#EnvironmentFile=/home/realraum/.config/realraum/
+ExecStart=/home/realraum/bin/play-sound-status.py /home/realraum/play-sound-status.cfg
+SyslogIdentifier=%i
+
+[Install]
+WantedBy=default.target

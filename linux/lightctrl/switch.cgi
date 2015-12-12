@@ -114,9 +114,9 @@ echo 'function sendMultiButton( str ) {
 echo 'setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);'
 echo 'updateButtons("/cgi-bin/mswitch.cgi");'
 
-tail -n+6 /var/www/ymhremote.html | head -n 58
+tail -n+6 /var/www/html/ymhremote.html | head -n 58
 echo '</script>'
-tail -n+67 /var/www/ymhremote.html | head -n 37
+tail -n+67 /var/www/html/ymhremote.html | head -n 37
 
 echo '<style>'
 echo 'div.switchbox {'
@@ -272,7 +272,7 @@ done
 echo "</div>"
 
     echo "<div style=\"float:left; border:1px solid black;\">"
-    tail -n+107 /var/www/ymhremote.html | head -n 5
+    tail -n+107 /var/www/html/ymhremote.html | head -n 5
     echo "</div>"
 
 echo "</div>"
