@@ -124,14 +124,30 @@ class MultiSwitcherQueue():
 
 
 
-switcher = SwitchARealSwitch("/dev/ttyACM0","mqtt.realraum.at",1883)
-multiswitcher = MultiSwitcherQueue(switcher)
 
-
-if len(sys.argv) > 2:
+if len(sys.argv) == 2 and sys.argv[1] == "--daemon":
+    switcher = SwitchARealSwitch("/dev/ttyACM0","mqtt.realraum.at",1883)
+    multiswitcher = MultiSwitcherQueue(switcher)
+    Pyro4.Daemon.serveSimple(
+            {
+                switcher: "rf433.switcher"
+            },
+            host = "127.0.0.1",
+            port=4242,
+            ns = False)
+elif len(sys.argv) > 2:
     if sys.argv[1] == "1":
         sys.argv[1] = "on"
     elif sys.argv[1] == "0":
         sys.argv[1] = "off"
+
+    try:
+        multiswitcher = Pyro4.Proxy("PYRO:rf433.switcher@127.0.0.1:4242")
+    except:
+        switcher = SwitchARealSwitch("/dev/ttyACM0","mqtt.realraum.at",1883)
+        multiswitcher = MultiSwitcherQueue(switcher)
     multiswitcher.toggleSwitch(sys.argv[1], sys.argv[2])
-    switcher.cleanup()
+    try:
+        switcher.cleanup()
+    except:
+        pass
