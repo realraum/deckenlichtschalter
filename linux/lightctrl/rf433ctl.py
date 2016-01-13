@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys,os
-import json
 import time
-import paho.mqtt.client as mqtt
 import Pyro4
 
 class SwitchARealSwitch():
@@ -126,6 +124,8 @@ class MultiSwitcherQueue():
 
 
 if len(sys.argv) == 2 and sys.argv[1] == "--daemon":
+    import json
+    import paho.mqtt.client as mqtt
     switcher = SwitchARealSwitch("/dev/ttyACM0","mqtt.realraum.at",1883)
     multiswitcher = MultiSwitcherQueue(switcher)
     Pyro4.Daemon.serveSimple(
@@ -144,6 +144,8 @@ elif len(sys.argv) > 2:
     try:
         multiswitcher = Pyro4.Proxy("PYRO:rf433.switcher@127.0.0.1:4242")
     except:
+        import json
+        import paho.mqtt.client as mqtt
         switcher = SwitchARealSwitch("/dev/ttyACM0","mqtt.realraum.at",1883)
         multiswitcher = MultiSwitcherQueue(switcher)
     multiswitcher.toggleSwitch(sys.argv[1], sys.argv[2])
