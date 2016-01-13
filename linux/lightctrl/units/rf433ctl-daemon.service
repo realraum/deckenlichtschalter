@@ -1,0 +1,15 @@
+[Unit]
+Description=Keep connection to Mosquitto open for faster light switching
+Wants=network.target
+
+[Service]
+#Nice=10
+Type=simple
+Restart=always
+WorkingDirectory=/home/realraum
+#EnvironmentFile=/home/realraum/.config/realraum/
+ExecStart=/home/realraum/rf433ctl.py --daemon
+SyslogIdentifier=%i
+
+[Install]
+WantedBy=default.target
