@@ -90,7 +90,7 @@ class SwitchARealSwitch():
 
     def rfcode2BOTH(self, code):
         self.rfcode2TTY(code)
-        time.sleep(2000)
+        time.sleep(2.0)
         self.rfcode2MQTT(code)
 
     def toggleSwitch(self, onoff, rfname):
@@ -119,7 +119,6 @@ class MultiSwitcherQueue():
                 self.switcher.toggleSwitch(onoff, rfname2)
         else:
             self.switcher.toggleSwitch(onoff, rfname)
-
 
 
 
