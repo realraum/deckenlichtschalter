@@ -33,7 +33,7 @@ DESC_ceiling6="Decke K&uuml;che (NNO)"
 
 DESC_regalleinwand="LEDs Regal Leinwand"
 DESC_bluebar="Blaue LEDs Bar"
-DESC_labortisch="Labortisch"
+DESC_labortisch="TESLA Labortisch"
 DESC_couchred="LEDs Couch Red"
 DESC_couchwhite="LEDS Couch White"
 DESC_cxleds="CX Leds"

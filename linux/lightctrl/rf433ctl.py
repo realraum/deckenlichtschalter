@@ -23,7 +23,7 @@ class SwitchARealSwitch():
           "mashadecke":{"on":b"\x8a\x28\x8a","off":b"\x8a\x28\x2a", "transmitter":self.rfcode2TTY}, #pollin 00101 c
           "boiler":{"on":b"\xa0\xa2\xa8","off":b"\xa0\xa2\x28", "transmitter":self.rfcode2BOTH}, #white remote A 2
           "spots":{"on":b"\x00\xaa\x88","off":b"\x00\xaa\x28", "transmitter":self.rfcode2TTY}, #polling 11110 d
-          "lichtpi":{"on":b"\x00\xa2\x8a","off":b"\x00\xa2\x2a", "transmitter":self.rfcode2TTY}, # Funksteckdose an welcher der RaspberryPi / Kiosk / Deckenlicht hängt
+          "olgatemp":{"on":b"\x00\xa2\x8a","off":b"\x00\xa2\x2a", "transmitter":self.rfcode2TTY}, # Funksteckdose an welcher olgafreezer.realraum.at hängt
           "abwasch":{"on":b"\xaa\xa2\xa8","off":b"\xaa\xa2\x28", "transmitter":self.rfcode2MQTT},  #alte jk16 decke vorne
 
           "ymhpoweroff":{"on":"ymhpoweroff", "transmitter":self.ymhircmd2MQTT},
@@ -110,7 +110,7 @@ class MultiSwitcherQueue():
 
         self.multinames = {
           "ambientlights":["bluebar","couchred","couchwhite","regalleinwand","cxleds","abwasch"],
-          "all":list(set(switcher.rfcodes.keys()) - set(["lichtpi"]))
+          "all":list(set(switcher.rfcodes.keys()) - set(["olgatemp"]))
         }
 
     def toggleSwitch(self, onoff, rfname):
