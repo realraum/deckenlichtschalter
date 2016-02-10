@@ -64,8 +64,8 @@ func main() {
 	}
 	mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_MQTTCLIENTID", DEFAULT_GOLIGHTCTRL_MQTTCLIENTID))
 
-	MQTT_rf_chan_ := make(chan []byte, 10)
-	MQTT_ir_chan_ := make(chan string, 10)
+	MQTT_rf_chan_ = make(chan []byte, 10)
+	MQTT_ir_chan_ = make(chan string, 10)
 	go goSendCodeToMQTT(mqttc, MQTT_rf_chan_)
 	go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
 
