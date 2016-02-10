@@ -1,7 +1,10 @@
 // (c) Bernhard Tittelbach, 2016
 package main
 
-import "encoding/binary"
+import (
+	"bytes"
+	"encoding/binary"
+)
 
 type NameAction struct {
 	name  string
@@ -25,12 +28,19 @@ var name_actions_ []ButtonAction = []ButtonAction{
 func goListenForButtons(buttonchange_chan <-chan SerialLine) {
 	for btnchange := range buttonchange_chan {
 		if len(btnchange) < 3 {
+			LogBTN_.Println("Did not get enought bytes from SerialLine: ", btnchange)
 			continue
 		}
-		buttonbits, _ := binary.Uvarint(btnchange[1:2])
-
+		var buttonbits uint16
+		buf := bytes.NewReader(btnchange[1:len(btnchange)]) //last 2 bytes contain button pressed information as bitfield
+		err := binary.Read(buf, binary.BigEndian, &buttonbits)
+		if err != nil {
+			LogBTN_.Println("binary.Read failed:", err)
+		}
+		LogBTN_.Printf("Button State received: 0x%x", buttonbits)
 		for bidx, btn_action := range name_actions_ {
 			if buttonbits&(1<<uint(bidx)) > 0 {
+				LogBTN_.Printf("Button %d pressed", bidx)
 				for _, na := range btn_action {
 					SwitchName(na.name, na.onoff)
 				}
