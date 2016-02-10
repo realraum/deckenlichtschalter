@@ -44,14 +44,25 @@ func goHandleSwitchCGI(w http.ResponseWriter, r *http.Request) {
 
 //TODO: upgrade to WebSocket
 
+func webRedirectToSwitchHTML(w http.ResponseWriter, r *http.Request) {
+	LogWS_.Printf("%+v", r)
+	urlStr := "//" + r.Host + "/switch.html"
+	w.Header().Set("Location", urlStr)
+	w.WriteHeader(302)
+	if r.Method == "GET" {
+		note := []byte("<a href=\"" + urlStr + "\">Changed URL</a>.\n")
+		w.Write(note)
+	}
+}
+
 func goRunMartini() {
 	m := martini.Classic()
 	//m.Use(martini.Static("/var/lib/cloud9/static/"))
 	/*	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) {
 		goTalkWithClient(w, r, ps)
 	})*/
-	m.Get("/cgi-bin/mswitch.cgi", func(w http.ResponseWriter, r *http.Request) {
-		goHandleSwitchCGI(w, r)
-	})
-	m.Run()
+	m.Get("/cgi-bin/mswitch.cgi", goHandleSwitchCGI)
+	m.Get("/cgi-bin/switch.cgi", webRedirectToSwitchHTML)
+	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToSwitchHTML)
+	m.RunOnAddr(EnvironOrDefault("GOLIGHTCTRL_HTTP_INTERFACE", DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE))
 }
