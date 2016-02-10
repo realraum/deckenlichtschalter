@@ -10,11 +10,11 @@ type ActionNameHandler struct {
 	codedefault []byte
 }
 
-var RF433_chan_ chan []byte
+var RF433_chan_ chan SerialLine
 var MQTT_rf_chan_ chan []byte
 var MQTT_ir_chan_ chan string
 
-var rfcode_map map[string]ActionNameHandler = map[string]ActionNameHandler{
+var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"regalleinwand": ActionNameHandler{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: sendRFCode2TTY}, //white remote B 1
 	"bluebar":       ActionNameHandler{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: sendRFCode2TTY}, //white remote C 1
 	"labortisch":    ActionNameHandler{codeon: []byte{0xa2, 0xa2, 0xaa}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: sendRFCode2TTY},
@@ -65,9 +65,9 @@ var rfcode_map map[string]ActionNameHandler = map[string]ActionNameHandler{
 }
 
 func SwitchName(name string, onoff bool) error {
-	nm, inmap := rfcode_map[name]
+	nm, inmap := actionname_map_[name]
 	if !inmap {
-		LogRF433_.Printf("Name %s does not exist in rfcode_map", name)
+		LogRF433_.Printf("Name %s does not exist in actionname_map_", name)
 		return fmt.Errorf("Name does not exist")
 	}
 	LogRF433_.Printf("SwitchName(%s,%s", name, onoff)

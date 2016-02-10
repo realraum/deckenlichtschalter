@@ -23,7 +23,7 @@ func goHandleSwitchCGI(w http.ResponseWriter, r *http.Request) {
 		LogWS_.Print(err)
 		return
 	}
-	for name, _ := range rfcode_map {
+	for name, _ := range actionname_map_ {
 		v := r.FormValue(name)
 		if len(v) == 0 {
 			continue

@@ -44,7 +44,7 @@ func main() {
 	var err error
 	var tty_button_chan chan SerialLine
 	if UseFakeGPIO_ {
-		RF433_chan_ = make(chan []byte, 10)
+		RF433_chan_ = make(chan SerialLine, 10)
 		go func() {
 			for str := range RF433_chan_ {
 				LogRF433_.Println(str)

@@ -38,7 +38,7 @@ func openTTY(name string, speed uint) (port *sio.Port, err error) {
 	return
 }
 
-func serialWriter(in <-chan []byte, serial *sio.Port) {
+func serialWriter(in <-chan SerialLine, serial *sio.Port) {
 	for totty := range in {
 		serial.Write(totty)
 	}
@@ -60,12 +60,12 @@ func serialReader(out chan<- SerialLine, serial *sio.Port) {
 	}
 }
 
-func OpenAndHandleSerial(filename string, serspeed uint) (chan []byte, chan SerialLine, error) {
+func OpenAndHandleSerial(filename string, serspeed uint) (chan SerialLine, chan SerialLine, error) {
 	serial, err := openTTY(filename, serspeed)
 	if err != nil {
 		return nil, nil, err
 	}
-	wr := make(chan []byte, 1)
+	wr := make(chan SerialLine, 1)
 	rd := make(chan SerialLine, 20)
 	go serialWriter(wr, serial)
 	go serialReader(rd, serial)
