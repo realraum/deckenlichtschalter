@@ -1,0 +1,333 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=utf8">
+<title>Realraum RF and Relay Power</title>
+<script type="text/javascript">
+function callbackUpdateButtons(req) {
+  if (req.status != 200) {
+    return;
+  }
+  var data = JSON.parse(req.responseText);
+  for (var keyid in data) {
+    on_btn = document.getElementById("onbtn_"+keyid);
+    off_btn = document.getElementById("offbtn_"+keyid);
+    if (on_btn && off_btn)
+    {
+      on_btn.className = "onbutton";
+      off_btn.className = "offbutton";
+      if (data[keyid])
+      { on_btn.className += " enableborder"; }
+      else
+      { off_btn.className += " enableborder"; }
+    }
+  }
+}
+function updateButtons(uri) {
+  var req = new XMLHttpRequest;
+  req.overrideMimeType("application/json");
+  req.open("GET", uri, true);
+  req.onload  = function() {callbackUpdateButtons(req)};
+  req.setRequestHeader("googlechromefix","");
+  req.send(null);
+}
+function sendMultiButton( str ) {
+ url = "/cgi-bin/mswitch.cgi?"+str;
+  updateButtons(url);
+}
+setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);
+updateButtons("/cgi-bin/mswitch.cgi");
+function sendYmhButton( btn )
+{
+  //alert(btn);
+  document.getElementById('indicator').style.backgroundColor="red";
+  document.getElementById('commandlabel').innerHTML=btn;
+  sendMultiButton(btn+"=1");
+  document.getElementById('indicator').style.backgroundColor="white";
+  document.getElementById('commandlabel').innerHTML='&nbsp;';
+}
+
+function remoteKeyboard( e )
+{
+        e = e || window.event;
+        switch( e.keyCode )
+        {
+                //case 81: sendYmhButton( ( e.altKey ? 'REBOOT' : 'w' ) ); break;       // ALT-Q = reboot, Q = Power
+                case 38: sendYmhButton( 'ymhprgup' ); break; //up
+                case 37: sendYmhButton( 'ymhminus' ); break; //left
+                //case 13: sendYmhButton( '' ); break;  //enter
+                case 39: sendYmhButton( 'ymhplus' ); break; //right
+                case 40: sendYmhButton( 'ymhprgdown' ); break; //down
+                //case  8: sendYmhButton( 'T_back' ); break; //backspace
+                //case 27: sendYmhButton( 't_stop' ); break;    // ESC
+                case 77: sendYmhButton( 'ymhmenu' ); break;     // M
+                case 84: sendYmhButton( 'ymhtimelevel' ); break;        // T
+                //case 32: sendYmhButton( '' ); break;  // Space
+                case 83: sendYmhButton( 'ymhsleep' ); break;            // S
+                case 36: sendYmhButton( 'ymhmute' ); break; //pos1
+                case 33: sendYmhButton( 'ymhvolup' ); break;    // P = 80, PAGEUP = 33
+                case 43: sendYmhButton( 'ymhvolup' ); break;    // +
+                case 34: sendYmhButton( 'ymhvoldown' ); break;  // N = 78, PAGEDOWN = 34
+                case 45: sendYmhButton( 'ymhvoldown' ); break;  // -
+                case 46: sendYmhButton( 'ymhtunplus' ); break;  // .
+                case 44: sendYmhButton( 'ymhtunminus' ); break; // ,
+                case 59: sendYmhButton( 'ymhtunabcde' ); break; // ;
+                case 69: sendYmhButton( 'ymheffect' ); break;   // E
+                case 80: sendYmhButton( 'ymhpower' ); break;    // P
+                case 48: sendYmhButton( 'ymhtest' ); break;     // 0
+                case 49: sendYmhButton( 'ymhcd' ); break;       // 1
+                case 50: sendYmhButton( 'ymhtuner' ); break;    // 2
+                case 51: sendYmhButton( 'ymhtape' ); break;     // 3
+                case 52: sendYmhButton( 'ymhwdtv' ); break;     // 4
+                case 53: sendYmhButton( 'ymhsattv' ); break;    // 5
+                case 54: sendYmhButton( 'ymhvcr' ); break;      // 6
+                case 55: sendYmhButton( 'ymh7' ); break;        // 7
+                case 56: sendYmhButton( 'ymhaux' ); break;      // 8
+                case 57: sendYmhButton( 'ymhextdec' ); break;   // 9
+        }
+}
+
+document.onkeydown = remoteKeyboard;
+</script>
+</head><body><map name="ymhremote">
+<area shape="rect" coords="57,36,121,59" onclick="sendYmhButton('ymhpower');">
+
+<area shape="circle" coords="36,98,17" onclick="sendYmhButton('ymhcd');" alt="ymhcd">
+<area shape="circle" coords="88,98,17" onclick="sendYmhButton('ymhtuner');" alt="ymhtuner">
+<area shape="circle" coords="142,98,17" onclick="sendYmhButton('ymhtape');" alt="ymhtape">
+<area shape="circle" coords="36,145,17" onclick="sendYmhButton('ymhwdtv');" alt="ymhwdtv">
+<area shape="circle" coords="88,145,17" onclick="sendYmhButton('ymhsattv');" alt="ymhsattv">
+<area shape="circle" coords="142,145,17" onclick="sendYmhButton('ymhvcr');" alt="ymhvcr">
+<area shape="circle" coords="36,192,17" onclick="sendYmhButton('ymh7');" alt="ymh7">
+<area shape="circle" coords="88,192,17" onclick="sendYmhButton('ymhaux');" alt="ymhaux">
+<area shape="circle" coords="142,192,17" onclick="sendYmhButton('ymhextdec');" alt="ymhextdec">
+<area shape="circle" coords="36,240,17" onclick="sendYmhButton('ymhtest');" alt="ymhtest">
+<area shape="circle" coords="88,240,17" onclick="sendYmhButton('ymhtunabcde');" alt="ymhtunabcde">
+<area shape="circle" coords="142,240,17" onclick="sendYmhButton('ymheffect');" alt="ymheffect">
+
+<!--area shape ="polygon" coords ="57,336,89,308,119,333,110,445,66,445" onClick="sendYmhButton('ymhtvlolup');" alt="ymhtvlolup" /-->
+<!--area shape ="polygon" coords ="57,418,66,407,110,407,119,418,89,445" onClick="sendYmhButton('ymhtvvoldown');"  alt="ymhtvvoldown"  /-->
+<area shape="polygon" coords="19,377,47,347,59,355,59,398,47,408" onclick="sendYmhButton('ymhvoldown');" alt="ymhvoldown">
+<area shape="polygon" coords="118,355,129,346,158,377,130,408,118,398" onclick="sendYmhButton('ymhvolup');" alt="ymhvolup">
+<area shape="circle" coords="89,377,16" onclick="sendYmhButton('ymhmute');" alt="ymhmute">
+
+<area shape="circle" coords="36,455,17" onclick="sendYmhButton('ymhsleep');" alt="ymhsleep">
+<area shape="circle" coords="142,455,17" onclick="sendYmhButton('ymhp5');" alt="ymhp5">
+
+<area shape="rect" coords="18,278,67,301" onclick="sendYmhButton('ymhtunminus');">
+<area shape="rect" coords="111,278,160,301" onclick="sendYmhButton('ymhtunplus');">
+
+<area shape="polygon" coords="57,524,89,496,119,521,110,524,66,533" onclick="sendYmhButton('ymhprgup');" alt="ymhprgup">
+<area shape="polygon" coords="57,606,66,595,110,595,119,606,89,634" onclick="sendYmhButton('ymhprgdown');" alt="ymhprgdown">
+<area shape="polygon" coords="19,565,47,534,59,543,59,586,47,595" onclick="sendYmhButton('ymhminus');" alt="ymhminus">
+<area shape="polygon" coords="118,543,129,534,158,565,130,595,118,586" onclick="sendYmhButton('ymhplus');" alt="ymhplus">
+
+<area shape="circle" coords="36,634,17" onclick="sendYmhButton('ymhtimelevel');" alt="ymhtimelevel">
+<area shape="circle" coords="142,634,17" onclick="sendYmhButton('ymhmenu');" alt="ymhmenu">
+<!-- href ="./cgi-bin/switch.cgi" target ="_blank" -->
+</map>
+<style>
+div.switchbox {
+    float:left;
+    margin:2px;
+    max-width:300px;
+    font-size:10pt;
+    border:1px solid black;
+    padding:0;
+}
+div.switchnameleft {
+    width:12em; display:inline-block; vertical-align:middle; margin-left:3px;
+}
+span.alignbuttonsright {
+    top:0px; float:right; display:inline-block; text-align:right; padding:0;
+}
+div.switchnameright {
+    width:12em; display:inline-block; vertical-align:middle; float:right; display:inline-block; margin-left:1ex; margin-right:3px; margin-top:3px; margin-bottom:3px;
+}
+span.alignbuttonsleft {
+    float:left; text-align:left; padding:0;
+}
+.onbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    background-color: lime;
+    margin: 0px;
+}
+.offbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    background-color: red;
+    margin: 0px;
+}
+.sendbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    margin: 0px;
+}
+.enableborder {
+    font-weight: bold;
+    font-variant: small-caps;
+    border-style: inset;
+}
+</style>
+
+
+<div style="float:left;">
+<div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button id="onbtn_ceiling1" class="onbutton enableborder" onclick='sendMultiButton("ceiling1=1");'>On</button>
+ <button id="offbtn_ceiling1" class="offbutton" onclick='sendMultiButton("ceiling1=0");'>Off</button>
+</span>
+<div class="switchnameright">Decke E-Labor (SSW)</div></div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button id="onbtn_ceiling2" class="onbutton" onclick='sendMultiButton("ceiling2=1");'>On</button>
+ <button id="offbtn_ceiling2" class="offbutton enableborder" onclick='sendMultiButton("ceiling2=0");'>Off</button>
+</span>
+<div class="switchnameright">Decke Leinwand (S)</div></div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button id="onbtn_ceiling3" class="onbutton" onclick='sendMultiButton("ceiling3=1");'>On</button>
+ <button id="offbtn_ceiling3" class="offbutton enableborder" onclick='sendMultiButton("ceiling3=0");'>Off</button>
+</span>
+<div class="switchnameright">Decke Eingang (W)</div></div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button id="onbtn_ceiling4" class="onbutton enableborder" onclick='sendMultiButton("ceiling4=1");'>On</button>
+ <button id="offbtn_ceiling4" class="offbutton" onclick='sendMultiButton("ceiling4=0");'>Off</button>
+</span>
+<div class="switchnameright">Decke Durchgang (O)</div></div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button id="onbtn_ceiling5" class="onbutton enableborder" onclick='sendMultiButton("ceiling5=1");'>On</button>
+ <button id="offbtn_ceiling5" class="offbutton" onclick='sendMultiButton("ceiling5=0");'>Off</button>
+</span>
+<div class="switchnameright">Decke Auslage (N)</div></div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button id="onbtn_ceiling6" class="onbutton" onclick='sendMultiButton("ceiling6=1");'>On</button>
+ <button id="offbtn_ceiling6" class="offbutton enableborder" onclick='sendMultiButton("ceiling6=0");'>Off</button>
+</span>
+<div class="switchnameright">Decke Küche (NNO)</div></div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("ceiling1=1&amp;ceiling2=1&amp;ceiling3=1&amp;ceiling4=1&amp;ceiling5=1&amp;ceiling6=1&amp;");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("ceiling1=0&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=0&amp;ceiling6=0&amp;");'>Off</button>
+</span>
+<div class="switchnameright">Alle</div></div>
+<br>
+<div class="switchbox">
+ <button class="sendbutton" onclick='sendMultiButton("ceiling1=0&amp;ceiling2=0&amp;ceiling3=1&amp;ceiling4=1&amp;ceiling5=0&amp;ceiling6=0");'>[&nbsp;|&nbsp;]</button> <button class="sendbutton" onclick='sendMultiButton("ceiling1=1&amp;ceiling2=1&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=1&amp;ceiling6=1");'>[|&nbsp;|]</button> <button class="sendbutton" onclick='sendMultiButton("ceiling1=1&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=1&amp;ceiling6=1");'>[|&nbsp;.]</button> <button class="sendbutton" onclick='sendMultiButton("ceiling1=0&amp;ceiling2=1&amp;ceiling3=0&amp;ceiling4=1&amp;ceiling5=0&amp;ceiling6=1");'>[***]</button> <button class="sendbutton" onclick='sendMultiButton("ceiling1=1&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=0&amp;ceiling6=1");'>[*&nbsp;.]</button> <button class="sendbutton" onclick='sendMultiButton("ceiling1=0&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=1&amp;ceiling6=1");'>[|&nbsp;&nbsp;]</button></div>
+<br>
+</div>
+</div>
+<div style="float:left;">
+<div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("regalleinwand=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("regalleinwand=0");'>Off</button>
+</span>
+<div class="switchnameright">LEDs Regal Leinwand</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("labortisch=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("labortisch=0");'>Off</button>
+</span>
+<div class="switchnameright">TESLA Labortisch</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("bluebar=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("bluebar=0");'>Off</button>
+</span>
+<div class="switchnameright">Blaue LEDs Bar</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("abwasch=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("abwasch=0");'>Off</button>
+</span>
+<div class="switchnameright">Licht Waschbecken</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("couchred=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("couchred=0");'>Off</button>
+</span>
+<div class="switchnameright">LEDs Couch Red</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("couchwhite=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("couchwhite=0");'>Off</button>
+</span>
+<div class="switchnameright">LEDS Couch White</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("all=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("all=0");'>Off</button>
+</span>
+<div class="switchnameright">Alle Funksteckdosen</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("ambientlights=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("ambientlights=0");'>Off</button>
+</span>
+<div class="switchnameright">Ambient Lichter</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("cxleds=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("cxleds=0");'>Off</button>
+</span>
+<div class="switchnameright">CX Leds</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("mashadecke=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("mashadecke=0");'>Off</button>
+</span>
+<div class="switchnameright">MaSha Decke</div>
+</div>
+<br>
+<div class="switchbox">
+<span class="alignbuttonsleft">
+ <button class="onbutton" onclick='sendMultiButton("boiler=1");'>On</button>
+ <button class="offbutton" onclick='sendMultiButton("boiler=0");'>Off</button>
+</span>
+<div class="switchnameright">Warmwasser Küche</div>
+</div>
+<br>
+</div>
+<div style="float:left; border:1px solid black;">
+<table border="0" cellpadding="0" cellspacing="0" width="180">
+<tbody><tr><td id="indicator" style="background-color:white; height:2px;"></td></tr>
+<tr><td><img src="imgs/rx-v396-remote.png" usemap="#ymhremote" id="remoteimg" border="0" height="714" width="180"></td></tr>
+</tbody></table>
+<p id="commandlabel" style="display:hidden; width:180px;">&nbsp;</p>
+</div>
+</div>
+
+
+</body></html>
