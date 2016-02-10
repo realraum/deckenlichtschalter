@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	DEFAULT_GOLIGHTCTRL_MQTTBROKER   string = "tcp://mqtt.realraum.at:1883"
-	DEFAULT_GOLIGHTCTRL_RF433TTYDEV  string = "/dev/ttyACM0"
-	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV string = "/dev/ttyACM1"
-	DEFAULT_GOLIGHTCTRL_MQTTCLIENTID string = "GoLightCtrl"
+	DEFAULT_GOLIGHTCTRL_MQTTBROKER     string = "tcp://mqtt.realraum.at:1883"
+	DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE string = ":80"
+	DEFAULT_GOLIGHTCTRL_RF433TTYDEV    string = "/dev/ttyACM0"
+	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV   string = "/dev/ttyACM1"
+	DEFAULT_GOLIGHTCTRL_MQTTCLIENTID   string = "GoLightCtrl"
 )
 
 type SerialLine []byte
@@ -78,4 +79,5 @@ func main() {
 		<-ctrlc_c //block until ctrl+c is pressed || we receive SIGINT aka kill -1 || kill
 		fmt.Println("SIGINT received, exiting gracefully ...")
 	}()
+
 }
