@@ -22,6 +22,9 @@ func FakeGPIOinit() {
 		bbhw.NewFakeGPIO(22, bbhw.OUT),
 		bbhw.NewFakeGPIO(21, bbhw.OUT),
 	}
+	for _, gpio := range gpios_ceiling_lights_ {
+		gpio.SetActiveLow(true)
+	}
 	LogMain_.Print("FAKE GPIO init done")
 }
 
@@ -34,6 +37,9 @@ func GPIOinit() {
 		bbhw.NewSysfsGPIOOrPanic(17, bbhw.OUT),
 		bbhw.NewSysfsGPIOOrPanic(22, bbhw.OUT),
 		bbhw.NewSysfsGPIOOrPanic(21, bbhw.OUT),
+	}
+	for _, gpio := range gpios_ceiling_lights_ {
+		gpio.SetActiveLow(true)
 	}
 	LogMain_.Print("GPIO init done")
 }

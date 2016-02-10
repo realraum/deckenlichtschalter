@@ -11,7 +11,8 @@ type ActionNameHandler struct {
 }
 
 var RF433_chan_ chan []byte
-var MQTT_chan_ chan []byte
+var MQTT_rf_chan_ chan []byte
+var MQTT_ir_chan_ chan string
 
 var rfcode_map map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"regalleinwand": ActionNameHandler{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: sendRFCode2TTY}, //white remote B 1
@@ -26,34 +27,34 @@ var rfcode_map map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"olgatemp":      ActionNameHandler{codeon: []byte{0x00, 0xa2, 0x8a}, codeoff: []byte{0x00, 0xa2, 0x2a}, handler: sendRFCode2TTY},  // Funksteckdose an welcher olgafreezer.realraum.at hängt
 	"abwasch":       ActionNameHandler{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: sendRFCode2MQTT}, //alte jk16 decke vorne
 
-	"ymhpoweroff":  ActionNameHandler{codedefault: []byte("ymhpoweroff"), handler: sendRFCode2MQTT},
-	"ymhpower":     ActionNameHandler{codedefault: []byte("ymhpower"), codeoff: []byte("ymhpoweroff"), handler: sendRFCode2MQTT},
-	"ymhpoweron":   ActionNameHandler{codedefault: []byte("ymhpoweron"), handler: sendRFCode2MQTT},
-	"ymhcd":        ActionNameHandler{codedefault: []byte("ymhcd"), handler: sendRFCode2MQTT},
-	"ymhtuner":     ActionNameHandler{codedefault: []byte("ymhtuner"), handler: sendRFCode2MQTT},
-	"ymhtape":      ActionNameHandler{codedefault: []byte("ymhtape"), handler: sendRFCode2MQTT},
-	"ymhwdtv":      ActionNameHandler{codedefault: []byte("ymhwdtv"), handler: sendRFCode2MQTT},
-	"ymhsattv":     ActionNameHandler{codedefault: []byte("ymhsattv"), handler: sendRFCode2MQTT},
-	"ymhvcr":       ActionNameHandler{codedefault: []byte("ymhvcr"), handler: sendRFCode2MQTT},
-	"ymh7":         ActionNameHandler{codedefault: []byte("ymh7"), handler: sendRFCode2MQTT},
-	"ymhaux":       ActionNameHandler{codedefault: []byte("ymhaux"), handler: sendRFCode2MQTT},
-	"ymhextdec":    ActionNameHandler{codedefault: []byte("ymhextdec"), handler: sendRFCode2MQTT},
-	"ymhtest":      ActionNameHandler{codedefault: []byte("ymhtest"), handler: sendRFCode2MQTT},
-	"ymhtunabcde":  ActionNameHandler{codedefault: []byte("ymhtunabcde"), handler: sendRFCode2MQTT},
-	"ymheffect":    ActionNameHandler{codedefault: []byte("ymheffect"), handler: sendRFCode2MQTT},
-	"ymhtunplus":   ActionNameHandler{codedefault: []byte("ymhtunplus"), handler: sendRFCode2MQTT},
-	"ymhtunminus":  ActionNameHandler{codedefault: []byte("ymhtunminus"), handler: sendRFCode2MQTT},
-	"ymhvolup":     ActionNameHandler{codedefault: []byte("ymhvolup"), handler: sendRFCode2MQTT},
-	"ymhvoldown":   ActionNameHandler{codedefault: []byte("ymhvoldown"), handler: sendRFCode2MQTT},
-	"ymhvolmute":   ActionNameHandler{codedefault: []byte("ymhvolmute"), handler: sendRFCode2MQTT},
-	"ymhmenu":      ActionNameHandler{codedefault: []byte("ymhmenu"), handler: sendRFCode2MQTT},
-	"ymhplus":      ActionNameHandler{codedefault: []byte("ymhplus"), handler: sendRFCode2MQTT},
-	"ymhminus":     ActionNameHandler{codedefault: []byte("ymhminus"), handler: sendRFCode2MQTT},
-	"ymhtimelevel": ActionNameHandler{codedefault: []byte("ymhtimelevel"), handler: sendRFCode2MQTT},
-	"ymhprgdown":   ActionNameHandler{codedefault: []byte("ymhprgdown"), handler: sendRFCode2MQTT},
-	"ymhprgup":     ActionNameHandler{codedefault: []byte("ymhprgup"), handler: sendRFCode2MQTT},
-	"ymhsleep":     ActionNameHandler{codedefault: []byte("ymhsleep"), handler: sendRFCode2MQTT},
-	"ymhp5":        ActionNameHandler{codedefault: []byte("ymhp5"), handler: sendRFCode2MQTT},
+	"ymhpoweroff":  ActionNameHandler{codedefault: []byte("ymhpoweroff"), handler: sendIRCmd2MQTT},
+	"ymhpower":     ActionNameHandler{codedefault: []byte("ymhpower"), codeoff: []byte("ymhpoweroff"), handler: sendIRCmd2MQTT},
+	"ymhpoweron":   ActionNameHandler{codedefault: []byte("ymhpoweron"), handler: sendIRCmd2MQTT},
+	"ymhcd":        ActionNameHandler{codedefault: []byte("ymhcd"), handler: sendIRCmd2MQTT},
+	"ymhtuner":     ActionNameHandler{codedefault: []byte("ymhtuner"), handler: sendIRCmd2MQTT},
+	"ymhtape":      ActionNameHandler{codedefault: []byte("ymhtape"), handler: sendIRCmd2MQTT},
+	"ymhwdtv":      ActionNameHandler{codedefault: []byte("ymhwdtv"), handler: sendIRCmd2MQTT},
+	"ymhsattv":     ActionNameHandler{codedefault: []byte("ymhsattv"), handler: sendIRCmd2MQTT},
+	"ymhvcr":       ActionNameHandler{codedefault: []byte("ymhvcr"), handler: sendIRCmd2MQTT},
+	"ymh7":         ActionNameHandler{codedefault: []byte("ymh7"), handler: sendIRCmd2MQTT},
+	"ymhaux":       ActionNameHandler{codedefault: []byte("ymhaux"), handler: sendIRCmd2MQTT},
+	"ymhextdec":    ActionNameHandler{codedefault: []byte("ymhextdec"), handler: sendIRCmd2MQTT},
+	"ymhtest":      ActionNameHandler{codedefault: []byte("ymhtest"), handler: sendIRCmd2MQTT},
+	"ymhtunabcde":  ActionNameHandler{codedefault: []byte("ymhtunabcde"), handler: sendIRCmd2MQTT},
+	"ymheffect":    ActionNameHandler{codedefault: []byte("ymheffect"), handler: sendIRCmd2MQTT},
+	"ymhtunplus":   ActionNameHandler{codedefault: []byte("ymhtunplus"), handler: sendIRCmd2MQTT},
+	"ymhtunminus":  ActionNameHandler{codedefault: []byte("ymhtunminus"), handler: sendIRCmd2MQTT},
+	"ymhvolup":     ActionNameHandler{codedefault: []byte("ymhvolup"), handler: sendIRCmd2MQTT},
+	"ymhvoldown":   ActionNameHandler{codedefault: []byte("ymhvoldown"), handler: sendIRCmd2MQTT},
+	"ymhvolmute":   ActionNameHandler{codedefault: []byte("ymhvolmute"), handler: sendIRCmd2MQTT},
+	"ymhmenu":      ActionNameHandler{codedefault: []byte("ymhmenu"), handler: sendIRCmd2MQTT},
+	"ymhplus":      ActionNameHandler{codedefault: []byte("ymhplus"), handler: sendIRCmd2MQTT},
+	"ymhminus":     ActionNameHandler{codedefault: []byte("ymhminus"), handler: sendIRCmd2MQTT},
+	"ymhtimelevel": ActionNameHandler{codedefault: []byte("ymhtimelevel"), handler: sendIRCmd2MQTT},
+	"ymhprgdown":   ActionNameHandler{codedefault: []byte("ymhprgdown"), handler: sendIRCmd2MQTT},
+	"ymhprgup":     ActionNameHandler{codedefault: []byte("ymhprgup"), handler: sendIRCmd2MQTT},
+	"ymhsleep":     ActionNameHandler{codedefault: []byte("ymhsleep"), handler: sendIRCmd2MQTT},
+	"ymhp5":        ActionNameHandler{codedefault: []byte("ymhp5"), handler: sendIRCmd2MQTT},
 
 	"ceiling1": ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: setCeilingLightByteState},
 	"ceiling2": ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: setCeilingLightByteState},
@@ -88,7 +89,13 @@ func sendRFCode2TTY(code []byte) error {
 
 func sendRFCode2MQTT(code []byte) error {
 	LogRF433_.Printf("sendRFCode2MQTT(%+v)", code)
-	MQTT_chan_ <- code
+	MQTT_rf_chan_ <- code
+	return nil
+}
+
+func sendIRCmd2MQTT(code []byte) error {
+	LogRF433_.Printf("sendIRCmd2MQTT(%s)", string(code))
+	MQTT_ir_chan_ <- string(code)
 	return nil
 }
 

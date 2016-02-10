@@ -67,10 +67,21 @@ func ConnectMQTTBroker(brocker_addr, clientid string) *mqtt.Client {
 	return c
 }
 
-func goSendToMQTT(mqttc *mqtt.Client, code_chan chan []byte) {
+func goSendCodeToMQTT(mqttc *mqtt.Client, code_chan chan []byte) {
 	for code := range code_chan {
+		LogMQTT_.Printf("goSendToMQTT(%+v)", code)
 		if len(code) == 3 {
-			mqttc.Publish(r3events.ACT_RF433_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3events.SendRF433Code{[3]byte{code[0], code[1], code[2]}, time.Now().Unix()}))
+			r3evt := r3events.SendRF433Code{Code: [3]byte{code[0], code[1], code[2]}, Ts: time.Now().Unix()}
+			LogMQTT_.Printf("goSendToMQTT: %+v", r3evt)
+			mqttc.Publish(r3events.ACT_RF433_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evt))
 		}
+	}
+}
+
+func goSendIRCmdToMQTT(mqttc *mqtt.Client, ir_chan chan string) {
+	for cmd := range ir_chan {
+		r3evt := r3events.YamahaIRCmd{Cmd: cmd, Ts: time.Now().Unix()}
+		LogMQTT_.Printf("goSendIRCmdToMQTT: %+v", r3evt)
+		mqttc.Publish(r3events.ACT_YAMAHA_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evt))
 	}
 }

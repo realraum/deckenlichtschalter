@@ -1,3 +1,4 @@
+// (c) Bernhard Tittelbach, 2016
 package main
 
 import (
