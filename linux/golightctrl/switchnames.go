@@ -13,6 +13,7 @@ type ActionNameHandler struct {
 	codeon      []byte
 	codeoff     []byte
 	codedefault []byte
+	metaaction  []string
 }
 
 type RFCmdToSend struct {
@@ -26,6 +27,7 @@ const (
 	RFCode2BOTH           = "RFCode2BOTH"
 	RFCode2MQTT           = "RFCode2MQTT"
 	CeilingLightByteState = "CeilingLightByteState"
+	MetaAction            = "MetaAction"
 	POST_RF433_MQTT_DELAY = 600 * time.Millisecond
 	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
@@ -34,6 +36,7 @@ var MQTT_ir_chan_ chan string
 var RF433_linearize_chan_ chan RFCmdToSend
 
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
+	//RF Power Outlets
 	"regalleinwand": ActionNameHandler{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY}, //white remote B 1
 	"bluebar":       ActionNameHandler{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY}, //white remote C 1
 	"labortisch":    ActionNameHandler{codeon: []byte{0xa2, 0xa2, 0xaa}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2TTY},
@@ -43,9 +46,11 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"mashadecke":    ActionNameHandler{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2TTY},  //pollin 00101 c
 	"boiler":        ActionNameHandler{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
 	"spots":         ActionNameHandler{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
-	"olgatemp":      ActionNameHandler{codeon: []byte{0x00, 0xa2, 0x8a}, codeoff: []byte{0x00, 0xa2, 0x2a}, handler: RFCode2TTY},  // Funksteckdose an welcher olgafreezer.realraum.at hängt
 	"abwasch":       ActionNameHandler{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2MQTT}, //alte jk16 decke vorne
+	//rf not to be included in any, just for resetting POEarduino
+	"olgatemp": ActionNameHandler{codeon: []byte{0x00, 0xa2, 0x8a}, codeoff: []byte{0x00, 0xa2, 0x2a}, handler: RFCode2TTY}, // Funksteckdose an welcher olgafreezer.realraum.at hängt
 
+	//Yamaha IR codes
 	"ymhpoweroff":  ActionNameHandler{codedefault: []byte("ymhpoweroff"), handler: IRCmd2MQTT},
 	"ymhpower":     ActionNameHandler{codedefault: []byte("ymhpower"), codeoff: []byte("ymhpoweroff"), handler: IRCmd2MQTT},
 	"ymhpoweron":   ActionNameHandler{codedefault: []byte("ymhpoweron"), handler: IRCmd2MQTT},
@@ -75,12 +80,18 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ymhsleep":     ActionNameHandler{codedefault: []byte("ymhsleep"), handler: IRCmd2MQTT},
 	"ymhp5":        ActionNameHandler{codedefault: []byte("ymhp5"), handler: IRCmd2MQTT},
 
+	//Ceiling Lights
 	"ceiling1": ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
 	"ceiling2": ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: CeilingLightByteState},
 	"ceiling3": ActionNameHandler{codeon: []byte{2, 1}, codeoff: []byte{2, 0}, handler: CeilingLightByteState},
 	"ceiling4": ActionNameHandler{codeon: []byte{3, 1}, codeoff: []byte{3, 0}, handler: CeilingLightByteState},
 	"ceiling5": ActionNameHandler{codeon: []byte{4, 1}, codeoff: []byte{4, 0}, handler: CeilingLightByteState},
 	"ceiling6": ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
+
+	//Meta Events
+	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch"}},
+	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "cxleds", "ymhpower"}},
+	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
 func SwitchName(name string, onoff bool) error {
@@ -97,11 +108,16 @@ func SwitchName(name string, onoff bool) error {
 		code = nm.codeoff
 	} else if nm.codedefault != nil {
 		code = nm.codedefault
-	} else {
+	} else if len(nm.metaaction) == 0 {
 		return fmt.Errorf("Could not do anything, no code defined")
 	}
 
 	switch nm.handler {
+	case MetaAction:
+		for _, metaname := range nm.metaaction {
+			SwitchName(metaname, onoff)
+		}
+		return nil
 	case IRCmd2MQTT:
 		return sendIRCmd2MQTT(code)
 	case RFCode2TTY, RFCode2BOTH, RFCode2MQTT:

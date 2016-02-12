@@ -29,10 +29,14 @@ func goHandleSwitchCGI(w http.ResponseWriter, r *http.Request) {
 		if len(v) == 0 {
 			continue
 		}
+		var err error
 		if v == "1" || v == "on" || v == "send" {
-			SwitchName(name, true)
+			err = SwitchName(name, true)
 		} else if v == "0" || v == "off" {
-			SwitchName(name, false)
+			err = SwitchName(name, false)
+		}
+		if err != nil {
+			LogRF433_.Println(err)
 		}
 	}
 	replydata, err := json.Marshal(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
@@ -93,11 +97,15 @@ func goHandleWebSocket(w http.ResponseWriter, r *http.Request) {
 				LogWS_.Print("action not a string")
 				continue
 			}
+			var err error
 			switch action {
 			case "1", "on", "send":
-				SwitchName(name, true)
+				err = SwitchName(name, true)
 			case "0", "off":
-				SwitchName(name, false)
+				err = SwitchName(name, false)
+			}
+			if err != nil {
+				LogRF433_.Println(err)
 			}
 		}
 	}
