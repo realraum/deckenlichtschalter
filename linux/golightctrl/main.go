@@ -66,6 +66,7 @@ func main() {
 	mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_MQTTCLIENTID", DEFAULT_GOLIGHTCTRL_MQTTCLIENTID))
 
 	RF433_linearize_chan_ = make(chan RFCmdToSend, 10)
+	MQTT_ir_chan_ = make(chan string, 10)
 	go goLinearizeRFSenders(RF433_linearize_chan_, tty_rf433_chan, mqttc)
 	go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
 
