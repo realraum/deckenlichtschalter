@@ -1,7 +1,12 @@
 // (c) Bernhard Tittelbach, 2016
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+
+	"git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
+)
 
 type ActionNameHandler struct {
 	handler     string
@@ -10,17 +15,23 @@ type ActionNameHandler struct {
 	codedefault []byte
 }
 
+type RFCmdToSend struct {
+	handler string
+	code    []byte
+}
+
 const (
 	IRCmd2MQTT            = "IRCmd2MQTT"
 	RFCode2TTY            = "RFCode2TTY"
 	RFCode2BOTH           = "RFCode2BOTH"
 	RFCode2MQTT           = "RFCode2MQTT"
 	CeilingLightByteState = "CeilingLightByteState"
+	POST_RF433_MQTT_DELAY = 600 * time.Millisecond
+	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
 
-var RF433_chan_ chan SerialLine
-var MQTT_rf_chan_ chan []byte
 var MQTT_ir_chan_ chan string
+var RF433_linearize_chan_ chan RFCmdToSend
 
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"regalleinwand": ActionNameHandler{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY}, //white remote B 1
@@ -79,53 +90,33 @@ func SwitchName(name string, onoff bool) error {
 		return fmt.Errorf("Name does not exist")
 	}
 	LogRF433_.Printf("SwitchName(%s,%s", name, onoff)
-	var handler func([]byte) error
+	var code []byte
+	if onoff && nm.codeon != nil {
+		code = nm.codeon
+	} else if onoff == false && nm.codeoff != nil {
+		code = nm.codeoff
+	} else if nm.codedefault != nil {
+		code = nm.codedefault
+	} else {
+		return fmt.Errorf("Could not do anything, no code defined")
+	}
+
 	switch nm.handler {
 	case IRCmd2MQTT:
-		handler = sendIRCmd2MQTT
-	case RFCode2TTY:
-		handler = sendRFCode2TTY
-	case RFCode2BOTH:
-		handler = sendRFCode2BOTH
-	case RFCode2MQTT:
-		handler = sendRFCode2MQTT
+		return sendIRCmd2MQTT(code)
+	case RFCode2TTY, RFCode2BOTH, RFCode2MQTT:
+		RF433_linearize_chan_ <- RFCmdToSend{handler: nm.handler, code: code}
+		return nil
 	case CeilingLightByteState:
-		handler = setCeilingLightByteState
+		return setCeilingLightByteState(code)
 	default:
 		return fmt.Errorf("Unknown handler %s", nm.handler)
-
 	}
-	if onoff && nm.codeon != nil {
-		return handler(nm.codeon)
-	} else if onoff == false && nm.codeoff != nil {
-		return handler(nm.codeoff)
-	} else if nm.codedefault != nil {
-		return handler(nm.codedefault)
-	}
-	return fmt.Errorf("SwitchName could not do anything")
-}
-
-func sendRFCode2TTY(code []byte) error {
-	LogRF433_.Printf("RFCode2TTY(%+v)", code)
-	RF433_chan_ <- append([]byte(">"), code...)
-	return nil
-}
-
-func sendRFCode2MQTT(code []byte) error {
-	LogRF433_.Printf("sendRFCode2MQTT(%+v)", code)
-	MQTT_rf_chan_ <- code
-	return nil
 }
 
 func sendIRCmd2MQTT(code []byte) error {
 	LogRF433_.Printf("IRCmd2MQTT(%s)", string(code))
 	MQTT_ir_chan_ <- string(code)
-	return nil
-}
-
-func sendRFCode2BOTH(code []byte) error {
-	sendRFCode2TTY(code)
-	sendRFCode2MQTT(code)
 	return nil
 }
 
@@ -136,4 +127,22 @@ func setCeilingLightByteState(code []byte) error {
 	}
 	SetCeilingLightsState(int(code[0]), code[1] == 1)
 	return nil
+}
+
+func goLinearizeRFSenders(rfchan <-chan RFCmdToSend, rf433_tty_chan_ chan SerialLine, mqttc *mqtt.Client) {
+	for rfcmd := range rfchan {
+		switch rfcmd.handler {
+		case RFCode2TTY:
+			rf433_tty_chan_ <- append([]byte(">"), rfcmd.code...)
+			time.Sleep(POST_RF433_TTY_DELAY)
+		case RFCode2BOTH:
+			sendCodeToMQTT(mqttc, rfcmd.code)
+			time.Sleep(POST_RF433_MQTT_DELAY)
+			rf433_tty_chan_ <- append([]byte(">"), rfcmd.code...)
+			time.Sleep(POST_RF433_TTY_DELAY)
+		case RFCode2MQTT:
+			sendCodeToMQTT(mqttc, rfcmd.code)
+			time.Sleep(POST_RF433_MQTT_DELAY)
+		}
+	}
 }

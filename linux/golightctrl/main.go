@@ -43,16 +43,17 @@ func main() {
 
 	var err error
 	var tty_button_chan chan SerialLine
+	var tty_rf433_chan chan SerialLine
 	if UseFakeGPIO_ {
-		RF433_chan_ = make(chan SerialLine, 10)
+		tty_rf433_chan = make(chan SerialLine, 10)
 		go func() {
-			for str := range RF433_chan_ {
+			for str := range tty_rf433_chan {
 				LogRF433_.Println(str)
 			}
 		}()
 		tty_button_chan = make(chan SerialLine, 1)
 	} else {
-		RF433_chan_, _, err = OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_RF433TTYDEV", DEFAULT_GOLIGHTCTRL_RF433TTYDEV), 9600)
+		tty_rf433_chan, _, err = OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_RF433TTYDEV", DEFAULT_GOLIGHTCTRL_RF433TTYDEV), 9600)
 		if err != nil {
 			panic("can't open GOLIGHTCTRL_RF433TTYDEV")
 		}
@@ -64,9 +65,8 @@ func main() {
 	}
 	mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_MQTTCLIENTID", DEFAULT_GOLIGHTCTRL_MQTTCLIENTID))
 
-	MQTT_rf_chan_ = make(chan []byte, 10)
-	MQTT_ir_chan_ = make(chan string, 10)
-	go goSendCodeToMQTT(mqttc, MQTT_rf_chan_)
+	RF433_linearize_chan_ = make(chan RFCmdToSend, 10)
+	go goLinearizeRFSenders(RF433_linearize_chan_, tty_rf433_chan, mqttc)
 	go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
 
 	go goListenForButtons(tty_button_chan)

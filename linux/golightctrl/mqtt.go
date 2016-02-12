@@ -67,14 +67,12 @@ func ConnectMQTTBroker(brocker_addr, clientid string) *mqtt.Client {
 	return c
 }
 
-func goSendCodeToMQTT(mqttc *mqtt.Client, code_chan chan []byte) {
-	for code := range code_chan {
-		LogMQTT_.Printf("goSendToMQTT(%+v)", code)
-		if len(code) == 3 {
-			r3evt := r3events.SendRF433Code{Code: [3]byte{code[0], code[1], code[2]}, Ts: time.Now().Unix()}
-			LogMQTT_.Printf("goSendToMQTT: %+v", r3evt)
-			mqttc.Publish(r3events.ACT_RF433_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evt))
-		}
+func sendCodeToMQTT(mqttc *mqtt.Client, code []byte) {
+	LogMQTT_.Printf("SendToMQTT(%+v)", code)
+	if len(code) == 3 {
+		r3evt := r3events.SendRF433Code{Code: [3]byte{code[0], code[1], code[2]}, Ts: time.Now().Unix()}
+		LogMQTT_.Printf("goSendToMQTT: %+v", r3evt)
+		mqttc.Publish(r3events.ACT_RF433_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evt))
 	}
 }
 
