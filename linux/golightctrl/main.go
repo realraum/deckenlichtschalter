@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/realraum/door_and_sensors/r3events"
 )
 
 const (
@@ -15,7 +17,6 @@ const (
 	DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE string = ":80"
 	DEFAULT_GOLIGHTCTRL_RF433TTYDEV    string = "/dev/ttyACM0"
 	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV   string = "/dev/ttyACM1"
-	DEFAULT_GOLIGHTCTRL_MQTTCLIENTID   string = "GoLightCtrl"
 )
 
 type SerialLine []byte
@@ -63,7 +64,7 @@ func main() {
 			panic("can't open GOLIGHTCTRL_BUTTONTTYDEV")
 		}
 	}
-	mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_MQTTCLIENTID", DEFAULT_GOLIGHTCTRL_MQTTCLIENTID))
+	mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), r3events.CLIENTID_LIGHTCTRL)
 
 	RF433_linearize_chan_ = make(chan RFCmdToSend, 10)
 	MQTT_ir_chan_ = make(chan string, 10)
