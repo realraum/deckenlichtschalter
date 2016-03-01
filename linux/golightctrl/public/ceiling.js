@@ -1,176 +1,149 @@
 "use strict";
 
-var baseUrl = '/cgi-bin/mswitch.cgi';
-
-var pc1_state=false;
-var pc2_state=false;
-var pc3_state=false;
-var pc4_state=false;
-var pc5_state=false;
-var pc6_state=false;
-
-function callBackButtons(req)
-{
-  if(req.status != 200)
-  {
-    return;
+function addEventListeners(types, listener, useCapture) {
+  var typesArray = types.split(' ');
+  for (var i = 0; i < typesArray.length; i++) {
+    this.addEventListener(typesArray[i], listener, useCapture);
   }
+}
+Window.prototype.addEventListeners = addEventListeners;
+EventTarget.prototype.addEventListeners = addEventListeners;
 
-  var data = JSON.parse(req.responseText);
+function resizeRoomImg() {
+  var room = document.getElementsByClassName('room')[0];
+  var img = room.getElementsByTagName('img')[0];
+  var ratio = img.width / img.height;
+  var height = (window.innerHeight - room.offsetTop - 10);
+  // todo: only set if bigger
+  img.style.width = (height * ratio) + 'px';
+}
 
-  if(data['ceiling1']==true)
-  {
-    pc1_state=true;
-    document.getElementById("pc1").style.background="green";
-  }
-  else
-  {
-    pc1_state=false;
-    document.getElementById("pc1").style.background="red";
-  }
+function hasWebSocketSupport() {
+  // see: https://github.com/Modernizr/Modernizr/blob/115aa4a583dff0b44409b000165d22f2577ab0a1/feature-detects/websockets.js
+  var supports = false;
+  try {
+    supports = 'WebSocket' in window && window.WebSocket.CLOSING === 2;
+  } catch (e) {}
+  return supports;
+}
 
+function openWebSocket(webSocketUrl) {
+  var webSocket = new WebSocket(webSocketUrl);
+  webSocket.onopen = function (event) {
+    webSocket.onmessage = function(event) {
+      console.log(event);
+    };
+    webSocket.onclose = function(event) {
+      console.log('webSocket closed');
+      webSocket = null;
+    }
+  };
+  return webSocket;
+}
 
-  if(data['ceiling2']==true)
-  {
-    pc2_state=true;
-    document.getElementById("pc2").style.background="green";
-  }
-  else
-  {
-    pc2_state=false;
-    document.getElementById("pc2").style.background="red";
-  }
-
-  if(data['ceiling3']==true)
-  {
-    pc3_state=true;
-    document.getElementById("pc3").style.background="green";
-  }
-  else
-  {
-    pc3_state=false;
-    document.getElementById("pc3").style.background="red";
-  }
-
-
-  if(data['ceiling4']==true)
-  {
-    pc4_state=true;
-    document.getElementById("pc4").style.background="green";
-  }
-  else
-  {
-    pc4_state=false;
-    document.getElementById("pc4").style.background="red";
-  }
-
-
-  if(data['ceiling5']==true)
-  {
-    pc5_state=true;
-    document.getElementById("pc5").style.background="green";
-  }
-  else
-  {
-    pc5_state=false;
-    document.getElementById("pc5").style.background="red";
-  }
-
-  if(data['ceiling6']==true)
-  {
-    pc6_state=true;
-    document.getElementById("pc6").style.background="green";
-  }
-  else
-  {
-    pc6_state=false;
-    document.getElementById("pc6").style.background="red";
+function renderButtonStates() {
+  var ceilings = document.getElementsByClassName('ceiling');
+  for (var i = 0; i < ceilings.length; i++) {
+    var id = ceilings[i].getAttribute('id');
+    if (!buttons.hasOwnProperty(id)) {
+      continue;
+    }
+    if (buttons[id]) {
+      ceilings[i].style.background = 'green';
+    } else {
+      ceilings[i].style.background = 'red';
+    }
   }
 }
 
-function updateButtons(uri) {
+function setButtonStates(data) {
+  for (var key in data) {
+    if (data.hasOwnProperty(key) && buttons.hasOwnProperty(key)) {
+      buttons[key] = data[key] ? true : false;
+    }
+  }
+}
+
+function switchButton(ceiling, sendState) {
+  var url = cgiUrl;
+  if (typeof ceiling !== 'undefined' && typeof sendState !== 'undefined') {
+    url += '?' + ceiling + '=' + (sendState ? '1' : '0');
+  }
   var req = new XMLHttpRequest;
   req.overrideMimeType("application/json");
-  req.open("GET", uri, true);
-  req.onload  = function() {callBackButtons(req)};
+  req.open("GET", url, true);
+  req.onload = function() {
+    if (req.status != 200) {
+      return;
+    }
+    var data = JSON.parse(req.responseText);
+    setButtonStates(data);
+    renderButtonStates();
+  };
   req.setRequestHeader("googlechromefix","");
   req.send(null);
 }
 
-function sendMultiButton( str ) {
-  updateButtons(baseUrl + "?" + str);
+function switchButtonWebSocket(ceiling, sendState) {
+  var message = {
+    ctx: 'switch',
+    data: {
+      name: ceiling,
+      action: sendState ? '1' : '0'
+    }
+  };
+  webSocket.send(JSON.stringify(message));
+
+  //todo: remove this when websockets work
+  buttons[ceiling] = sendState;
+  renderButtonStates();
 }
 
+var webSocketUrl = 'ws://licht.realraum.at/sock';
+var cgiUrl = '/cgi-bin/mswitch.cgi';
+var cgiUrl = 'fake.json';
 
-//function pc(n) switches light n
+var webSocketSupport = null;
+var webSocket = null;
 
-function pc1()
-{
-  if(pc1_state===true)
-  {
-    sendMultiButton("ceiling1=0");
-  }
-  else
-  {
-    sendMultiButton("ceiling1=1");
-  }
-}
-function pc2()
-{
-  if(pc2_state===true)
-  {
-    sendMultiButton("ceiling2=0");
-  }
-  else
-  {
-    sendMultiButton("ceiling2=1");
-  }
-}
-function pc3()
-{
-  if(pc3_state===true)
-  {
-    sendMultiButton("ceiling3=0");
-  }
-  else
-  {
-    sendMultiButton("ceiling3=1");
-  }
-}
-function pc4()
-{
-  if(pc4_state===true)
-  {
-    sendMultiButton("ceiling4=0");
-  }
-  else
-  {
-    sendMultiButton("ceiling4=1");
-  }
-}
-function pc5()
-{
-  if(pc5_state===true)
-  {
-    sendMultiButton("ceiling5=0");
-  }
-  else
-  {
-    sendMultiButton("ceiling5=1");
-  }
-}
+var buttons = {
+  ceiling1: false,
+  ceiling2: false,
+  ceiling3: false,
+  ceiling4: false,
+  ceiling5: false,
+  ceiling6: false
+};
 
-function pc6()
-{
-  if(pc6_state===true)
-  {
-    sendMultiButton("ceiling6=0");
-  }
-  else
-  {
-    sendMultiButton("ceiling6=1");
-  }
-}
+(function() {
+  window.addEventListeners('resize orientationchange', resizeRoomImg);
+  resizeRoomImg();
 
-setInterval("updateButtons(baseUrl);", 30*100 );
-updateButtons(baseUrl);
+  switchButton();
+
+  webSocketSupport = hasWebSocketSupport();
+  if (webSocketSupport) {
+    webSocket = openWebSocket(webSocketUrl);
+  }
+
+  var ceilings = document.getElementsByClassName('ceiling');
+  for (var i = 0; i < ceilings.length; i++) {
+    ceilings[i].addEventListener('click', function() {
+      var id = this.getAttribute('id');
+      if (!buttons.hasOwnProperty(id)) {
+        return;
+      }
+      if (webSocketSupport) {
+        switchButtonWebSocket(id, !buttons[id]);
+      } else {
+        switchButton(id, !buttons[id]);
+      }
+    });
+  }
+
+  // todo: replace this with websockets if supported.
+  setInterval(function() {
+    switchButton();
+  }, 1000);
+
+})();

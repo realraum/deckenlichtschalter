@@ -9,6 +9,7 @@ nav ul {
     display: inline-block;
     list-style: none;
     padding-left: 0;
+    margin: 0;
 }
 
 nav ul:after {
@@ -29,6 +30,11 @@ nav ul li + li {
     margin-left: 1em;
 }
 
+nav a {
+    display: block;
+    padding: 1em;
+}
+
 .content {
     display: inline-block;
     margin: 0 auto;
@@ -37,12 +43,6 @@ nav ul li + li {
 .room {
     position: relative;
     display: inline-block;
-    /*width: 100%;
-    padding-top: 64%;*/ /* fixed ratio 631/987 */
-
-    /*max-width: 100%;
-    max-height: 100%;
-    height: 100%;*/
 }
 
 .room img {
@@ -51,30 +51,33 @@ nav ul li + li {
     height: auto;
 }
 
-.pc {
+.ceiling {
     position: absolute;
-    background: #f00 none repeat scroll 0% 0%;
-    width: 13%;
-    padding-top: 13%;
-    z-index:20;
+    background-color: #000000;
+    background-repeat: no-repeat;
+    width: 14%;
+    padding-top: 14%;
+    z-index: 10;
+    cursor: pointer;
+    transition: background-color 0.5s;
 }
 
-#pc2, #pc4, #pc6 {
-    top: 22%;
+#ceiling2, #ceiling4, #ceiling6 {
+    top: 21%;
 }
 
-#pc1, #pc3, #pc5 {
-    top: 58%;
+#ceiling1, #ceiling3, #ceiling5 {
+    top: 57%;
 }
 
-#pc1, #pc2 {
+#ceiling1, #ceiling2 {
     left: 70%
 }
 
-#pc3, #pc4 {
+#ceiling3, #ceiling4 {
     left: 40%
 }
 
-#pc5, #pc6 {
+#ceiling5, #ceiling6 {
     left: 13%;
 }
