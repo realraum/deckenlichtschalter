@@ -6,4 +6,4 @@ REMOTE_DIR=/home/realraum/golightctrl
 export GOOS=linux
 export GOARCH=arm
 export CGO_ENABLED=0
-go build "$@"  && rsync ${OPTIONS[@]} -rv --delay-updates --progress ${PWD:t} config.env public --delete ${REMOTE_HOST}:${REMOTE_DIR}/  && ssh ${REMOTE_HOST/realraum@/root@} sudo /sbin/setcap 'cap_net_bind_service=+ep' ${REMOTE_DIR}/${PWD:t}&& ssh $REMOTE_HOST systemctl --user restart golightctrl.service
+go build "$@"  && rsync ${OPTIONS[@]} -rvp --delay-updates --progress ${PWD:t} config.env public --delete ${REMOTE_HOST}:${REMOTE_DIR}/  && ssh ${REMOTE_HOST/realraum@/root@} sudo /sbin/setcap 'cap_net_bind_service=+ep' ${REMOTE_DIR}/${PWD:t}&& ssh $REMOTE_HOST systemctl --user restart golightctrl.service
