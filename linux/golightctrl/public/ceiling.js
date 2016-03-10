@@ -31,29 +31,20 @@ function hasWebSocketSupport() {
   return supports;
 }
 
-var ws = {};
-ws.contexts = {};
-ws.registerContext = function(ctx, handler) {
-  ws.contexts[ctx] = handler;
-}
-
 function openWebSocket(webSocketUrl) {
   var webSocket = new WebSocket(webSocketUrl);
-  webSocket.onopen = function (event) {
-    webSocket.onmessage = function(response){
-      //console.log(response);
-      var m = $.parseJSON(response.data);
-      if (m["ctx"] && m["data"] && typeof(ws.contexts[m.ctx]) == "function") {
-        ws.contexts[m.ctx](m.data);
+  webSocket.onopen = function () {
+    webSocket.onmessage = function(event) {
+      var message = JSON.parse(event.data);
+      if (message.ctx === 'ceilinglights') {
+        setButtonStates(message.data);
+        renderButtonStates();
       }
     };
     webSocket.onclose = function(event) {
       console.log('webSocket closed');
       webSocket = null;
-    }
-    ws.registerContext("ceilinglights",function(data){
-      setButtonStates(data);
-    })
+    };
   };
   return webSocket;
 }
@@ -158,8 +149,7 @@ var buttons = {
     });
   }
 
-  if (!webSocketSupport)
-  {
+  if (!webSocketSupport) {
     setInterval(function() {
       switchButton();
     }, 1000);
