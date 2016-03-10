@@ -31,19 +31,32 @@ function hasWebSocketSupport() {
   return supports;
 }
 
+var ws = {};
+ws.contexts = {};
+ws.registerContext = function(ctx, handler) {
+  ws.contexts[ctx] = handler;
+}
+
 function openWebSocket(webSocketUrl) {
   var webSocket = new WebSocket(webSocketUrl);
   webSocket.onopen = function () {
     webSocket.onmessage = function(event) {
       var message = JSON.parse(event.data);
-      if (message.ctx === 'ceilinglights') {
-        setButtonStates(message.data);
-        renderButtonStates();
+      if (message["ctx"] && message["data"] && typeof(ws.contexts[message.ctx]) == "function") {
+        ws.contexts[message.ctx](message.data);
       }
     };
     webSocket.onclose = function(event) {
       webSocket = null;
-    };
+      alert("Connection to server lost");
+      window.location.reload()
+    }
+    ws.registerContext("ceilinglights",function(data){
+      setButtonStates(data);
+    });
+    ws.registerContext("wbp",function(data){
+      console.log(data);
+    });
   };
   window.addEventListener('beforeunload', function() {
     webSocket.close();

@@ -32,6 +32,7 @@ const (
 	PS_WEBSOCK_ALL_JSON = "websock_toall_json"
 	PS_WEBSOCK_ALL      = "websock_toall"
 	PS_LIGHTS_CHANGED   = "light_state_changed"
+	PS_IRRF433_CHANGED  = "stateless_button_send_event"
 	PS_SHUTDOWN         = "shutdown"
 )
 
