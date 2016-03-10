@@ -82,3 +82,59 @@ nav a {
 #ceiling5, #ceiling6 {
     left: 13%;
 }
+
+/* switch */
+
+div.switchbox {
+    float:left;
+    margin:2px;
+    max-width:300px;
+    font-size:10pt;
+    border:1px solid black;
+    padding:0;
+}
+
+div.switchnameleft {
+    width:12em; display:inline-block; vertical-align:middle; margin-left:3px;
+}
+
+span.alignbuttonsright {
+    top:0px; float:right; display:inline-block; text-align:right; padding:0;
+}
+
+div.switchnameright {
+    width:12em; display:inline-block; vertical-align:middle; float:right; display:inline-block; margin-left:1ex; margin-right:3px; margin-top:3px; margin-bottom:3px;
+}
+
+span.alignbuttonsleft {
+    float:left; text-align:left; padding:0;
+}
+
+.onbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    background-color: lime;
+    margin: 0px;
+}
+
+.offbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    background-color: red;
+    margin: 0px;
+}
+
+.sendbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    margin: 0px;
+}
+
+.enableborder {
+    font-weight: bold;
+    font-variant: small-caps;
+    border-style: inset;
+}
