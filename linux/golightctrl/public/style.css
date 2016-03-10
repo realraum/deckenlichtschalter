@@ -41,6 +41,7 @@ nav a {
 }
 
 .room {
+    max-width: 100%;
     position: relative;
     display: inline-block;
 }
