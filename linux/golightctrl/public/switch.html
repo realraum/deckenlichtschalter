@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Realraum RF and Relay Power</title>
 <script type="text/javascript">
 function callbackUpdateButtons(req) {
@@ -87,7 +89,19 @@ function remoteKeyboard( e )
 
 document.onkeydown = remoteKeyboard;
 </script>
-</head><body><map name="ymhremote">
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head><body>
+
+
+<nav>
+  <ul>
+    <li><a href="index.html">Ceiling Lights</a></li>
+    <li><a href="switch.html" class="active">ALL switches</a></li>
+  </ul>
+</nav>
+
+<map name="ymhremote">
+
 <area shape="rect" coords="57,36,121,59" onclick="sendYmhButton('ymhpower');">
 
 <area shape="circle" coords="36,98,17" onclick="sendYmhButton('ymhcd');" alt="ymhcd">
@@ -171,6 +185,7 @@ span.alignbuttonsleft {
 }
 </style>
 
+<div class="content">
 
 <div style="float:left;">
 <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
@@ -327,6 +342,8 @@ span.alignbuttonsleft {
 <p id="commandlabel" style="display:hidden; width:180px;">&nbsp;</p>
 </div>
 </div>
+</div>
 
 
-</body></html>
+  </body>
+</html>

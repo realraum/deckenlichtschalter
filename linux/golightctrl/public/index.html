@@ -1,219 +1,28 @@
-<html><head>
-<meta http-equiv="content-type" content="text/html; charset=utf8">
-<link rel="stylesheet" type="text/css" href="ceiling.css">
-<script type="text/javascript">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="index.html" class="active">Ceiling Lights</a></li>
+        <li><a href="switch.html">ALL switches</a></li>
+      </ul>
+    </nav>
+    <div class="room">
+      <img src="imgs/realraumsimpel.png" alt="room map" />
 
-   var pc1_state=false;
-   var pc2_state=false;
-   var pc3_state=false;
-   var pc4_state=false;
-   var pc5_state=false;
-   var pc6_state=false;
+      <div class="ceiling" id="ceiling1"></div>
+      <div class="ceiling" id="ceiling2"></div>
+      <div class="ceiling" id="ceiling3"></div>
+      <div class="ceiling" id="ceiling4"></div>
+      <div class="ceiling" id="ceiling5"></div>
+      <div class="ceiling" id="ceiling6"></div>
+    </div>
 
-function callBackButtons(req)
-{
-	if(req.status != 200)
-	{
-		return;
-	}
-
-
-	var data = JSON.parse(req.responseText);
-
-		if(data['ceiling1']==true)
-		{
-			pc1_state=true;
-			document.getElementById("pc1").style.background="green";
-		}
-		else 
-		{
-			pc1_state=false;
-			document.getElementById("pc1").style.background="red";
-		}
-		
-
-                if(data['ceiling2']==true)
-                {
-                        pc2_state=true;
-                        document.getElementById("pc2").style.background="green";
-                }
-                else 
-                {
-                        pc2_state=false;
-                        document.getElementById("pc2").style.background="red";
-                }
-		
-                if(data['ceiling3']==true)
-                {
-                        pc3_state=true;
-                        document.getElementById("pc3").style.background="green";
-                }
-                else 
-                {
-                        pc3_state=false;
-                        document.getElementById("pc3").style.background="red";
-                }
-		
-
-                if(data['ceiling4']==true)
-                {
-                        pc4_state=true;
-                        document.getElementById("pc4").style.background="green";
-                }
-                else 
-                {
-                        pc4_state=false;
-                        document.getElementById("pc4").style.background="red";
-                }
-
-
-                if(data['ceiling5']==true)
-                {
-                        pc5_state=true;
-                        document.getElementById("pc5").style.background="green";
-                }
-                else 
-                {
-                        pc5_state=false;
-                        document.getElementById("pc5").style.background="red";
-                }
-
-                if(data['ceiling6']==true)
-                {
-                        pc6_state=true;
-                        document.getElementById("pc6").style.background="green";
-                }
-                else 
-                {
-                        pc6_state=false;
-                        document.getElementById("pc6").style.background="red";
-                }
-}
-
-function updateButtons(uri) {
-  var req = new XMLHttpRequest;
-  req.overrideMimeType("application/json");
-  req.open("GET", uri, true);
-  req.onload  = function() {callBackButtons(req)};
-  req.setRequestHeader("googlechromefix","");
-  req.send(null);
-}
-function sendMultiButton( str ) {
- url = "/cgi-bin/mswitch.cgi?"+str;
-  updateButtons(url);
-}
-
-
-//function pc(n) switches light n
-
-function pc1()
-{
-	if(pc1_state===true)
-        {
-	   pc1_state=false;
-	   sendMultiButton("ceiling1=0")
-	   document.getElementById("pc1").style.background="red";
-	}	
- 	else
-	{
-	   pc1_state=true;
-	   sendMultiButton("ceiling1=1")
-           document.getElementById("pc1").style.background="green";
-	}
-}
-function pc2()
-{
-	if(pc2_state===true)
-        {
-	   pc2_state=false;
-           sendMultiButton("ceiling2=0")		
-	   document.getElementById("pc2").style.background="red";
-	}	
- 	else
-	{
-	   pc2_state=true;
-	   sendMultiButton("ceiling2=1")	
-           document.getElementById("pc2").style.background="green";
-	}
-}
-function pc3()
-{
-	if(pc3_state===true)
-        {
-	   pc3_state=false;
-	   sendMultiButton("ceiling3=0")	
-	   document.getElementById("pc3").style.background="red";
-	}	
- 	else
-	{
-	   pc3_state=true;
-	   sendMultiButton("ceiling3=1")
-           document.getElementById("pc3").style.background="green";
-	}
-}
-function pc4()
-{
-	if(pc4_state===true)
-        {
-	   pc4_state=false;
-	   sendMultiButton("ceiling4=0")
-	   document.getElementById("pc4").style.background="red";
-	}	
- 	else
-	{
-	   pc4_state=true;
-	   sendMultiButton("ceiling4=1")
-           document.getElementById("pc4").style.background="green";
-	}
-}
-function pc5()
-{
-	if(pc5_state===true)
-        {
-	   pc5_state=false;
-	   sendMultiButton("ceiling5=0")
-	   document.getElementById("pc5").style.background="red";
-	}	
- 	else
-	{
-	   pc5_state=true;
-	   sendMultiButton("ceiling5=1")
-           document.getElementById("pc5").style.background="green";
-	}
-}
-
-function pc6()
-{
-	if(pc6_state===true)
-        {
-	   pc6_state=false;
-	   sendMultiButton("ceiling6=0")
-	   document.getElementById("pc6").style.background="red";
-	}	
- 	else
-	{
-	   pc6_state=true;
-	   sendMultiButton("ceiling6=1")
-           document.getElementById("pc6").style.background="green";
-	}
-}
-
-setInterval("updateButtons('/cgi-bin/mswitch.cgi');", 30*100 );
-updateButtons("/cgi-bin/mswitch.cgi");
-</script></head>
-
-
-
-
-
-<body>
-<div style="position:absolute; top:640px;"><a href="/switch.html">Link to ALL switches</a></div>
-<div style="background: green none repeat scroll 0% 0%;" class="pc1" id="pc1" onclick="pc1()"></div>
-<div style="background: red none repeat scroll 0% 0%;" class="pc2" id="pc2" onclick="pc2()"></div>
-<div style="background: red none repeat scroll 0% 0%;" class="pc3" id="pc3" onclick="pc3()"></div>
-<div style="background: green none repeat scroll 0% 0%;" class="pc4" id="pc4" onclick="pc4()"></div>
-<div style="background: green none repeat scroll 0% 0%;" class="pc5" id="pc5" onclick="pc5()"></div>
-<div style="background: red none repeat scroll 0% 0%;" class="pc6" id="pc6" onclick="pc6()"></div>
-
-
-</body></html>
+    <script type="text/javascript" src="ceiling.js"></script>
+  </body>
+</html>
