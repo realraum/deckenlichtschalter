@@ -39,16 +39,14 @@ ws.registerContext = function(ctx, handler) {
 
 function openWebSocket(webSocketUrl) {
   var webSocket = new WebSocket(webSocketUrl);
-  webSocket.onopen = function (event) {
-    webSocket.onmessage = function(response){
-      //console.log(response);
-      var m = $.parseJSON(response.data);
-      if (m["ctx"] && m["data"] && typeof(ws.contexts[m.ctx]) == "function") {
-        ws.contexts[m.ctx](m.data);
+  webSocket.onopen = function () {
+    webSocket.onmessage = function(event) {
+      var message = JSON.parse(event.data);
+      if (message["ctx"] && message["data"] && typeof(ws.contexts[message.ctx]) == "function") {
+        ws.contexts[message.ctx](message.data);
       }
     };
     webSocket.onclose = function(event) {
-      console.log('webSocket closed');
       webSocket = null;
     }
     ws.registerContext("ceilinglights",function(data){
@@ -58,6 +56,9 @@ function openWebSocket(webSocketUrl) {
       console.log(data);
     })
   };
+  window.addEventListener('beforeunload', function() {
+    webSocket.close();
+  });
   return webSocket;
 }
 
@@ -161,8 +162,7 @@ var buttons = {
     });
   }
 
-  if (!webSocketSupport)
-  {
+  if (!webSocketSupport) {
     setInterval(function() {
       switchButton();
     }, 1000);
