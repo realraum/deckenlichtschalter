@@ -48,13 +48,15 @@ function openWebSocket(webSocketUrl) {
     };
     webSocket.onclose = function(event) {
       webSocket = null;
+      alert("Connection to server lost");
+      window.location.reload()
     }
     ws.registerContext("ceilinglights",function(data){
       setButtonStates(data);
-    })
+    });
     ws.registerContext("wbp",function(data){
       console.log(data);
-    })
+    });
   };
   window.addEventListener('beforeunload', function() {
     webSocket.close();
