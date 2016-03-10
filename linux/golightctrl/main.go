@@ -9,6 +9,7 @@ import (
 	"strings"
 	"syscall"
 
+	pubsub "github.com/btittelbach/pubsub"
 	"github.com/realraum/door_and_sensors/r3events"
 )
 
@@ -24,12 +25,22 @@ type SerialLine []byte
 var (
 	UseFakeGPIO_ bool
 	DebugFlags_  string
+	ps_          *pubsub.PubSub
+)
+
+const (
+	PS_WEBSOCK_ALL_JSON = "websock_toall_json"
+	PS_WEBSOCK_ALL      = "websock_toall"
+	PS_LIGHTS_CHANGED   = "light_state_changed"
+	PS_SHUTDOWN         = "shutdown"
 )
 
 func init() {
 	flag.BoolVar(&UseFakeGPIO_, "fakegpio", false, "For testing")
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
+	ps_ = pubsub.New(10)
 }
+
 func main() {
 	flag.Parse()
 	if len(DebugFlags_) > 0 {

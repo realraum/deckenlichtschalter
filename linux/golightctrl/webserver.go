@@ -19,11 +19,19 @@ type wsMessageOut struct {
 	Data interface{} `json:"data"`
 }
 
-func goHandleSwitchCGI(w http.ResponseWriter, r *http.Request) {
+type JsonFuture struct {
+	future chan []byte
+}
+
+// handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
+// returns json formated state of Ceiling Lights
+func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightstate_chan chan JsonFuture) {
 	if err := r.ParseForm(); err != nil {
 		LogWS_.Print(err)
 		return
 	}
+	ourfuture := make(chan []byte)
+	retained_lightstate_chan <- JsonFuture{ourfuture}
 	for name, _ := range actionname_map_ {
 		v := r.FormValue(name)
 		if len(v) == 0 {
@@ -39,15 +47,108 @@ func goHandleSwitchCGI(w http.ResponseWriter, r *http.Request) {
 			LogRF433_.Println(err)
 		}
 	}
-	replydata, err := json.Marshal(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
-	if err != nil {
-		LogWS_.Print(err)
-		return
-	}
-	w.Write(replydata)
+	w.Write(<-ourfuture)
 }
 
-func goHandleWebSocket(w http.ResponseWriter, r *http.Request) {
+// cache Lights Change Update for webHandleSwitchCGI()
+func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture) {
+	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
+	lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
+	defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
+
+	var cached_switchcgireply_json []byte
+	var err error
+	for {
+		select {
+		case <-shutdown_chan:
+			return
+		case lc := <-lights_changed_chan:
+			//prepare and retain json for webHandleSwitchCGI()
+			cached_switchcgireply_json, err = json.Marshal(lc)
+			if err != nil {
+				LogWS_.Print(err)
+				cached_switchcgireply_json = nil
+			}
+
+		case f := <-retained_lightstate_chan:
+			if f.future == nil {
+				continue
+			}
+			//maybe last broadcast was shit or never happened.. get info ourselves
+			if cached_switchcgireply_json == nil || len(cached_switchcgireply_json) == 0 {
+				cached_switchcgireply_json, err = json.Marshal(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
+				if err != nil {
+					LogWS_.Print(err)
+					cached_switchcgireply_json = []byte("{}")
+				}
+			}
+			//non blocking send
+			select {
+			case f.future <- cached_switchcgireply_json:
+			default:
+			}
+		}
+	}
+}
+
+// glue-code that repackages updates as json
+// It is here so we can rewrite the json output format for the webserver if we want
+// AND so that conversion to JSON is done only once for every connected websocket
+func goJSONMarshalStuffForWebSockClients() {
+	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
+	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
+	lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
+	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
+	defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
+
+	for {
+		msg := wsMessageOut{}
+		select {
+		case <-shutdown_chan:
+			return
+		case lu := <-msgtoall_chan:
+			msg.Data = lu
+			msg.Ctx = "some_other_message_ctx_example"
+		case lc := <-lights_changed_chan:
+			msg.Ctx = "ceilinglights"
+			msg.Data = lc
+		}
+		if len(msg.Ctx) == 0 {
+			continue
+		}
+		if jsonbytes, err := json.Marshal(msg); err == nil {
+			ps_.Pub(jsonbytes, PS_WEBSOCK_ALL_JSON)
+		} else {
+			LogWS_.Println(err)
+		}
+	}
+}
+
+// goroutine responsible for talking TO a websocket client connected to /sock
+func goWriteToClientAboutLightStateChanges(ws *websocket.Conn) {
+	shutdown_c := ps_.SubOnce(PS_SHUTDOWN)
+	udpate_c := ps_.Sub(PS_WEBSOCK_ALL_JSON)
+	defer ps_.Unsub(udpate_c, PS_WEBSOCK_ALL_JSON)
+	for {
+		select {
+		case <-shutdown_c:
+			LogWS_.Println("goWriteToClientAboutLightStateChanges", ws.RemoteAddr(), "Shutdown")
+			return
+		case jsonupdate := <-udpate_c:
+			LogWS_.Printf("goWriteToClientAboutLightStateChanges %s: %s\n", ws.RemoteAddr(), jsonupdate)
+			if err := ws.WriteMessage(websocket.TextMessage, jsonupdate.([]byte)); err != nil {
+				LogWS_.Println("goWriteToClientAboutLightStateChanges", ws.RemoteAddr(), "Error", err)
+				ps_.Unsub(shutdown_c, "shutdown")
+				return
+			}
+		}
+	}
+}
+
+// handles requests to /sock WebSocket
+// following ctx are handled:
+// "switch": {name:..., action:...}
+func webHandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
 	if _, ok := err.(websocket.HandshakeError); ok {
 		http.Error(w, "Not a websocket handshake", 400)
@@ -57,8 +158,10 @@ func goHandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	LogWS_.Println("Client connected", ws.RemoteAddr())
-	//TODO: send Client updates about CeilingLight states and maybe about RF Send Actions
-	//go goWriteToWebSocketClient(ws, ps)
+
+	//2nd goroutine per client that handles async push info
+	//e.g. sends updates about CeilingLight states and maybe about RF Send Actions
+	go goWriteToClientAboutLightStateChanges(ws)
 
 	// logged_in := false
 	for {
@@ -128,9 +231,13 @@ func goRunMartini() {
 	/*	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) {
 		goTalkWithClient(w, r, ps)
 	})*/
-	m.Get("/cgi-bin/mswitch.cgi", goHandleSwitchCGI)
+	retained_lightstate_chan := make(chan JsonFuture, 20)
+	go goRetainCeilingLightsJSONForLater(retained_lightstate_chan)
+	go goJSONMarshalStuffForWebSockClients()
+
+	m.Get("/cgi-bin/mswitch.cgi", func(w http.ResponseWriter, r *http.Request) { webHandleSwitchCGI(w, r, retained_lightstate_chan) })
 	m.Get("/cgi-bin/switch.cgi", webRedirectToSwitchHTML)
 	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToSwitchHTML)
-	m.Get("/sock", goHandleWebSocket)
+	m.Get("/sock", webHandleWebSocket)
 	m.RunOnAddr(EnvironOrDefault("GOLIGHTCTRL_HTTP_INTERFACE", DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE))
 }
