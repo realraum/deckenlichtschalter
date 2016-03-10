@@ -42,10 +42,12 @@ function openWebSocket(webSocketUrl) {
       }
     };
     webSocket.onclose = function(event) {
-      console.log('webSocket closed');
       webSocket = null;
     };
   };
+  window.addEventListener('beforeunload', function() {
+    webSocket.close();
+  });
   return webSocket;
 }
 
