@@ -12,7 +12,11 @@ EventTarget.prototype.addEventListeners = addEventListeners;
 function resizeRoomImg() {
   var room = document.getElementsByClassName('room')[0];
   var img = room.getElementsByTagName('img')[0];
-  var ratio = img.width / img.height;
+  var width =  img.getAttribute('width');
+  var height =  img.getAttribute('height');
+  width = width === null || width === '' ? img.width : width;
+  height = height === null || height === '' ? img.height : height;
+  var ratio = width / height;
   var height = (window.innerHeight - room.offsetTop - 10);
   // todo: only set if bigger
   img.style.width = (height * ratio) + 'px';
