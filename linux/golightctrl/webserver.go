@@ -19,6 +19,10 @@ type wsMessageOut struct {
 	Data interface{} `json:"data"`
 }
 
+type jsonButtonUsed struct {
+	Name string `json:"name"`
+}
+
 type JsonFuture struct {
 	future chan []byte
 }
@@ -98,8 +102,10 @@ func goJSONMarshalStuffForWebSockClients() {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
 	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
 	lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
+	button_used_chan := ps_.Sub(PS_IRRF433_CHANGED)
 	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
 	defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
+	defer ps_.Unsub(button_used_chan, PS_IRRF433_CHANGED)
 
 	for {
 		msg := wsMessageOut{}
@@ -112,6 +118,9 @@ func goJSONMarshalStuffForWebSockClients() {
 		case lc := <-lights_changed_chan:
 			msg.Ctx = "ceilinglights"
 			msg.Data = lc
+		case bu := <-button_used_chan:
+			msg.Ctx = "wbp" //web button pressed
+			msg.Data = bu
 		}
 		if len(msg.Ctx) == 0 {
 			continue

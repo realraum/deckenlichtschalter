@@ -54,6 +54,9 @@ function openWebSocket(webSocketUrl) {
     ws.registerContext("ceilinglights",function(data){
       setButtonStates(data);
     })
+    ws.registerContext("wbp",function(data){
+      console.log(data);
+    })
   };
   return webSocket;
 }

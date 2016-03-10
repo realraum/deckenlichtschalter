@@ -94,7 +94,7 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
-func SwitchName(name string, onoff bool) error {
+func SwitchName(name string, onoff bool) (err error) {
 	nm, inmap := actionname_map_[name]
 	if !inmap {
 		LogRF433_.Printf("Name %s does not exist in actionname_map_", name)
@@ -115,19 +115,31 @@ func SwitchName(name string, onoff bool) error {
 	switch nm.handler {
 	case MetaAction:
 		for _, metaname := range nm.metaaction {
-			SwitchName(metaname, onoff)
+			err = SwitchName(metaname, onoff)
 		}
-		return nil
 	case IRCmd2MQTT:
-		return sendIRCmd2MQTT(code)
+		err = sendIRCmd2MQTT(code)
 	case RFCode2TTY, RFCode2BOTH, RFCode2MQTT:
 		RF433_linearize_chan_ <- RFCmdToSend{handler: nm.handler, code: code}
-		return nil
 	case CeilingLightByteState:
-		return setCeilingLightByteState(code)
+		err = setCeilingLightByteState(code)
 	default:
 		return fmt.Errorf("Unknown handler %s", nm.handler)
 	}
+
+	if err != nil {
+		return
+	}
+
+	//notify Everyone
+	switch nm.handler {
+	case MetaAction, IRCmd2MQTT, RFCode2TTY, RFCode2BOTH, RFCode2MQTT:
+		ps_.Pub2(false, jsonButtonUsed{name}, PS_IRRF433_CHANGED)
+	case CeilingLightByteState:
+		ps_.Pub2(false, ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1), PS_LIGHTS_CHANGED)
+	}
+
+	return
 }
 
 func sendIRCmd2MQTT(code []byte) error {

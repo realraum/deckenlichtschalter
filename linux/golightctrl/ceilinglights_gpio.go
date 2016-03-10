@@ -66,8 +66,4 @@ func SetCeilingLightsState(ceiling_light_number int, onoff bool) {
 		return
 	}
 	gpios_ceiling_lights_[ceiling_light_number].SetState(onoff)
-	go func() {
-		//think about making this cleaner
-		ps_.Pub2(false, ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1), PS_LIGHTS_CHANGED)
-	}()
 }
