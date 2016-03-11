@@ -35,22 +35,26 @@ var ws = {};
 ws.contexts = {};
 ws.registerContext = function(ctx, handler) {
   ws.contexts[ctx] = handler;
-}
+};
 
 function openWebSocket(webSocketUrl) {
-  var webSocket = new WebSocket(webSocketUrl);
+  ws.contexts = {};
+  webSocket = new WebSocket(webSocketUrl);
   webSocket.onopen = function () {
     webSocket.onmessage = function(event) {
       var message = JSON.parse(event.data);
-      if (message["ctx"] && message["data"] && typeof(ws.contexts[message.ctx]) == "function") {
+      if (message["ctx"] && message["data"] && typeof(ws.contexts[message.ctx]) === "function") {
         ws.contexts[message.ctx](message.data);
       }
     };
     webSocket.onclose = function(event) {
-      webSocket = null;
-      alert("Connection to server lost");
-      window.location.reload()
-    }
+      console.log('Connection to server lost. reconnecting...');
+      setTimeout(function () {
+        console.log('reconnect!');
+        webSocket = null;
+        openWebSocket(webSocketUrl);
+      }, 1000);
+    };
     ws.registerContext("ceilinglights",function(data){
       setButtonStates(data);
     });
@@ -59,9 +63,10 @@ function openWebSocket(webSocketUrl) {
     });
   };
   window.addEventListener('beforeunload', function() {
+    webSocket.onclose = null;
     webSocket.close();
+    webSocket = null;
   });
-  return webSocket;
 }
 
 function renderButtonStates() {
@@ -146,7 +151,7 @@ var buttons = {
 
   webSocketSupport = hasWebSocketSupport();
   if (webSocketSupport) {
-    webSocket = openWebSocket(webSocketUrl);
+    openWebSocket(webSocketUrl);
   }
 
   var ceilings = document.getElementsByClassName('ceiling');
