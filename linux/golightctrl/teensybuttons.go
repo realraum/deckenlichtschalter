@@ -14,10 +14,10 @@ type NameAction struct {
 type ButtonAction []NameAction
 
 var name_actions_ []ButtonAction = []ButtonAction{
-	ButtonAction{NameAction{"ceiling6", true}}, ButtonAction{NameAction{"ceiling6", false}},
+	ButtonAction{NameAction{"ceiling6", true}, NameAction{"couchred", true}}, ButtonAction{NameAction{"ceiling6", false}, NameAction{"couchred", false}},
 	ButtonAction{NameAction{"ceiling4", true}}, ButtonAction{NameAction{"ceiling4", false}},
-	ButtonAction{NameAction{"ceiling2", true}, NameAction{"regalleinwand", true}}, ButtonAction{NameAction{"ceiling2", false}, NameAction{"regalleinwand", false}},
-	ButtonAction{NameAction{"ceiling5", true}}, ButtonAction{NameAction{"ceiling5", false}},
+	ButtonAction{NameAction{"ceiling2", true}}, ButtonAction{NameAction{"ceiling2", false}},
+	ButtonAction{NameAction{"ceiling5", true}, NameAction{"couchwhite", true}}, ButtonAction{NameAction{"ceiling5", false}, NameAction{"couchwhite", false}},
 	ButtonAction{NameAction{"ceiling3", true}}, ButtonAction{NameAction{"ceiling3", false}},
 	ButtonAction{NameAction{"ceiling1", true}}, ButtonAction{NameAction{"ceiling1", false}},
 	ButtonAction{NameAction{"ceiling1", false}, NameAction{"ceiling2", false}, NameAction{"ceiling3", false}, NameAction{"ceiling4", false}, NameAction{"ceiling5", false}, NameAction{"ceiling6", false}, NameAction{"cxleds", false}, NameAction{"regalleinwand", false}},
