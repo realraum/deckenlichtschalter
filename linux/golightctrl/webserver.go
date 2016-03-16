@@ -51,7 +51,9 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 			LogRF433_.Println(err)
 		}
 	}
+	//synchronized with goRetainCeilingLightsJSONForLater
 	w.Write(<-ourfuture)
+	return
 }
 
 // cache Lights Change Update for webHandleSwitchCGI()
@@ -86,11 +88,8 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 					cached_switchcgireply_json = []byte("{}")
 				}
 			}
-			//non blocking send
-			select {
-			case f.future <- cached_switchcgireply_json:
-			default:
-			}
+			//we can't use non blocking send here, in case webHandleSwitchCGI does not receive yet
+			f.future <- cached_switchcgireply_json
 		}
 	}
 }
