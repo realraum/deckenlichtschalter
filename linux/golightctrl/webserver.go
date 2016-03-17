@@ -34,7 +34,7 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 		LogWS_.Print(err)
 		return
 	}
-	ourfuture := make(chan []byte)
+	ourfuture := make(chan []byte, 1)
 	retained_lightstate_chan <- JsonFuture{ourfuture}
 	for name, _ := range actionname_map_ {
 		v := r.FormValue(name)
@@ -51,7 +51,6 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 			LogRF433_.Println(err)
 		}
 	}
-	//synchronized with goRetainCeilingLightsJSONForLater
 	w.Write(<-ourfuture)
 	return
 }
