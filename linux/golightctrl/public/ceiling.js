@@ -22,53 +22,6 @@ function resizeRoomImg() {
   img.style.width = (height * ratio) + 'px';
 }
 
-function hasWebSocketSupport() {
-  // see: https://github.com/Modernizr/Modernizr/blob/115aa4a583dff0b44409b000165d22f2577ab0a1/feature-detects/websockets.js
-  var supports = false;
-  try {
-    supports = 'WebSocket' in window && window.WebSocket.CLOSING === 2;
-  } catch (e) {}
-  return supports;
-}
-
-var ws = {};
-ws.contexts = {};
-ws.registerContext = function(ctx, handler) {
-  ws.contexts[ctx] = handler;
-};
-
-function openWebSocket(webSocketUrl) {
-  ws.contexts = {};
-  webSocket = new WebSocket(webSocketUrl);
-  webSocket.onopen = function () {
-    webSocket.onmessage = function(event) {
-      var message = JSON.parse(event.data);
-      if (message["ctx"] && message["data"] && typeof(ws.contexts[message.ctx]) === "function") {
-        ws.contexts[message.ctx](message.data);
-      }
-    };
-    webSocket.onclose = function(event) {
-      console.log('Connection to server lost. reconnecting...');
-      setTimeout(function () {
-        console.log('reconnect!');
-        webSocket = null;
-        openWebSocket(webSocketUrl);
-      }, 1000);
-    };
-    ws.registerContext("ceilinglights",function(data){
-      setButtonStates(data);
-    });
-    ws.registerContext("wbp",function(data){
-      console.log(data);
-    });
-  };
-  window.addEventListener('beforeunload', function() {
-    webSocket.onclose = null;
-    webSocket.close();
-    webSocket = null;
-  });
-}
-
 function renderButtonStates() {
   var ceilings = document.getElementsByClassName('ceiling');
   for (var i = 0; i < ceilings.length; i++) {
@@ -90,9 +43,11 @@ function setButtonStates(data) {
       buttons[key] = data[key] ? true : false;
     }
   }
+  renderButtonStates();
 }
 
 function switchButton(ceiling, sendState) {
+  console.log("switchButton");
   var url = cgiUrl;
   if (typeof ceiling !== 'undefined' && typeof sendState !== 'undefined') {
     url += '?' + ceiling + '=' + (sendState ? '1' : '0');
@@ -106,7 +61,6 @@ function switchButton(ceiling, sendState) {
     }
     var data = JSON.parse(req.responseText);
     setButtonStates(data);
-    renderButtonStates();
   };
   req.setRequestHeader("googlechromefix","");
   req.send(null);
@@ -114,17 +68,11 @@ function switchButton(ceiling, sendState) {
 
 function switchButtonWebSocket(ceiling, sendState) {
   var message = {
-    ctx: 'switch',
-    data: {
-      name: ceiling,
-      action: sendState ? '1' : '0'
-    }
+    name: ceiling,
+    action: sendState ? '1' : '0'
   };
-  webSocket.send(JSON.stringify(message));
-
-  //todo: remove this when websockets work
-  buttons[ceiling] = sendState;
-  renderButtonStates();
+  console.log("switchButtonWebSocket");
+  ws.send("switch",message);
 }
 
 var webSocketUrl = 'ws://licht.realraum.at/sock';
@@ -132,7 +80,6 @@ var cgiUrl = '/cgi-bin/mswitch.cgi';
 //var cgiUrl = 'fake.json';
 
 var webSocketSupport = null;
-var webSocket = null;
 
 var buttons = {
   ceiling1: false,
@@ -142,6 +89,11 @@ var buttons = {
   ceiling5: false,
   ceiling6: false
 };
+
+function openWebSocket(webSocketUrl) {
+  ws.registerContext("ceilinglights",setButtonStates);
+  ws.open(webSocketUrl);
+}
 
 (function() {
   window.addEventListeners('resize orientationchange', resizeRoomImg);
@@ -172,6 +124,6 @@ var buttons = {
   if (!webSocketSupport) {
     setInterval(function() {
       switchButton();
-    }, 1000);
+    }, 1500);
   }
 })();

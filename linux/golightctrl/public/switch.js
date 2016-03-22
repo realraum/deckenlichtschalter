@@ -1,8 +1,4 @@
-function callbackUpdateButtons(req) {
-  if (req.status != 200) {
-    return;
-  }
-  var data = JSON.parse(req.responseText);
+function renderCeilingButtonUpdate(data) {
   for (var keyid in data) {
     on_btn = document.getElementById("onbtn_"+keyid);
     off_btn = document.getElementById("offbtn_"+keyid);
@@ -18,11 +14,29 @@ function callbackUpdateButtons(req) {
   }
 }
 
+function renderRFIRButtonUpdate(data) {
+  snd_btn = document.getElementById(data.name);
+  if (snd_btn)
+  {
+    var origcolor = snd_btn.style.backgroundColor;
+    snd_btn.style.backgroundColor = "cyan";
+    var t = setTimeout(function(){
+       snd_btn.style.backgroundColor = origcolor;
+    },(750));
+  }
+}
+
 function updateButtons(uri) {
   var req = new XMLHttpRequest;
   req.overrideMimeType("application/json");
   req.open("GET", uri, true);
-  req.onload  = function() {callbackUpdateButtons(req)};
+  req.onload  = function() {
+    if (req.status != 200) {
+      return;
+    }
+    var data = JSON.parse(req.responseText);
+    renderCeilingButtonUpdate(data);
+  };
   req.setRequestHeader("googlechromefix","");
   req.send(null);
 }
@@ -32,8 +46,6 @@ function sendMultiButton( str ) {
   updateButtons(url);
 }
 
-setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);
-updateButtons("/cgi-bin/mswitch.cgi");
 function sendYmhButton( btn ) {
   //alert(btn);
   document.getElementById('indicator').style.backgroundColor="red";
@@ -83,3 +95,59 @@ function remoteKeyboard( e ) {
 }
 
 document.onkeydown = remoteKeyboard;
+
+
+var webSocketUrl = 'ws://licht.realraum.at/sock';
+var cgiUrl = '/cgi-bin/mswitch.cgi';
+//var cgiUrl = 'fake.json';
+
+var webSocketSupport = null;
+
+function openWebSocket(webSocketUrl) {
+  ws.registerContext("ceilinglights",renderCeilingButtonUpdate);
+  ws.registerContext("wbp",renderRFIRButtonUpdate);
+  ws.open(webSocketUrl);
+}
+
+(function() {
+  webSocketSupport = hasWebSocketSupport();
+  if (webSocketSupport) {
+    openWebSocket(webSocketUrl);
+  } else {
+    setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);
+  }
+  updateButtons("/cgi-bin/mswitch.cgi");
+
+  var onbtns = document.getElementsByClassName('onbutton');
+  var offbtns = document.getElementsByClassName('offbutton');
+  for (var i = 0; i < onbtns.length; i++) {
+    onbtns[i].addEventListener('click', function() {
+      var id = this.getAttribute('id');
+      if (!id) {
+        return;
+      }
+      var name = id.substr(id.indexOf("_")+1);
+      if (webSocketSupport) {
+        ws.send("switch",{name:name, action:'1'});
+      } else {
+        sendMultiButton(name+"=1");
+      }
+    });
+  }
+  for (var i = 0; i < offbtns.length; i++) {
+    offbtns[i].addEventListener('click', function() {
+      var id = this.getAttribute('id');
+      if (!id) {
+        return;
+      }
+      var name = id.substr(id.indexOf("_")+1);
+      if (webSocketSupport) {
+        ws.send("switch",{name:name, action:'0'});
+      } else {
+        sendMultiButton(name+"=0");
+      }
+    });
+  }
+  //TODO: support yamahabuttons and rf433 buttons via websocket
+
+})();

@@ -34,7 +34,7 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 		LogWS_.Print(err)
 		return
 	}
-	ourfuture := make(chan []byte, 1)
+	ourfuture := make(chan []byte, 2)
 	retained_lightstate_chan <- JsonFuture{ourfuture}
 	for name, _ := range actionname_map_ {
 		v := r.FormValue(name)
@@ -124,7 +124,7 @@ func goJSONMarshalStuffForWebSockClients() {
 			continue
 		}
 		if jsonbytes, err := json.Marshal(msg); err == nil {
-			ps_.Pub(jsonbytes, PS_WEBSOCK_ALL_JSON)
+			ps_.Pub2(false, jsonbytes, PS_WEBSOCK_ALL_JSON)
 		} else {
 			LogWS_.Println(err)
 		}
