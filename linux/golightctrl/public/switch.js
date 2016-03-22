@@ -15,14 +15,15 @@ function renderCeilingButtonUpdate(data) {
 }
 
 function renderRFIRButtonUpdate(data) {
-  snd_btn = document.getElementById(data.name);
+  var snd_btn = document.getElementById(data.name);
   if (snd_btn)
   {
-    var origcolor = snd_btn.style.backgroundColor;
-    snd_btn.style.backgroundColor = "cyan";
-    var t = setTimeout(function(){
-       snd_btn.style.backgroundColor = origcolor;
-    },(750));
+    var origclass = snd_btn.className;
+    snd_btn.className += " activatedbtn";
+
+    setTimeout(function(){
+      snd_btn.className = origclass;
+    },900);
   }
 }
 

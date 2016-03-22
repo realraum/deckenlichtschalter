@@ -92,6 +92,14 @@ div.switchbox {
     font-size:10pt;
     border:1px solid black;
     padding:0;
+    -webkit-transition: background-color 600ms, margin 300ms; /* Safari */
+    transition: background-color 600ms, margin 300ms;
+}
+
+div.activatedbtn {
+    background-color: cyan;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 div.switchnameleft {

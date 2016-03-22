@@ -45,7 +45,6 @@ ws.open = function(uri) {
 	ws.stopreconnecting();
 	ws.ws=new WebSocket(uri);
 	ws.ws.onmessage = function(response){
-		console.log(response);
 		var m = JSON.parse(response.data);
 		if (m["ctx"] && m["data"] && typeof(ws.contexts[m.ctx]) == "function") {
 			ws.contexts[m.ctx](m.data);
