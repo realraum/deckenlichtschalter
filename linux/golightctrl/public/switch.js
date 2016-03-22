@@ -114,9 +114,9 @@ function openWebSocket(webSocketUrl) {
   if (webSocketSupport) {
     openWebSocket(webSocketUrl);
   } else {
+    updateButtons("/cgi-bin/mswitch.cgi");
     setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);
   }
-  updateButtons("/cgi-bin/mswitch.cgi");
 
   var onbtns = document.getElementsByClassName('onbutton');
   var offbtns = document.getElementsByClassName('offbutton');

@@ -27,7 +27,7 @@ ws.waitandreconnect = function(uri) {
 	{
 		ws.retrytimer = setTimeout(function () {
 			console.log('attempting reconnect!');
-			webSocket = null;
+			ws.ws = null;
 			ws.open(uri);
 			ws.retrytimer=false;
 		}, ws.retryinterval_ms);
@@ -44,14 +44,14 @@ ws.stopreconnecting = function() {
 ws.open = function(uri) {
 	ws.stopreconnecting();
 	ws.ws=new WebSocket(uri);
- 	ws.ws.onopen = function(){
-		ws.ws.onmessage = function(response){
-			//console.log(response);
-			var m = JSON.parse(response.data);
-			if (m["ctx"] && m["data"] && typeof(ws.contexts[m.ctx]) == "function") {
-				ws.contexts[m.ctx](m.data);
-			}
+	ws.ws.onmessage = function(response){
+		console.log(response);
+		var m = JSON.parse(response.data);
+		if (m["ctx"] && m["data"] && typeof(ws.contexts[m.ctx]) == "function") {
+			ws.contexts[m.ctx](m.data);
 		}
+	}
+ 	ws.ws.onopen = function(){
 		ws.ws.onclose = function(){
 			console.log('Connection to server lost. reconnecting...');
 			if (typeof(ws["ondisconnect"]) == "function"){
@@ -72,7 +72,7 @@ ws.close = function() {
 	ws.stopreconnecting();
 	ws.ws.onclose=undefined;
 	ws.ws.close()
-	ws.ws=undefined;
+	ws.ws=null;
 }
 
 ws.registerContext = function(ctx, handler) {

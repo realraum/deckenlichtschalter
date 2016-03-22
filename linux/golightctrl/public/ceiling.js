@@ -99,11 +99,11 @@ function openWebSocket(webSocketUrl) {
   window.addEventListeners('resize orientationchange', resizeRoomImg);
   resizeRoomImg();
 
-  switchButton();
-
   webSocketSupport = hasWebSocketSupport();
   if (webSocketSupport) {
     openWebSocket(webSocketUrl);
+  } else {
+    switchButton();
   }
 
   var ceilings = document.getElementsByClassName('ceiling');
@@ -124,6 +124,6 @@ function openWebSocket(webSocketUrl) {
   if (!webSocketSupport) {
     setInterval(function() {
       switchButton();
-    }, 1500);
+    }, 30*1000);
   }
 })();
