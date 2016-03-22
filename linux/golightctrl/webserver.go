@@ -95,6 +95,8 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 		case lc := <-lights_changed_chan:
 			//prepare and retain json for webHandleSwitchCGI()
 			updateCache(lc.(CeilingLightStateMap))
+			//also send update to all Websocket Clients
+			ps_.Pub2(false, cached_websocketreply_json, PS_WEBSOCK_ALL_JSON)
 		case f := <-retained_lightstate_chan:
 			if f.future == nil {
 				continue
@@ -126,10 +128,10 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 func goJSONMarshalStuffForWebSockClients() {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
 	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
-	lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
+	//lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
 	button_used_chan := ps_.Sub(PS_IRRF433_CHANGED)
 	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
-	defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
+	//defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
 	defer ps_.Unsub(button_used_chan, PS_IRRF433_CHANGED)
 
 	for {
@@ -140,9 +142,9 @@ func goJSONMarshalStuffForWebSockClients() {
 		case lu := <-msgtoall_chan:
 			msg.Data = lu
 			msg.Ctx = "some_other_message_ctx_example"
-		case lc := <-lights_changed_chan:
-			msg.Ctx = "ceilinglights"
-			msg.Data = lc
+			//		case lc := <-lights_changed_chan:
+			//			msg.Ctx = "ceilinglights"
+			//			msg.Data = lc
 		case bu := <-button_used_chan:
 			msg.Ctx = "wbp" //web button pressed
 			msg.Data = bu
