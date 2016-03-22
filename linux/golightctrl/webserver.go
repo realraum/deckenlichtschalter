@@ -4,6 +4,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/codegangsta/martini"
 	"github.com/gorilla/websocket"
@@ -27,9 +28,23 @@ type JsonFuture struct {
 	future chan []byte
 }
 
+const (
+	ws_ping_period_      = time.Duration(58) * time.Second
+	ws_read_timeout_     = time.Duration(70) * time.Second // must be > than ws_ping_period_
+	ws_write_timeout_    = time.Duration(9) * time.Second
+	ws_max_message_size_ = int64(512)
+)
+
+var wsupgrader = websocket.Upgrader{} // use default options with Origin Check
+
 // handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
 // returns json formated state of Ceiling Lights
 func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightstate_chan chan JsonFuture) {
+	defer func() {
+		if x := recover(); x != nil {
+			LogWS_.Println("webHandleSwitchCGI", x)
+		}
+	}()
 	if err := r.ParseForm(); err != nil {
 		LogWS_.Print(err)
 		return
@@ -41,14 +56,10 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 		if len(v) == 0 {
 			continue
 		}
-		var err error
 		if v == "1" || v == "on" || v == "send" {
-			err = SwitchName(name, true)
+			SwitchNameAsync(name, true)
 		} else if v == "0" || v == "off" {
-			err = SwitchName(name, false)
-		}
-		if err != nil {
-			LogRF433_.Println(err)
+			SwitchNameAsync(name, false)
 		}
 	}
 	w.Write(<-ourfuture)
@@ -87,8 +98,11 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 					cached_switchcgireply_json = []byte("{}")
 				}
 			}
-			//we can't use non blocking send here, in case webHandleSwitchCGI does not receive yet
-			f.future <- cached_switchcgireply_json
+			select {
+			case f.future <- cached_switchcgireply_json:
+			default:
+				close(f.future)
+			}
 		}
 	}
 }
@@ -135,17 +149,29 @@ func goJSONMarshalStuffForWebSockClients() {
 func goWriteToClientAboutLightStateChanges(ws *websocket.Conn) {
 	shutdown_c := ps_.SubOnce(PS_SHUTDOWN)
 	udpate_c := ps_.Sub(PS_WEBSOCK_ALL_JSON)
+	ticker := time.NewTicker(ws_ping_period_)
 	defer ps_.Unsub(udpate_c, PS_WEBSOCK_ALL_JSON)
 	for {
 		select {
 		case <-shutdown_c:
-			LogWS_.Println("goWriteToClientAboutLightStateChanges", ws.RemoteAddr(), "Shutdown")
+			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
+			ws.WriteMessage(websocket.CloseMessage, []byte{})
 			return
-		case jsonupdate := <-udpate_c:
-			LogWS_.Printf("goWriteToClientAboutLightStateChanges %s: %s\n", ws.RemoteAddr(), jsonupdate)
+		case jsonupdate, isopen := <-udpate_c:
+			if !isopen {
+				ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
+				ws.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
 			if err := ws.WriteMessage(websocket.TextMessage, jsonupdate.([]byte)); err != nil {
 				LogWS_.Println("goWriteToClientAboutLightStateChanges", ws.RemoteAddr(), "Error", err)
 				ps_.Unsub(shutdown_c, "shutdown")
+				return
+			}
+		case <-ticker.C:
+			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
+			if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				return
 			}
 		}
@@ -156,11 +182,8 @@ func goWriteToClientAboutLightStateChanges(ws *websocket.Conn) {
 // following ctx are handled:
 // "switch": {name:..., action:...}
 func webHandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
-	if _, ok := err.(websocket.HandshakeError); ok {
-		http.Error(w, "Not a websocket handshake", 400)
-		return
-	} else if err != nil {
+	ws, err := wsupgrader.Upgrade(w, r, nil)
+	if err != nil {
 		LogWS_.Println(err)
 		return
 	}
@@ -170,21 +193,21 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	//e.g. sends updates about CeilingLight states and maybe about RF Send Actions
 	go goWriteToClientAboutLightStateChanges(ws)
 
-	// logged_in := false
+	ws.SetReadLimit(ws_max_message_size_)
+	ws.SetReadDeadline(time.Now().Add(ws_read_timeout_))
+	// the PongHandler will set the read deadline for next messages if pings arrive
+	ws.SetPongHandler(func(string) error { ws.SetReadDeadline(time.Now().Add(ws_read_timeout_)); return nil })
+
 	for {
-		messageType, msg, err := ws.ReadMessage()
-		if err != nil {
-			LogWS_.Println("Client disconnected", ws.RemoteAddr(), err)
-			return
-		}
-		if messageType != websocket.TextMessage {
-			continue
-		}
-		LogWS_.Printf("Got message from %s: %s\n", ws.RemoteAddr(), msg)
 		var v wsMessage
-		if err := json.Unmarshal(msg, &v); err != nil {
-			LogWS_.Println("Could not parse message from client ", ws.RemoteAddr(), err, msg)
+		err := ws.ReadJSON(&v)
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+				LogWS_.Printf("webHandleWebSocket Error: %v", err)
+			}
+			break
 		}
+
 		switch v.Ctx {
 		case "switch":
 			switchname, inmap := v.Data["name"]
@@ -207,15 +230,11 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request) {
 				LogWS_.Print("action not a string")
 				continue
 			}
-			var err error
 			switch action {
 			case "1", "on", "send":
-				err = SwitchName(name, true)
+				SwitchNameAsync(name, true)
 			case "0", "off":
-				err = SwitchName(name, false)
-			}
-			if err != nil {
-				LogRF433_.Println(err)
+				SwitchNameAsync(name, false)
 			}
 		}
 	}

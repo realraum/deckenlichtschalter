@@ -39,7 +39,7 @@ const (
 func init() {
 	flag.BoolVar(&UseFakeGPIO_, "fakegpio", false, "For testing")
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
-	ps_ = pubsub.New(30)
+	ps_ = pubsub.New(50)
 }
 
 func main() {

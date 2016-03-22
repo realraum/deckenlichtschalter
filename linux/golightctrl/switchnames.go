@@ -21,6 +21,11 @@ type RFCmdToSend struct {
 	code    []byte
 }
 
+type SwitchNameCall struct {
+	name  string
+	onoff bool
+}
+
 const (
 	IRCmd2MQTT            = "IRCmd2MQTT"
 	RFCode2TTY            = "RFCode2TTY"
@@ -32,6 +37,7 @@ const (
 	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
 
+var switch_name_chan_ chan SwitchNameCall
 var MQTT_ir_chan_ chan string
 var RF433_linearize_chan_ chan RFCmdToSend
 
@@ -92,6 +98,23 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch"}},
 	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "cxleds", "ymhpower"}},
 	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+}
+
+func init() {
+	switch_name_chan_ = make(chan SwitchNameCall, 50)
+	go GoSwitchNameAsync()
+}
+
+func SwitchNameAsync(name string, onoff bool) {
+	switch_name_chan_ <- SwitchNameCall{name, onoff}
+}
+
+func GoSwitchNameAsync() {
+	for snc := range switch_name_chan_ {
+		if err := SwitchName(snc.name, snc.onoff); err != nil {
+			LogRF433_.Println(err)
+		}
+	}
 }
 
 func SwitchName(name string, onoff bool) (err error) {
