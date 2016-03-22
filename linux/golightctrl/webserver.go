@@ -25,7 +25,8 @@ type jsonButtonUsed struct {
 }
 
 type JsonFuture struct {
-	future chan []byte
+	future   chan []byte
+	wxFormat bool
 }
 
 const (
@@ -50,7 +51,7 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 		return
 	}
 	ourfuture := make(chan []byte, 2)
-	retained_lightstate_chan <- JsonFuture{ourfuture}
+	retained_lightstate_chan <- JsonFuture{future: ourfuture}
 	for name, _ := range actionname_map_ {
 		v := r.FormValue(name)
 		if len(v) == 0 {
@@ -73,33 +74,45 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 	defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
 
 	var cached_switchcgireply_json []byte
+	var cached_websocketreply_json []byte
 	var err error
+	updateCache := func(lsm CeilingLightStateMap) {
+		cached_switchcgireply_json, err = json.Marshal(lsm)
+		if err != nil {
+			LogWS_.Print(err)
+			cached_switchcgireply_json = []byte("{}")
+		}
+		cached_websocketreply_json, err = json.Marshal(wsMessageOut{Ctx: "ceilinglights", Data: lsm})
+		if err != nil {
+			LogWS_.Print(err)
+			cached_switchcgireply_json = []byte("{}")
+		}
+	}
 	for {
 		select {
 		case <-shutdown_chan:
 			return
 		case lc := <-lights_changed_chan:
 			//prepare and retain json for webHandleSwitchCGI()
-			cached_switchcgireply_json, err = json.Marshal(lc)
-			if err != nil {
-				LogWS_.Print(err)
-				cached_switchcgireply_json = nil
-			}
-
+			updateCache(lc.(CeilingLightStateMap))
 		case f := <-retained_lightstate_chan:
 			if f.future == nil {
 				continue
 			}
 			//maybe last broadcast was shit or never happened.. get info ourselves
-			if cached_switchcgireply_json == nil || len(cached_switchcgireply_json) == 0 {
-				cached_switchcgireply_json, err = json.Marshal(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
-				if err != nil {
-					LogWS_.Print(err)
-					cached_switchcgireply_json = []byte("{}")
-				}
+			if cached_switchcgireply_json == nil || len(cached_switchcgireply_json) == 0 || cached_websocketreply_json == nil || len(cached_websocketreply_json) == 0 {
+				updateCache(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
+
+			}
+			var reply []byte
+			if f.wxFormat {
+				reply = cached_websocketreply_json
+			} else {
+				reply = cached_switchcgireply_json
 			}
 			select {
-			case f.future <- cached_switchcgireply_json:
+			case f.future <- reply:
+				close(f.future)
 			default:
 				close(f.future)
 			}
@@ -181,7 +194,7 @@ func goWriteToClientAboutLightStateChanges(ws *websocket.Conn) {
 // handles requests to /sock WebSocket
 // following ctx are handled:
 // "switch": {name:..., action:...}
-func webHandleWebSocket(w http.ResponseWriter, r *http.Request) {
+func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightstate_chan chan JsonFuture) {
 	ws, err := wsupgrader.Upgrade(w, r, nil)
 	if err != nil {
 		LogWS_.Println(err)
@@ -189,8 +202,14 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 	LogWS_.Println("Client connected", ws.RemoteAddr())
 
+	//send client the inital CeilingLightsState
+	ourfuture := make(chan []byte, 2)
+	retained_lightstate_chan <- JsonFuture{future: ourfuture, wxFormat: true}
+	ws.WriteMessage(websocket.TextMessage, <-ourfuture)
+
 	//2nd goroutine per client that handles async push info
 	//e.g. sends updates about CeilingLight states and maybe about RF Send Actions
+	// IMPORTANT: After this function runs, WE (THIS FUNCTION) should no longer use ws.WriteMessage(..)
 	go goWriteToClientAboutLightStateChanges(ws)
 
 	ws.SetReadLimit(ws_max_message_size_)
@@ -262,8 +281,8 @@ func goRunMartini() {
 	go goJSONMarshalStuffForWebSockClients()
 
 	m.Get("/cgi-bin/mswitch.cgi", func(w http.ResponseWriter, r *http.Request) { webHandleSwitchCGI(w, r, retained_lightstate_chan) })
+	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) { webHandleWebSocket(w, r, retained_lightstate_chan) })
 	m.Get("/cgi-bin/switch.cgi", webRedirectToSwitchHTML)
 	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToSwitchHTML)
-	m.Get("/sock", webHandleWebSocket)
 	m.RunOnAddr(EnvironOrDefault("GOLIGHTCTRL_HTTP_INTERFACE", DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE))
 }

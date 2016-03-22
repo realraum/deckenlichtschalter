@@ -7,6 +7,8 @@ import (
 	bbhw "github.com/btittelbach/go-bbhw"
 )
 
+type CeilingLightStateMap map[string]bool
+
 var (
 	gpios_ceiling_lights_ []bbhw.GPIOControllablePin
 )
@@ -52,7 +54,7 @@ func GetCeilingLightsState() []bool {
 	return rv
 }
 
-func ConvertCeilingLightsStateTomap(states []bool, offset int) map[string]bool {
+func ConvertCeilingLightsStateTomap(states []bool, offset int) CeilingLightStateMap {
 	rv := make(map[string]bool, 6)
 	for i, st := range states {
 		lightname := fmt.Sprintf("ceiling%d", i+offset)
