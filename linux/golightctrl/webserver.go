@@ -8,6 +8,13 @@ import (
 
 	"github.com/codegangsta/martini"
 	"github.com/gorilla/websocket"
+	"github.com/mitchellh/mapstructure"
+)
+
+const (
+	ws_ctx_ceilinglights = "ceilinglights"
+	ws_ctx_switch        = "switch"
+	ws_ctx_button_used   = "wbp"
 )
 
 type wsMessage struct {
@@ -18,6 +25,11 @@ type wsMessage struct {
 type wsMessageOut struct {
 	Ctx  string      `json:"ctx"`
 	Data interface{} `json:"data"`
+}
+
+type wsDataSwitch struct {
+	Name   string
+	Action string
 }
 
 type jsonButtonUsed struct {
@@ -82,7 +94,7 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 			LogWS_.Print(err)
 			cached_switchcgireply_json = []byte("{}")
 		}
-		cached_websocketreply_json, err = json.Marshal(wsMessageOut{Ctx: "ceilinglights", Data: lsm})
+		cached_websocketreply_json, err = json.Marshal(wsMessageOut{Ctx: ws_ctx_ceilinglights, Data: lsm})
 		if err != nil {
 			LogWS_.Print(err)
 			cached_switchcgireply_json = []byte("{}")
@@ -146,7 +158,7 @@ func goJSONMarshalStuffForWebSockClients() {
 			//			msg.Ctx = "ceilinglights"
 			//			msg.Data = lc
 		case bu := <-button_used_chan:
-			msg.Ctx = "wbp" //web button pressed
+			msg.Ctx = ws_ctx_button_used //web button pressed
 			msg.Data = bu
 		}
 		if len(msg.Ctx) == 0 {
@@ -230,32 +242,19 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 		}
 
 		switch v.Ctx {
-		case "switch":
-			switchname, inmap := v.Data["name"]
-			if inmap == false {
-				LogWS_.Print("open/close ctx without name")
+		case ws_ctx_switch:
+			var data wsDataSwitch
+			err = mapstructure.Decode(v.Data, &data)
+			if err != nil {
+				LogWS_.Printf("%s Data decode error: %s", v.Ctx, err)
 				continue
 			}
-			switchaction, inmap := v.Data["action"]
-			if inmap == false {
-				LogWS_.Print("open/close ctx without action")
-				continue
-			}
-			name, typeok := switchname.(string)
-			if typeok == false {
-				LogWS_.Print("name not a string")
-				continue
-			}
-			action, typeok := switchaction.(string)
-			if typeok == false {
-				LogWS_.Print("action not a string")
-				continue
-			}
-			switch action {
+
+			switch data.Action {
 			case "1", "on", "send":
-				SwitchNameAsync(name, true)
+				SwitchNameAsync(data.Name, true)
 			case "0", "off":
-				SwitchNameAsync(name, false)
+				SwitchNameAsync(data.Name, false)
 			}
 		}
 	}
