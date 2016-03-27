@@ -49,7 +49,7 @@ func mqttOnConnectionHandler(mqttc *mqtt.Client) {
 		tk := mqttc.SubscribeMultiple(mqtt_topics_we_subscribed_, nil)
 		tk.Wait()
 		if tk.Error() != nil {
-			LogMQTT_.Fatalf("Error resubscribing on connect", tk.Error())
+			LogMQTT_.Fatal("Error resubscribing on connect", tk.Error())
 		}
 	}
 }

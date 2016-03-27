@@ -123,7 +123,7 @@ func SwitchName(name string, onoff bool) (err error) {
 		LogRF433_.Printf("Name %s does not exist in actionname_map_", name)
 		return fmt.Errorf("Name does not exist")
 	}
-	LogRF433_.Printf("SwitchName(%s,%s", name, onoff)
+	LogRF433_.Printf("SwitchName(%s,%t)", name, onoff)
 	var code []byte
 	if onoff && nm.codeon != nil {
 		code = nm.codeon

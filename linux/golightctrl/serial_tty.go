@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"syscall"
 
 	"github.com/schleibinger/sio"
@@ -49,15 +50,16 @@ func serialReader(out chan<- SerialLine, serial *sio.Port) {
 	linescanner := bufio.NewScanner(serial)
 	linescanner.Split(bufio.ScanLines)
 	for linescanner.Scan() {
-		if err := linescanner.Err(); err != nil {
-			panic(err.Error())
-		}
-		text := []byte(linescanner.Text())
+		text := linescanner.Bytes()
 		if len(text) == 0 {
 			continue
 		}
 		out <- text
 	}
+	if err := linescanner.Err(); err != nil {
+		panic(err.Error())
+	}
+	panic(fmt.Sprintf("serial device '%s' has been closed/removed", serial.LocalAddr()))
 }
 
 func OpenAndHandleSerial(filename string, serspeed uint) (chan SerialLine, chan SerialLine, error) {
