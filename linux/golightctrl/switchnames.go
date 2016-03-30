@@ -157,9 +157,9 @@ func SwitchName(name string, onoff bool) (err error) {
 	//notify Everyone
 	switch nm.handler {
 	case MetaAction, IRCmd2MQTT, RFCode2TTY, RFCode2BOTH, RFCode2MQTT:
-		ps_.Pub2(false, jsonButtonUsed{name}, PS_IRRF433_CHANGED)
+		ps_.PubNonBlocking(jsonButtonUsed{name}, PS_IRRF433_CHANGED)
 	case CeilingLightByteState:
-		ps_.Pub2(false, ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1), PS_LIGHTS_CHANGED)
+		ps_.PubNonBlocking(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1), PS_LIGHTS_CHANGED)
 	}
 
 	return

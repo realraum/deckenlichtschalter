@@ -108,7 +108,7 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 			//prepare and retain json for webHandleSwitchCGI()
 			updateCache(lc.(CeilingLightStateMap))
 			//also send update to all Websocket Clients
-			ps_.Pub2(false, cached_websocketreply_json, PS_WEBSOCK_ALL_JSON)
+			ps_.PubNonBlocking(cached_websocketreply_json, PS_WEBSOCK_ALL_JSON)
 		case f := <-retained_lightstate_chan:
 			if f.future == nil {
 				continue
@@ -165,7 +165,7 @@ func goJSONMarshalStuffForWebSockClients() {
 			continue
 		}
 		if jsonbytes, err := json.Marshal(msg); err == nil {
-			ps_.Pub2(false, jsonbytes, PS_WEBSOCK_ALL_JSON)
+			ps_.PubNonBlocking(jsonbytes, PS_WEBSOCK_ALL_JSON)
 		} else {
 			LogWS_.Println(err)
 		}
