@@ -46,11 +46,10 @@ function setButtonStates(data) {
   renderButtonStates();
 }
 
-function switchButton(ceiling, sendState) {
-  console.log("switchButton");
+function switchButton(light, sendState) {
   var url = cgiUrl;
-  if (typeof ceiling !== 'undefined' && typeof sendState !== 'undefined') {
-    url += '?' + ceiling + '=' + (sendState ? '1' : '0');
+  if (typeof light !== 'undefined' && typeof sendState !== 'undefined') {
+    url += '?' + light + '=' + (sendState ? '1' : '0');
   }
   var req = new XMLHttpRequest;
   req.overrideMimeType("application/json");
@@ -66,12 +65,11 @@ function switchButton(ceiling, sendState) {
   req.send(null);
 }
 
-function switchButtonWebSocket(ceiling, sendState) {
+function switchButtonWebSocket(light, sendState) {
   var message = {
-    name: ceiling,
+    name: light,
     action: sendState ? '1' : '0'
   };
-  console.log("switchButtonWebSocket");
   ws.send("switch",message);
 }
 
@@ -117,6 +115,22 @@ function openWebSocket(webSocketUrl) {
         switchButtonWebSocket(id, !buttons[id]);
       } else {
         switchButton(id, !buttons[id]);
+      }
+    });
+  }
+
+  var rfirs = document.getElementsByClassName('rfir');
+  for (var i = 0; i < rfirs.length; i++) {
+    rfirs[i].addEventListener('click', function(event) {
+      var id = this.getAttribute('id');
+      var offset = $(this).offset();
+      var relX = (event.pageX - offset.left) / $(this).width();
+      var relY = (event.pageY - offset.top) / $(this).height();
+      var sendState = relX + relY < 1;
+      if (webSocketSupport) {
+        switchButtonWebSocket(id, sendState);
+      } else {
+        switchButton(id, sendState);
       }
     });
   }

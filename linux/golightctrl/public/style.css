@@ -52,7 +52,7 @@ nav a {
     height: auto;
 }
 
-.ceiling {
+.light {
     position: absolute;
     background-color: #000000;
     background-repeat: no-repeat;
@@ -61,6 +61,12 @@ nav a {
     z-index: 10;
     cursor: pointer;
     transition: background-color 0.5s;
+}
+
+.light.rfir {
+    background: linear-gradient(-45deg, red 0%, red 50%, green 50%, green 100%);
+    width: 7%;
+    padding-top: 7%;
 }
 
 #ceiling2, #ceiling4, #ceiling6 {
@@ -81,6 +87,31 @@ nav a {
 
 #ceiling5, #ceiling6 {
     left: 13%;
+}
+
+#regalleinwand {
+    top: 10%;
+    right: 0%;
+}
+
+#couchred {
+    top: 30%;
+    left: 0%;
+}
+
+#couchwhite {
+    bottom: 30%;
+    left: 0%;
+}
+
+#abwasch {
+    top: 0%;
+    left: 25%;
+}
+
+#labortisch {
+    bottom: 0%;
+    right: 0%;
 }
 
 /* switch */
