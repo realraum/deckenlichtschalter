@@ -1,14 +1,5 @@
 "use strict";
 
-function addEventListeners(types, listener, useCapture) {
-  var typesArray = types.split(' ');
-  for (var i = 0; i < typesArray.length; i++) {
-    this.addEventListener(typesArray[i], listener, useCapture);
-  }
-}
-Window.prototype.addEventListeners = addEventListeners;
-EventTarget.prototype.addEventListeners = addEventListeners;
-
 function resizeRoomImg() {
   var room = document.getElementsByClassName('room')[0];
   var img = room.getElementsByTagName('img')[0];
@@ -94,7 +85,7 @@ function openWebSocket(webSocketUrl) {
 }
 
 (function() {
-  window.addEventListeners('resize orientationchange', resizeRoomImg);
+  $(window).on('resize orientationchange', resizeRoomImg);
   resizeRoomImg();
 
   webSocketSupport = hasWebSocketSupport();
