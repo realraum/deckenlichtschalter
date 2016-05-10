@@ -64,7 +64,7 @@ function switchButtonWebSocket(light, sendState) {
   ws.send("switch",message);
 }
 
-var webSocketUrl = 'ws://licht.realraum.at/sock';
+var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
 var cgiUrl = '/cgi-bin/mswitch.cgi';
 //var cgiUrl = 'fake.json';
 
