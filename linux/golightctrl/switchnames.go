@@ -43,12 +43,13 @@ var RF433_linearize_chan_ chan RFCmdToSend
 
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	//RF Power Outlets
-	"regalleinwand": ActionNameHandler{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY}, //white remote B 1
-	"bluebar":       ActionNameHandler{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY}, //white remote C 1
-	"labortisch":    ActionNameHandler{codeon: []byte{0xa2, 0xa2, 0xaa}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH},
+	"regalleinwand": ActionNameHandler{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote B 1
+	"bluebar":       ActionNameHandler{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote C 1
+	"labortisch":    ActionNameHandler{codeon: []byte{0xa2, 0xa2, 0x8a}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH}, //polling 01000 a
+	"boilerolga":    ActionNameHandler{codeon: []byte{0xa2, 0x8a, 0x8a}, codeoff: []byte{0xa2, 0x8a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 b
 	"couchred":      ActionNameHandler{codeon: []byte{0x8a, 0xa0, 0x8a}, codeoff: []byte{0x8a, 0xa0, 0x2a}, handler: RFCode2TTY},  //pollin 00101 a
-	"couchwhite":    ActionNameHandler{codeon: []byte{0x8a, 0xa8, 0x88}, codeoff: []byte{0x8a, 0xa8, 0x28}, handler: RFCode2TTY},  //pollin 00101 d
 	"cxleds":        ActionNameHandler{codeon: []byte{0x8a, 0x88, 0x8a}, codeoff: []byte{0x8a, 0x88, 0x2a}, handler: RFCode2TTY},  //pollin 00101 b
+	"couchwhite":    ActionNameHandler{codeon: []byte{0x8a, 0xa8, 0x88}, codeoff: []byte{0x8a, 0xa8, 0x28}, handler: RFCode2TTY},  //pollin 00101 d
 	"mashadecke":    ActionNameHandler{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2BOTH}, //pollin 00101 c
 	"boiler":        ActionNameHandler{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
 	"spots":         ActionNameHandler{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
@@ -96,8 +97,8 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 
 	//Meta Events
 	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch"}},
-	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "cxleds", "ymhpower"}},
-	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower"}},
+	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
 func init() {
