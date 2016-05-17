@@ -96,9 +96,9 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ceiling6": ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
 
 	//Meta Events
-	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch"}},
-	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower"}},
-	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "spots", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch"}},
+	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower"}},
+	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
 func init() {
