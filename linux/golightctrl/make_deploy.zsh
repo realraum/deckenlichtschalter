@@ -1,7 +1,7 @@
 #!/bin/zsh
-REMOTE_USER=realraum
+REMOTE_USER=licht
 REMOTE_HOST=licht.realraum.at
-REMOTE_DIR=/home/realraum/golightctrl
+REMOTE_DIR=/home/licht/golightctrl
 
 ping -W 1 -c 1 ${REMOTE_HOST} || { OPTIONS=(-o ProxyCommand='ssh gw.realraum.at exec nc '$REMOTE_HOST' 22000'); RSYNCOPTIONS=(-e 'ssh -o ProxyCommand="ssh gw.realraum.at exec nc '$REMOTE_HOST' 22000"')}
 export GOOS=linux
