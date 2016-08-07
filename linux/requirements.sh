@@ -4,7 +4,8 @@ sudo pip3 install pyephem paho-mqtt
 sudo aptitude install python3-serpent || { wget http://ftp.at.debian.org/debian/pool/main/s/serpent/python3-serpent_1.8-1_all.deb -O /tmp/python3-serpent_1.8-1_all.deb && dpkg -i /tmp/python3-serpent_1.8-1_all.deb && rm /tmp/python3-serpent_1.8-1_all.deb }
 mkdir /var/log/licht
 chown www-data:www-data -R /var/log/licht
-sed 'srealraum/:pi/:realraum/' -i /etc/group
-adduser realraum
-adduser pi audio video input users
+sed 's/:pi/:licht/' -i /etc/group
+adduser licht
+adduser licht audio video input users gpio
 adduser www-data gpio dialout
+adduser realraum

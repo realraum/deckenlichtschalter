@@ -31,6 +31,7 @@ const (
 	RFCode2TTY            = "RFCode2TTY"
 	RFCode2BOTH           = "RFCode2BOTH"
 	RFCode2MQTT           = "RFCode2MQTT"
+	LEDPattern2MQTT       = "LEDPattern2MQTT"
 	CeilingLightByteState = "CeilingLightByteState"
 	MetaAction            = "MetaAction"
 	POST_RF433_MQTT_DELAY = 600 * time.Millisecond
@@ -86,6 +87,18 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ymhprgup":     ActionNameHandler{codedefault: []byte("ymhprgup"), handler: IRCmd2MQTT},
 	"ymhsleep":     ActionNameHandler{codedefault: []byte("ymhsleep"), handler: IRCmd2MQTT},
 	"ymhp5":        ActionNameHandler{codedefault: []byte("ymhp5"), handler: IRCmd2MQTT},
+
+	//LED Pipe
+	"piperainbow10":    ActionNameHandler{metaaction: []string{"rainbow", "5", "10"}, handler: LEDPattern2MQTT},
+	"piperainbow30":    ActionNameHandler{metaaction: []string{"rainbow", "5", "30"}, handler: LEDPattern2MQTT},
+	"piperainbow50":    ActionNameHandler{metaaction: []string{"rainbow", "5", "50"}, handler: LEDPattern2MQTT},
+	"piperainbow80":    ActionNameHandler{metaaction: []string{"rainbow", "3", "80"}, handler: LEDPattern2MQTT},
+	"pipeplasma":       ActionNameHandler{metaaction: []string{"plasma"}, handler: LEDPattern2MQTT},
+	"pipecircles":      ActionNameHandler{metaaction: []string{"circles"}, handler: LEDPattern2MQTT},
+	"pipeuspolice":     ActionNameHandler{metaaction: []string{"uspol"}, handler: LEDPattern2MQTT},
+	"pipemovingspots1": ActionNameHandler{metaaction: []string{"movingspots", "1"}, handler: LEDPattern2MQTT},
+	"pipemovingspots3": ActionNameHandler{metaaction: []string{"movingspots", "3"}, handler: LEDPattern2MQTT},
+	"pipemovingspots5": ActionNameHandler{metaaction: []string{"movingspots", "4"}, handler: LEDPattern2MQTT},
 
 	//Ceiling Lights
 	"ceiling1": ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
@@ -147,6 +160,8 @@ func SwitchName(name string, onoff bool) (err error) {
 		RF433_linearize_chan_ <- RFCmdToSend{handler: nm.handler, code: code}
 	case CeilingLightByteState:
 		err = setCeilingLightByteState(code)
+	case LEDPattern2MQTT:
+		err = sendLEDPipeCmd2MQTT(nm.metaaction)
 	default:
 		return fmt.Errorf("Unknown handler %s", nm.handler)
 	}
@@ -169,6 +184,12 @@ func SwitchName(name string, onoff bool) (err error) {
 func sendIRCmd2MQTT(code []byte) error {
 	LogRF433_.Printf("IRCmd2MQTT(%s)", string(code))
 	MQTT_ir_chan_ <- string(code)
+	return nil
+}
+
+func sendLEDPipeCmd2MQTT(pattern_n_args []string) error {
+	//TODO: send json {pattern: pattern_n_args[0], arg: pattern_n_args[1], arg1:pattern_n_args[2]} to /action/PipeLEDs/pattern
+	//TODO: possibly try to convert args to integer
 	return nil
 }
 
