@@ -99,6 +99,7 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"pipemovingspots1": ActionNameHandler{metaaction: []string{"movingspots", "1"}, handler: LEDPattern2MQTT},
 	"pipemovingspots3": ActionNameHandler{metaaction: []string{"movingspots", "3"}, handler: LEDPattern2MQTT},
 	"pipemovingspots5": ActionNameHandler{metaaction: []string{"movingspots", "4"}, handler: LEDPattern2MQTT},
+	"pipeoff":          ActionNameHandler{metaaction: []string{"off"}, handler: LEDPattern2MQTT},
 
 	//Ceiling Lights
 	"ceiling1": ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
