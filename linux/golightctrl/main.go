@@ -78,10 +78,9 @@ func main() {
 	}
 	mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), r3events.CLIENTID_LIGHTCTRL)
 
-	RF433_linearize_chan_ = make(chan RFCmdToSend, 10)
-	MQTT_ir_chan_ = make(chan string, 10)
 	go goLinearizeRFSenders(RF433_linearize_chan_, tty_rf433_chan, mqttc)
 	go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
+	go goSetLEDPipePatternViaMQTT(mqttc, MQTT_ledpattern_chan_)
 
 	go goListenForButtons(tty_button_chan)
 	go goRunMartini()

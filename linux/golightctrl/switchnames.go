@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
+	"github.com/realraum/door_and_sensors/r3events"
 )
 
 type ActionNameHandler struct {
@@ -14,6 +15,7 @@ type ActionNameHandler struct {
 	codeoff     []byte
 	codedefault []byte
 	metaaction  []string
+	pipepattern *r3events.SetPipeLEDsPattern
 }
 
 type RFCmdToSend struct {
@@ -40,6 +42,7 @@ const (
 
 var switch_name_chan_ chan SwitchNameCall
 var MQTT_ir_chan_ chan string
+var MQTT_ledpattern_chan_ chan *r3events.SetPipeLEDsPattern
 var RF433_linearize_chan_ chan RFCmdToSend
 
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
@@ -89,25 +92,23 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ymhp5":        ActionNameHandler{codedefault: []byte("ymhp5"), handler: IRCmd2MQTT},
 
 	//LED Pipe
-	"piperainbow10":    ActionNameHandler{metaaction: []string{"rainbow", "5", "10"}, handler: LEDPattern2MQTT},
-	"piperainbow30":    ActionNameHandler{metaaction: []string{"rainbow", "5", "30"}, handler: LEDPattern2MQTT},
-	"piperainbow50":    ActionNameHandler{metaaction: []string{"rainbow", "5", "50"}, handler: LEDPattern2MQTT},
-	"piperainbow80":    ActionNameHandler{metaaction: []string{"rainbow", "3", "80"}, handler: LEDPattern2MQTT},
-	"pipeplasma":       ActionNameHandler{metaaction: []string{"plasma"}, handler: LEDPattern2MQTT},
-	"pipecircles":      ActionNameHandler{metaaction: []string{"circles"}, handler: LEDPattern2MQTT},
-	"pipeuspolice":     ActionNameHandler{metaaction: []string{"uspol"}, handler: LEDPattern2MQTT},
-	"pipemovingspots1": ActionNameHandler{metaaction: []string{"movingspots", "1"}, handler: LEDPattern2MQTT},
-	"pipemovingspots3": ActionNameHandler{metaaction: []string{"movingspots", "3"}, handler: LEDPattern2MQTT},
-	"pipemovingspots5": ActionNameHandler{metaaction: []string{"movingspots", "4"}, handler: LEDPattern2MQTT},
-	"pipeoff":          ActionNameHandler{metaaction: []string{"off"}, handler: LEDPattern2MQTT},
-
-	//Ceiling Lights
-	"ceiling1": ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
-	"ceiling2": ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: CeilingLightByteState},
-	"ceiling3": ActionNameHandler{codeon: []byte{2, 1}, codeoff: []byte{2, 0}, handler: CeilingLightByteState},
-	"ceiling4": ActionNameHandler{codeon: []byte{3, 1}, codeoff: []byte{3, 0}, handler: CeilingLightByteState},
-	"ceiling5": ActionNameHandler{codeon: []byte{4, 1}, codeoff: []byte{4, 0}, handler: CeilingLightByteState},
-	"ceiling6": ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
+	"piperainbow10":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{"rainbow", 5, 10}, handler: LEDPattern2MQTT},
+	"piperainbow30":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{"rainbow", 5, 30}, handler: LEDPattern2MQTT},
+	"piperainbow50":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{"rainbow", 5, 50}, handler: LEDPattern2MQTT},
+	"piperainbow80":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{"rainbow", 3, 80}, handler: LEDPattern2MQTT},
+	"pipeplasma":       ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "plasma"}, handler: LEDPattern2MQTT},
+	"pipecircles":      ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "circles"}, handler: LEDPattern2MQTT},
+	"pipeuspolice":     ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "uspol"}, handler: LEDPattern2MQTT},
+	"pipemovingspots1": ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "movingspots", Arg: 1}, handler: LEDPattern2MQTT},
+	"pipemovingspots3": ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "movingspots", Arg: 3}, handler: LEDPattern2MQTT},
+	"pipemovingspots5": ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "movingspots", Arg: 4}, handler: LEDPattern2MQTT},
+	"pipeoff":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "off"}, handler: LEDPattern2MQTT},
+	"ceiling1":         ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
+	"ceiling2":         ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: CeilingLightByteState},
+	"ceiling3":         ActionNameHandler{codeon: []byte{2, 1}, codeoff: []byte{2, 0}, handler: CeilingLightByteState},
+	"ceiling4":         ActionNameHandler{codeon: []byte{3, 1}, codeoff: []byte{3, 0}, handler: CeilingLightByteState},
+	"ceiling5":         ActionNameHandler{codeon: []byte{4, 1}, codeoff: []byte{4, 0}, handler: CeilingLightByteState},
+	"ceiling6":         ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
 
 	//Meta Events
 	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch"}},
@@ -117,6 +118,9 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 
 func init() {
 	switch_name_chan_ = make(chan SwitchNameCall, 50)
+	RF433_linearize_chan_ = make(chan RFCmdToSend, 10)
+	MQTT_ir_chan_ = make(chan string, 10)
+	MQTT_ledpattern_chan_ = make(chan *r3events.SetPipeLEDsPattern, 5)
 	go GoSwitchNameAsync()
 }
 
@@ -146,23 +150,36 @@ func SwitchName(name string, onoff bool) (err error) {
 		code = nm.codeoff
 	} else if nm.codedefault != nil {
 		code = nm.codedefault
-	} else if len(nm.metaaction) == 0 {
-		return fmt.Errorf("Could not do anything, no code defined")
 	}
 
 	switch nm.handler {
 	case MetaAction:
+		if len(nm.metaaction) == 0 {
+			return fmt.Errorf("Could not do anything, no metaaction defined")
+		}
 		for _, metaname := range nm.metaaction {
 			err = SwitchName(metaname, onoff)
 		}
 	case IRCmd2MQTT:
+		if code == nil {
+			return fmt.Errorf("No code for IR defined in ActionNameHandler")
+		}
 		err = sendIRCmd2MQTT(code)
 	case RFCode2TTY, RFCode2BOTH, RFCode2MQTT:
+		if code == nil {
+			return fmt.Errorf("No code for RF433 defined in ActionNameHandler")
+		}
 		RF433_linearize_chan_ <- RFCmdToSend{handler: nm.handler, code: code}
 	case CeilingLightByteState:
+		if code == nil {
+			return fmt.Errorf("No code for Ceiling defined in ActionNameHandler")
+		}
 		err = setCeilingLightByteState(code)
 	case LEDPattern2MQTT:
-		err = sendLEDPipeCmd2MQTT(nm.metaaction)
+		if nm.pipepattern == nil {
+			return fmt.Errorf("No pattern for PipeLEDs defined in ActionNameHandler")
+		}
+		MQTT_ledpattern_chan_ <- nm.pipepattern
 	default:
 		return fmt.Errorf("Unknown handler %s", nm.handler)
 	}
@@ -185,12 +202,6 @@ func SwitchName(name string, onoff bool) (err error) {
 func sendIRCmd2MQTT(code []byte) error {
 	LogRF433_.Printf("IRCmd2MQTT(%s)", string(code))
 	MQTT_ir_chan_ <- string(code)
-	return nil
-}
-
-func sendLEDPipeCmd2MQTT(pattern_n_args []string) error {
-	//TODO: send json {pattern: pattern_n_args[0], arg: pattern_n_args[1], arg1:pattern_n_args[2]} to /action/PipeLEDs/pattern
-	//TODO: possibly try to convert args to integer
 	return nil
 }
 

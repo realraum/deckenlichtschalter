@@ -83,3 +83,10 @@ func goSendIRCmdToMQTT(mqttc *mqtt.Client, ir_chan chan string) {
 		mqttc.Publish(r3events.ACT_YAMAHA_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evt))
 	}
 }
+
+func goSetLEDPipePatternViaMQTT(mqttc *mqtt.Client, pipepattern_chan chan *r3events.SetPipeLEDsPattern) {
+	for r3evtptr := range pipepattern_chan {
+		LogMQTT_.Printf("SetPipeLEDsPattern: %+v", *r3evtptr)
+		mqttc.Publish(r3events.ACT_PIPELEDS_PATTERN, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(*r3evtptr))
+	}
+}

@@ -175,7 +175,16 @@ span.alignbuttonsleft {
     width: 40px;
     height: 32px;
     margin: 0px;
+    padding:0px;
 }
+
+.textsendbutton {
+    font-size:11pt;
+    width: 100%;
+    margin: 0px;
+    padding:0px;
+}
+
 
 .enableborder {
     font-weight: bold;
