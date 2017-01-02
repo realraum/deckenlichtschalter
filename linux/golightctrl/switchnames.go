@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
+	"github.com/btittelbach/pubsub"
+	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/realraum/door_and_sensors/r3events"
 )
 
@@ -228,20 +229,30 @@ func setCeilingLightByteState(code []byte) error {
 	return nil
 }
 
-func goLinearizeRFSenders(rfchan <-chan RFCmdToSend, rf433_tty_chan_ chan SerialLine, mqttc *mqtt.Client) {
-	for rfcmd := range rfchan {
-		switch rfcmd.handler {
-		case RFCode2TTY:
-			rf433_tty_chan_ <- append([]byte(">"), rfcmd.code...)
-			time.Sleep(POST_RF433_TTY_DELAY)
-		case RFCode2BOTH:
-			sendCodeToMQTT(mqttc, rfcmd.code)
-			time.Sleep(POST_RF433_MQTT_DELAY)
-			rf433_tty_chan_ <- append([]byte(">"), rfcmd.code...)
-			time.Sleep(POST_RF433_TTY_DELAY)
-		case RFCode2MQTT:
-			sendCodeToMQTT(mqttc, rfcmd.code)
-			time.Sleep(POST_RF433_MQTT_DELAY)
+func goLinearizeRFSenders(ps *pubsub.PubSub, rfchan <-chan RFCmdToSend, rf433_tty_chan_ chan SerialLine, mqttc mqtt.Client) {
+	shutdown1_c := ps.SubOnce(PS_SHUTDOWN)
+	shutdown2_c := ps.SubOnce(PS_SHUTDOWN_CONSUMER)
+
+	for {
+		select {
+		case rfcmd := <-rfchan:
+			switch rfcmd.handler {
+			case RFCode2TTY:
+				rf433_tty_chan_ <- append([]byte(">"), rfcmd.code...)
+				time.Sleep(POST_RF433_TTY_DELAY)
+			case RFCode2BOTH:
+				sendCodeToMQTT(mqttc, rfcmd.code)
+				time.Sleep(POST_RF433_MQTT_DELAY)
+				rf433_tty_chan_ <- append([]byte(">"), rfcmd.code...)
+				time.Sleep(POST_RF433_TTY_DELAY)
+			case RFCode2MQTT:
+				sendCodeToMQTT(mqttc, rfcmd.code)
+				time.Sleep(POST_RF433_MQTT_DELAY)
+			}
+		case <-shutdown1_c:
+			return
+		case <-shutdown2_c:
+			return
 		}
 	}
 }

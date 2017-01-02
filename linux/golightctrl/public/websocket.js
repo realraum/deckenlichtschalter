@@ -69,7 +69,7 @@ ws.open = function(uri) {
 
 ws.close = function() {
 	ws.stopreconnecting();
-	ws.ws.onclose=undefined;
+	ws.ws.onclose=function(){};
 	ws.ws.close()
 	ws.ws=null;
 }

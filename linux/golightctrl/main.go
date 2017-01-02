@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	pubsub "github.com/btittelbach/pubsub"
 	"github.com/realraum/door_and_sensors/r3events"
@@ -29,17 +30,62 @@ var (
 )
 
 const (
-	PS_WEBSOCK_ALL_JSON = "websock_toall_json"
-	PS_WEBSOCK_ALL      = "websock_toall"
-	PS_LIGHTS_CHANGED   = "light_state_changed"
-	PS_IRRF433_CHANGED  = "stateless_button_send_event"
-	PS_SHUTDOWN         = "shutdown"
+	PS_WEBSOCK_ALL_JSON  = "websock_toall_json"
+	PS_WEBSOCK_ALL       = "websock_toall"
+	PS_LIGHTS_CHANGED    = "light_state_changed"
+	PS_IRRF433_CHANGED   = "stateless_button_send_event"
+	PS_SHUTDOWN          = "shutdown"
+	PS_SHUTDOWN_CONSUMER = "shutdownindiscriminateconsumer"
 )
 
 func init() {
 	flag.BoolVar(&UseFakeGPIO_, "fakegpio", false, "For testing")
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
 	ps_ = pubsub.New(50)
+}
+
+//Connect and keep trying to connect to MQTT Broker
+//And while we cannot, still provide as much functionality as possible
+func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan SerialLine) {
+	//Start Channel Gobblers and Functionality that works without mqtt
+	//These shut down once we send PS_SHUTDOWN_CONSUMER
+	go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, nil)
+	//consume MQTT_ir_chan_
+	go func() {
+		shutdown_c := ps_.SubOnce(PS_SHUTDOWN_CONSUMER)
+		select {
+		case <-shutdown_c:
+			return
+		case <-MQTT_ir_chan_:
+		}
+	}()
+	//consume MQTT_ledpattern_chan_
+	go func() {
+		shutdown_c := ps_.SubOnce(PS_SHUTDOWN_CONSUMER)
+		select {
+		case <-shutdown_c:
+			return
+		case <-MQTT_ledpattern_chan_:
+		}
+	}()
+	//
+	//
+	//now try connect to mqtt daemon
+	for {
+		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), r3events.CLIENTID_LIGHTCTRL)
+		//start real goroutines after mqtt connected
+		if mqttc != nil {
+			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
+			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
+			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
+			go goSetLEDPipePatternViaMQTT(mqttc, MQTT_ledpattern_chan_)
+			go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, mqttc)
+			return // no need to keep on trying, mqtt-auto-reconnect will do the rest now
+		} else {
+			time.Sleep(5 * time.Minute)
+		}
+
+	}
 }
 
 func main() {
@@ -76,12 +122,8 @@ func main() {
 			panic("can't open GOLIGHTCTRL_BUTTONTTYDEV")
 		}
 	}
-	mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), r3events.CLIENTID_LIGHTCTRL)
 
-	go goLinearizeRFSenders(RF433_linearize_chan_, tty_rf433_chan, mqttc)
-	go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
-	go goSetLEDPipePatternViaMQTT(mqttc, MQTT_ledpattern_chan_)
-
+	go goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan)
 	go goListenForButtons(tty_button_chan)
 	go goRunMartini()
 

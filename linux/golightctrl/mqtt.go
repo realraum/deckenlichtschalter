@@ -7,7 +7,7 @@ import (
 
 	"github.com/realraum/door_and_sensors/r3events"
 
-	mqtt "git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 const MQTT_QOS_NOCONFIRMATION byte = 0
@@ -41,7 +41,10 @@ func removeSubscribedTopic(topic string) {
 	LogMQTT_.Printf("removeSubscribedTopics: %s ", topic)
 }
 
-func mqttOnConnectionHandler(mqttc *mqtt.Client) {
+func mqttOnConnectionHandler(mqttc mqtt.Client) {
+	if mqttc == nil {
+		return
+	}
 	LogMQTT_.Print("MQTT connection to broker established. (re)subscribing topics")
 	mqtt_topics_we_subscribed_lock_.RLock()
 	defer mqtt_topics_we_subscribed_lock_.RUnlock()
@@ -54,20 +57,24 @@ func mqttOnConnectionHandler(mqttc *mqtt.Client) {
 	}
 }
 
-func ConnectMQTTBroker(brocker_addr, clientid string) *mqtt.Client {
+func ConnectMQTTBroker(brocker_addr, clientid string) mqtt.Client {
 	options := mqtt.NewClientOptions().AddBroker(brocker_addr).SetAutoReconnect(true).SetKeepAlive(30 * time.Second).SetMaxReconnectInterval(2 * time.Minute)
-	options = options.SetClientID(clientid).SetConnectionLostHandler(func(c *mqtt.Client, err error) { LogMQTT_.Print("ERROR MQTT connection lost:", err) })
+	options = options.SetClientID(clientid).SetConnectionLostHandler(func(c mqtt.Client, err error) { LogMQTT_.Print("ERROR MQTT connection lost:", err) })
 	options = options.SetOnConnectHandler(mqttOnConnectionHandler)
 	c := mqtt.NewClient(options)
 	tk := c.Connect()
 	tk.Wait()
 	if tk.Error() != nil {
-		LogMQTT_.Fatal("Error connecting to mqtt broker", tk.Error())
+		LogMQTT_.Println("Error connecting to mqtt broker", tk.Error())
+		return nil
 	}
 	return c
 }
 
-func sendCodeToMQTT(mqttc *mqtt.Client, code []byte) {
+func sendCodeToMQTT(mqttc mqtt.Client, code []byte) {
+	if mqttc == nil {
+		return
+	}
 	LogMQTT_.Printf("SendToMQTT(%+v)", code)
 	if len(code) == 3 {
 		r3evt := r3events.SendRF433Code{Code: [3]byte{code[0], code[1], code[2]}, Ts: time.Now().Unix()}
@@ -76,7 +83,10 @@ func sendCodeToMQTT(mqttc *mqtt.Client, code []byte) {
 	}
 }
 
-func goSendIRCmdToMQTT(mqttc *mqtt.Client, ir_chan chan string) {
+func goSendIRCmdToMQTT(mqttc mqtt.Client, ir_chan chan string) {
+	if mqttc == nil {
+		return
+	}
 	for cmd := range ir_chan {
 		r3evt := r3events.YamahaIRCmd{Cmd: cmd, Ts: time.Now().Unix()}
 		LogMQTT_.Printf("goSendIRCmdToMQTT: %+v", r3evt)
@@ -84,7 +94,10 @@ func goSendIRCmdToMQTT(mqttc *mqtt.Client, ir_chan chan string) {
 	}
 }
 
-func goSetLEDPipePatternViaMQTT(mqttc *mqtt.Client, pipepattern_chan chan *r3events.SetPipeLEDsPattern) {
+func goSetLEDPipePatternViaMQTT(mqttc mqtt.Client, pipepattern_chan chan *r3events.SetPipeLEDsPattern) {
+	if mqttc == nil {
+		return
+	}
 	for r3evtptr := range pipepattern_chan {
 		LogMQTT_.Printf("SetPipeLEDsPattern: %+v", *r3evtptr)
 		mqttc.Publish(r3events.ACT_PIPELEDS_PATTERN, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(*r3evtptr))
