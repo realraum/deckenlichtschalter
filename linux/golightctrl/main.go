@@ -50,22 +50,16 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 	//Start Channel Gobblers and Functionality that works without mqtt
 	//These shut down once we send PS_SHUTDOWN_CONSUMER
 	go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, nil)
-	//consume MQTT_ir_chan_
+	//consume MQTT_ledpattern_chan_ and MQTT_ir_chan_
 	go func() {
 		shutdown_c := ps_.SubOnce(PS_SHUTDOWN_CONSUMER)
-		select {
-		case <-shutdown_c:
-			return
-		case <-MQTT_ir_chan_:
-		}
-	}()
-	//consume MQTT_ledpattern_chan_
-	go func() {
-		shutdown_c := ps_.SubOnce(PS_SHUTDOWN_CONSUMER)
-		select {
-		case <-shutdown_c:
-			return
-		case <-MQTT_ledpattern_chan_:
+		for {
+			select {
+			case <-shutdown_c:
+				return
+			case <-MQTT_ledpattern_chan_:
+			case <-MQTT_ir_chan_:
+			}
 		}
 	}()
 	//
