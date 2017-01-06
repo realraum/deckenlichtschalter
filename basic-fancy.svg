@@ -10,13 +10,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   height="210mm"
-   width="297mm"
-   viewBox="0 0 1052.3622 744.09448"
+   height="170mm"
+   width="296mm"
+   viewBox="0 0 1048.8189 602.36208"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="basic-fancy_light.svg">
+   sodipodi:docname="basic-fancy.svg">
   <defs
      id="defs8">
     <linearGradient
@@ -32,7 +32,6 @@
          style="stop-color:#00ff00;stop-opacity:0;" />
     </linearGradient>
     <linearGradient
-       inkscape:collect="always"
        id="linearGradient3356"
        osb:paint="gradient">
       <stop
@@ -61,9 +60,9 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:snap-to-guides="true"
-     inkscape:zoom="1.8872792"
-     inkscape:cx="520.91544"
-     inkscape:cy="371.11064"
+     inkscape:zoom="0.9436396"
+     inkscape:cx="474.21975"
+     inkscape:cy="348.13923"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
@@ -82,7 +81,7 @@
   </metadata>
   <g
      id="g4735"
-     transform="translate(50.211052,-94.88646)">
+     transform="matrix(1.484804,0,0,1.484804,-199.48107,-377.78878)">
     <path
        inkscape:connector-curvature="0"
        id="path4635"
@@ -1028,14 +1027,14 @@
   </g>
   <text
      xml:space="preserve"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:condensed;font-size:36px;line-height:125%;font-family:'Liberation Sans Narrow';-inkscape-font-specification:'Liberation Sans Narrow Condensed';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     x="202.32704"
-     y="203.3508"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:condensed;font-size:53.45294571px;line-height:125%;font-family:'Liberation Sans Narrow';-inkscape-font-specification:'Liberation Sans Narrow Condensed';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="20.023024"
+     y="65.035263"
      id="text4874"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan4876"
-       x="202.32704"
-       y="203.3508"
+       x="20.023024"
+       y="65.035263"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Cagliostro;-inkscape-font-specification:Cagliostro">realraum lightcontrol</tspan></text>
 </svg>
