@@ -110,6 +110,8 @@ void connectToWifi()
 	debugf("connecting 2 WiFi");
 	WifiAccessPoint.enable(false);
 	WifiStation.enable(true);
+	WifiStation.enableDHCP(NetConfig.enabledhcp);
+	WifiStation.setHostname(NetConfig.mqtt_clientid+".realraum.at");
 	WifiStation.config(NetConfig.wifi_ssid, NetConfig.wifi_pass); // Put you SSID and Password here	
 	WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
 
