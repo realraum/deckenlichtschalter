@@ -1,5 +1,4 @@
 #include <SmingCore/SmingCore.h>
-#include "secretdefaultsettings.h"
 
 #ifndef INCLUDE_DEFAULTCONFIG_H_
 #define INCLUDE_DEFAULTCONFIG_H_
@@ -11,7 +10,8 @@
 #define MQTTCLIENT_SETTINGS_FILE ".mqtt.clientid.conf" // leading point for security reasons :)
 #define MQTTUSER_SETTINGS_FILE ".mqtt.user.conf" // leading point for security reasons :)
 #define MQTTPASS_SETTINGS_FILE ".mqtt.pass.conf" // leading point for security reasons :)
-#define MQTTBROKER_SETTINGS_FILE ".mqtt.server.conf"
+#define MQTTBROKER_SETTINGS_FILE ".mqtt.broker.conf"
+#define AUTHTOKEN_SETTINGS_FILE ".authtoken.conf"
 
 struct DefaultLightConfigStorage
 {
@@ -42,13 +42,14 @@ struct NetConfigStorage
 	IPAddress ip = IPAddress(192, 168, 127, 247);
 	IPAddress netmask = IPAddress(255,255,255,0);
 	IPAddress gw = IPAddress(192, 168, 127, 254);
-	String wifi_ssid=WIFI_DEFAULT_SSID;
-	String wifi_pass=WIFI_DEFAULT_PASS;
+	String wifi_ssid="realraum";
+	String wifi_pass="";
 	String mqtt_broker="mqtt.realraum.at";
 	String mqtt_clientid="ceiling1";
 	String mqtt_user;
 	String mqtt_pass;
 	uint32_t mqtt_port=1883;  //8883 for ssl
+	String authtoken;
 
 	void load()
 	{
@@ -68,6 +69,7 @@ struct NetConfigStorage
 			mqtt_clientid = fileGetContent(MQTTCLIENT_SETTINGS_FILE);
 			mqtt_user = fileGetContent(MQTTUSER_SETTINGS_FILE);
 			mqtt_pass = fileGetContent(MQTTPASS_SETTINGS_FILE);
+			authtoken = fileGetContent(AUTHTOKEN_SETTINGS_FILE);
 		}
 	}
 
@@ -83,6 +85,7 @@ struct NetConfigStorage
 		fileSetContent(MQTTCLIENT_SETTINGS_FILE, mqtt_clientid);
 		fileSetContent(MQTTUSER_SETTINGS_FILE, mqtt_user);
 		fileSetContent(MQTTPASS_SETTINGS_FILE, mqtt_pass);
+		fileSetContent(AUTHTOKEN_SETTINGS_FILE, authtoken);
 	}
 
 	bool exist() { return fileExist(NET_SETTINGS_FILE)	&& fileGetSize(DEFAULTLIGHT_SETTINGS_FILE) != 4*sizeof(uint32_t); }

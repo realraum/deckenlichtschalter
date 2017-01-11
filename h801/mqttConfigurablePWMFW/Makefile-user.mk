@@ -32,11 +32,15 @@ SMING_HOME = /home/bernhard/source/Sming/Sming
 
 ## Configure flash parameters (for ESP12-E and other new boards):
 # SPI_MODE = dio
+SPI_SIZE=512K
+
+#RBOOT_BIG_FLASH=0
 
 ## SPIFFS options
 # DISABLE_SPIFFS = 1
-# SPIFF_FILES = files
+SPIFF_FILES = files
+SPIFF_SIZE = 131072
 
 
 ENABLE_CUSTOM_PWM=1
-#ENABLE_SSL=1
+ENABLE_SSL=0

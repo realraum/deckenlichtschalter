@@ -1,6 +1,8 @@
 #include <user_config.h>
 #include <SmingCore/SmingCore.h>
 #include <Services/ArduinoJson/ArduinoJson.h>
+#include <SmingCore/Network/TelnetServer.h>
+#include "Services/CommandProcessing/CommandProcessingIncludes.h"
 #include <defaultlightconfig.h>
 #include <pwmchannels.h>
 #include "application.h"
@@ -81,33 +83,13 @@ void flashChannel(uint8_t times, uint8_t channel)
 ///// WIFI Stuff
 ///////////////////////////////////////
 
-void listNetworks(bool succeeded, BssList list)
-{
-	if (!succeeded)
-	{
-		Serial.println("Failed to scan networks");
-		return;
-	}
-
-	for (int i = 0; i < list.count(); i++)
-	{
-		Serial.print("\tWiFi: ");
-		Serial.print(list[i].ssid);
-		Serial.print(", ");
-		Serial.print(list[i].getAuthorizationMethodName());
-		if (list[i].hidden) Serial.print(" (hidden)");
-		Serial.println();
-	}
-}
-
-
 // Will be called when WiFi station was connected to AP
 void wifiConnectOk()
 {
 	debugf("WiFi CONNECTED");
 	Serial.println(WifiStation.getIP().toString());
 	startMqttClient();
-	startUDPServer();
+	startTelnetServer();
 	// Start publishing loop (also needed for mqtt reconnect)
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
 	flashChannel(1,CHAN_GREEN);
@@ -125,34 +107,133 @@ void wifiConnectFail()
 
 void connectToWifi()
 {
-	// Station - WiFi client
+	debugf("connecting 2 WiFi");
+	WifiAccessPoint.enable(false);
 	WifiStation.enable(true);
 	WifiStation.config(NetConfig.wifi_ssid, NetConfig.wifi_pass); // Put you SSID and Password here	
 	WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
 
-
-	// Print available access points
-	WifiStation.startScan(listNetworks); // In Sming we can start network scan from init method without additional code
 	// Run our method when station was connected to AP (or not connected)
 	WifiStation.waitConnection(wifiConnectOk, 30, wifiConnectFail); // We recommend 20+ seconds at start
 }
 
 ///////////////////////////////////////
-/////// UDP Backup command interface
+///// Telnet Backup command interface
 ///////////////////////////////////////
 
-void startUDPServer()
+void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 {
-	//TODO
+	Vector<String> commandToken;
+	int numToken = splitString(commandLine, ' ' , commandToken);
+	if (numToken != 3)
+	{
+		commandOutput->printf("Usage set ip|nm|gw|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass <value>\r\n");
+	}
+	else if (commandToken[1] == "ip")
+	{
+		IPAddress newip(commandToken[2]);
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),newip.toString().c_str());
+		if (!newip.isNull())
+			NetConfig.ip = newip;
+	}
+	else if (commandToken[1] == "nm")
+	{
+		IPAddress newip(commandToken[2]);
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),newip.toString().c_str());
+		if (!newip.isNull())
+			NetConfig.netmask = newip;
+	}
+	else if (commandToken[1] == "gw")
+	{
+		IPAddress newip(commandToken[2]);
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),newip.toString().c_str());
+		if (!newip.isNull())
+			NetConfig.gw = newip;
+	}
+	else if (commandToken[1] == "wifissid")
+	{
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
+		NetConfig.wifi_ssid = commandToken[2];
+	}
+	else if (commandToken[1] == "wifipass")
+	{
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
+		NetConfig.wifi_pass = commandToken[2];
+	}
+	else if (commandToken[1] == "mqttbroker")
+	{
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
+		NetConfig.mqtt_broker = commandToken[2];
+	}
+	else if (commandToken[1] == "mqttport")
+	{
+		uint32_t newport = atoi(commandToken[2].c_str());
+		commandOutput->printf("%s: '%d'\r\n",commandToken[1].c_str(),newport);
+		if (newport > 0 && newport < 65536)
+			NetConfig.mqtt_port = newport;
+	}
+	else if (commandToken[1] == "mqttclientid")
+	{
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
+		NetConfig.mqtt_clientid = commandToken[2];
+	}
+	else if (commandToken[1] == "mqttuser")
+	{
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
+		NetConfig.mqtt_user = commandToken[2];
+	}
+	else if (commandToken[1] == "mqttpass")
+	{
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
+		NetConfig.mqtt_pass = commandToken[2];
+	} else {
+		commandOutput->printf("Invalid subcommand. Try %s list\r\n", commandToken[0].c_str());
+	}
+}
+
+void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
+{
+	commandOutput->printf("Dumping Configuration\r\n");
+	commandOutput->printf("WiFi SSID: %s\r\n",NetConfig.wifi_ssid.c_str());
+	commandOutput->printf("WiFi Pass: %s\r\n",NetConfig.wifi_pass.c_str());
+	commandOutput->printf("IP: %s\r\n",NetConfig.ip.toString().c_str());
+	commandOutput->printf("NM: %s\r\n",NetConfig.netmask.toString().c_str());
+	commandOutput->printf("GW: %s\r\n",NetConfig.gw.toString().c_str());
+	commandOutput->printf("MQTT Broker: %s:%d\r\n",NetConfig.mqtt_broker.c_str(),NetConfig.mqtt_port);
+	commandOutput->printf("MQTT ClientID: %s\r\n",NetConfig.mqtt_clientid.c_str());
+	commandOutput->printf("MQTT Login: %s / %s\r\n",NetConfig.mqtt_user.c_str(), NetConfig.mqtt_pass.c_str());
+}
+
+
+void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
+{
+	commandOutput->printf("OK, saving values...\r\n");
+	NetConfig.save();
+}
+
+void telnetCmdReboot(String commandLine  ,CommandOutput* commandOutput)
+{
+	commandOutput->printf("OK, restarting...\r\n");
+	telnetServer.flush();
+	telnetServer.close();
+	System.restart();
+}
+
+
+void startTelnetServer()
+{
+	telnetServer.listen(2323);
+	telnetServer.enableCommand(true);
+	//TODO: use encryption and client authentification
+	//telnetServer.setSslFingerprint(...,20);
+	//telnetServer.setSslClientKeyCert(...,...,....,...,....);
+	//telnetServer.useSsl = true;
 }
 
 //////////////////////////////////
 /////// MQTT Stuff ///////////////
 //////////////////////////////////
 
-// MQTT client
-// For quick check you can use: http://www.hivemq.com/demos/websocket-client/ (Connection= test.mosquitto.org:8080)
-MqttClient *mqtt;
 
 // Check for MQTT Disconnection
 void checkMQTTDisconnect(TcpClient& client, bool flag){
@@ -254,6 +335,8 @@ void startMqttClient()
 	}
 */
 	mqtt->connect(NetConfig.mqtt_clientid, NetConfig.mqtt_user, NetConfig.mqtt_pass, true);
+	mqtt->setKeepAlive(42);
+	mqtt->setPingRepeatTime(21);
 #ifdef ENABLE_SSL
 	mqtt->addSslOptions(SSL_SERVER_VERIFY_LATER);
 
@@ -282,18 +365,27 @@ void startMqttClient()
 void ready()
 {
 	debugf("READY!");
-	NetConfig.load();
+	Serial.println("\r\nready");
+	//setupPWM(); //also loads previously saved default settings
+	NetConfig.load(); //loads netsettings from fs
+	Serial.println(NetConfig.wifi_ssid);
+	Serial.println(NetConfig.wifi_pass);
+	Serial.println(NetConfig.ip.toString());
 	mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port);
 	connectToWifi();
 }
 
 void init()
 {
-	Serial.begin(SERIAL_BAUD_RATE);
+	Serial.begin(115200);
 	Serial.systemDebugOutput(true); // Allow debug print to serial
-
-	setupPWM(); //also loads previously saved default settings
-
+	commandHandler.registerCommand(CommandDelegate("set","Change network settings\r\n","configGroup", telnetCmdNetSettings));
+	commandHandler.registerCommand(CommandDelegate("save","Save network settings\r\n","configGroup", telnetCmdSave));
+	commandHandler.registerCommand(CommandDelegate("print","Print network settings\r\n","configGroup", telnetCmdPrint));
+	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266\r\n","systemGroup", telnetCmdReboot));
+	commandHandler.registerSystemCommands();
+	Serial.commandProcessing(true);
+	Serial.println("onReady");
 	// Set system ready callback method
 	System.onReady(ready);
 }
