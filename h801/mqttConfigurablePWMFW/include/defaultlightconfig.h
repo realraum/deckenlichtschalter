@@ -3,15 +3,16 @@
 #ifndef INCLUDE_DEFAULTCONFIG_H_
 #define INCLUDE_DEFAULTCONFIG_H_
 
-#define DEFAULTLIGHT_SETTINGS_FILE ".defaultlight.conf" // leading point for security reasons :)
-#define NET_SETTINGS_FILE ".net.conf" // leading point for security reasons :)
-#define WIFISSID_SETTINGS_FILE ".wifi.ssid.conf" // leading point for security reasons :)
-#define WIFIPASS_SETTINGS_FILE ".wifi.pass.conf" // leading point for security reasons :)
-#define MQTTCLIENT_SETTINGS_FILE ".mqtt.clientid.conf" // leading point for security reasons :)
-#define MQTTUSER_SETTINGS_FILE ".mqtt.user.conf" // leading point for security reasons :)
-#define MQTTPASS_SETTINGS_FILE ".mqtt.pass.conf" // leading point for security reasons :)
-#define MQTTBROKER_SETTINGS_FILE ".mqtt.broker.conf"
+#define DEFAULTLIGHT_SETTINGS_FILE ".defaultlight.conf"
+#define NET_SETTINGS_FILE ".net.conf"
+#define WIFISSID_SETTINGS_FILE ".wifi.ssid.conf"
+#define WIFIPASS_SETTINGS_FILE ".wifi.pass.conf"
+#define MQTTCLIENT_SETTINGS_FILE ".mqtt.clientid.conf"
+#define MQTTUSER_SETTINGS_FILE "mqtt.user.conf"
+#define MQTTPASS_SETTINGS_FILE ".mqtt.pass.conf"
+#define MQTTBROKER_SETTINGS_FILE "mqttbroker.conf"
 #define AUTHTOKEN_SETTINGS_FILE ".authtoken.conf"
+#define USEDHCP_SETTINGS_FILE "dhcp.flag"
 
 struct DefaultLightConfigStorage
 {
@@ -48,6 +49,7 @@ struct NetConfigStorage
 	String mqtt_clientid="ceiling1";
 	String mqtt_user;
 	String mqtt_pass;
+	bool enabledhcp=true;
 	uint32_t mqtt_port=1883;  //8883 for ssl
 	String authtoken;
 
@@ -70,6 +72,7 @@ struct NetConfigStorage
 			mqtt_user = fileGetContent(MQTTUSER_SETTINGS_FILE);
 			mqtt_pass = fileGetContent(MQTTPASS_SETTINGS_FILE);
 			authtoken = fileGetContent(AUTHTOKEN_SETTINGS_FILE);
+			enabledhcp = fileExist(USEDHCP_SETTINGS_FILE);
 		}
 	}
 
@@ -86,9 +89,13 @@ struct NetConfigStorage
 		fileSetContent(MQTTUSER_SETTINGS_FILE, mqtt_user);
 		fileSetContent(MQTTPASS_SETTINGS_FILE, mqtt_pass);
 		fileSetContent(AUTHTOKEN_SETTINGS_FILE, authtoken);
+		if (enabledhcp)
+			fileSetContent(USEDHCP_SETTINGS_FILE, "true");
+		else
+			fileDelete(USEDHCP_SETTINGS_FILE);
 	}
 
-	bool exist() { return fileExist(NET_SETTINGS_FILE)	&& fileGetSize(DEFAULTLIGHT_SETTINGS_FILE) != 4*sizeof(uint32_t); }
+	bool exist() { return fileExist(NET_SETTINGS_FILE); }
 };
 
 static NetConfigStorage NetConfig;

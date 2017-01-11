@@ -88,8 +88,8 @@ void wifiConnectOk()
 {
 	debugf("WiFi CONNECTED");
 	Serial.println(WifiStation.getIP().toString());
-	startMqttClient();
 	startTelnetServer();
+	startMqttClient();
 	// Start publishing loop (also needed for mqtt reconnect)
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
 	flashChannel(1,CHAN_GREEN);
@@ -127,7 +127,7 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	int numToken = splitString(commandLine, ' ' , commandToken);
 	if (numToken != 3)
 	{
-		commandOutput->printf("Usage set ip|nm|gw|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass <value>\r\n");
+		commandOutput->printf("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass <value>\r\n");
 	}
 	else if (commandToken[1] == "ip")
 	{
@@ -186,6 +186,11 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
 		NetConfig.mqtt_pass = commandToken[2];
+	}
+	else if (commandToken[1] == "dhcp")
+	{
+		NetConfig.enabledhcp = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),(NetConfig.enabledhcp)?"on":"off");
 	} else {
 		commandOutput->printf("Invalid subcommand. Try %s list\r\n", commandToken[0].c_str());
 	}
@@ -199,6 +204,7 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->printf("IP: %s\r\n",NetConfig.ip.toString().c_str());
 	commandOutput->printf("NM: %s\r\n",NetConfig.netmask.toString().c_str());
 	commandOutput->printf("GW: %s\r\n",NetConfig.gw.toString().c_str());
+	commandOutput->printf("DHCP: %s\r\n",(NetConfig.enabledhcp)?"on":"off");
 	commandOutput->printf("MQTT Broker: %s:%d\r\n",NetConfig.mqtt_broker.c_str(),NetConfig.mqtt_port);
 	commandOutput->printf("MQTT ClientID: %s\r\n",NetConfig.mqtt_clientid.c_str());
 	commandOutput->printf("MQTT Login: %s / %s\r\n",NetConfig.mqtt_user.c_str(), NetConfig.mqtt_pass.c_str());
@@ -211,6 +217,20 @@ void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 	NetConfig.save();
 }
 
+void telnetCmdLs(String commandLine  ,CommandOutput* commandOutput)
+{
+	Vector<String> list = fileList();
+	for (int i=0; i<list.count(); i++) {
+    	commandOutput->printf("%s\tsize:%u\texists:%d\r\n",list[i].c_str(),fileGetSize(list[i]),fileExist(list[i]));
+	}
+}
+
+void telnetCmdLoad(String commandLine  ,CommandOutput* commandOutput)
+{
+	commandOutput->printf("OK, reloading values...\r\n");
+	NetConfig.load();
+}
+
 void telnetCmdReboot(String commandLine  ,CommandOutput* commandOutput)
 {
 	commandOutput->printf("OK, restarting...\r\n");
@@ -218,7 +238,6 @@ void telnetCmdReboot(String commandLine  ,CommandOutput* commandOutput)
 	telnetServer.close();
 	System.restart();
 }
-
 
 void startTelnetServer()
 {
@@ -364,8 +383,6 @@ void startMqttClient()
 // And system initialization was completed
 void ready()
 {
-	debugf("READY!");
-	Serial.println("\r\nready");
 	//setupPWM(); //also loads previously saved default settings
 	NetConfig.load(); //loads netsettings from fs
 	Serial.println(NetConfig.wifi_ssid);
@@ -379,13 +396,14 @@ void init()
 {
 	Serial.begin(115200);
 	Serial.systemDebugOutput(true); // Allow debug print to serial
-	commandHandler.registerCommand(CommandDelegate("set","Change network settings\r\n","configGroup", telnetCmdNetSettings));
-	commandHandler.registerCommand(CommandDelegate("save","Save network settings\r\n","configGroup", telnetCmdSave));
-	commandHandler.registerCommand(CommandDelegate("print","Print network settings\r\n","configGroup", telnetCmdPrint));
-	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266\r\n","systemGroup", telnetCmdReboot));
+	commandHandler.registerCommand(CommandDelegate("set","Change network settings","configGroup", telnetCmdNetSettings));
+	commandHandler.registerCommand(CommandDelegate("save","Save network settings","configGroup", telnetCmdSave));
+	commandHandler.registerCommand(CommandDelegate("load","Save network settings","configGroup", telnetCmdSave));
+	commandHandler.registerCommand(CommandDelegate("show","Show network settings","configGroup", telnetCmdPrint));
+	commandHandler.registerCommand(CommandDelegate("ls","List files","configGroup", telnetCmdLs));
+	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
 	commandHandler.registerSystemCommands();
 	Serial.commandProcessing(true);
-	Serial.println("onReady");
 	// Set system ready callback method
 	System.onReady(ready);
 }
