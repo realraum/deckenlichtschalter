@@ -3,16 +3,16 @@
 #ifndef INCLUDE_DEFAULTCONFIG_H_
 #define INCLUDE_DEFAULTCONFIG_H_
 
-#define DEFAULTLIGHT_SETTINGS_FILE ".defaultlight.conf"
-#define NET_SETTINGS_FILE ".net.conf"
-#define WIFISSID_SETTINGS_FILE ".wifi.ssid.conf"
-#define WIFIPASS_SETTINGS_FILE ".wifi.pass.conf"
-#define MQTTCLIENT_SETTINGS_FILE ".mqtt.clientid.conf"
-#define MQTTUSER_SETTINGS_FILE "mqtt.user.conf"
-#define MQTTPASS_SETTINGS_FILE ".mqtt.pass.conf"
-#define MQTTBROKER_SETTINGS_FILE "mqttbroker.conf"
-#define AUTHTOKEN_SETTINGS_FILE ".authtoken.conf"
-#define USEDHCP_SETTINGS_FILE "dhcp.flag"
+const String DEFAULTLIGHT_SETTINGS_FILE = "defaultlight.conf";
+const String NET_SETTINGS_FILE = "net.conf";
+const String WIFISSID_SETTINGS_FILE = "wifi.ssid.conf";
+const String WIFIPASS_SETTINGS_FILE = "wifi.pass.conf";
+const String MQTTCLIENT_SETTINGS_FILE = "mqtt.clientid.conf";
+const String MQTTUSER_SETTINGS_FILE = "mqtt.user.conf";
+const String MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf";
+const String MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf";
+const String AUTHTOKEN_SETTINGS_FILE = "authtoken.conf";
+const String USEDHCP_SETTINGS_FILE = "dhcp.flag";
 
 struct DefaultLightConfigStorage
 {
@@ -28,12 +28,12 @@ struct DefaultLightConfigStorage
 
 	void save(uint32_t values[5])
 	{
-		file_t f = fileOpen(DEFAULTLIGHT_SETTINGS_FILE, eFO_WriteOnly | eFO_Truncate | eFO_CreateNewAlways);
+		file_t f = fileOpen(DEFAULTLIGHT_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 		fileWrite(f, (void*) values, 5*sizeof(uint32_t));
 		fileClose(f);
 	}
 
-	bool exist() { return fileExist(DEFAULTLIGHT_SETTINGS_FILE)	&& fileGetSize(DEFAULTLIGHT_SETTINGS_FILE) != 5*sizeof(uint32_t); }
+	bool exist() { return fileExist(DEFAULTLIGHT_SETTINGS_FILE)	&& fileGetSize(DEFAULTLIGHT_SETTINGS_FILE) >= 5*sizeof(uint32_t); }
 };
 
 static DefaultLightConfigStorage DefaultLightConfig;
@@ -64,7 +64,7 @@ struct NetConfigStorage
 			ip = IPAddress(netsettings[0]);
 			netmask = IPAddress(netsettings[1]);
 			gw = IPAddress(netsettings[2]);
-			mqtt_port = IPAddress(netsettings[3]);
+			mqtt_port = netsettings[3];
 			wifi_ssid = fileGetContent(WIFISSID_SETTINGS_FILE);
 			wifi_pass = fileGetContent(WIFIPASS_SETTINGS_FILE);
 			mqtt_broker = fileGetContent(MQTTBROKER_SETTINGS_FILE);
@@ -79,7 +79,7 @@ struct NetConfigStorage
 	void save()
 	{
 		uint32_t netsettings[4] = {ip,netmask,gw,mqtt_port};
-		file_t f = fileOpen(NET_SETTINGS_FILE, eFO_WriteOnly | eFO_Truncate | eFO_CreateNewAlways);
+		file_t f = fileOpen(NET_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 		fileWrite(f, (void*) netsettings, 4*sizeof(uint32_t));
 		fileClose(f);
 		fileSetContent(WIFISSID_SETTINGS_FILE, wifi_ssid);

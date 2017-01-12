@@ -1,11 +1,16 @@
 #include <user_config.h>
 #include <SmingCore/SmingCore.h>
-#include <Services/ArduinoJson/ArduinoJson.h>
 #include <SmingCore/Network/TelnetServer.h>
-#include "Services/CommandProcessing/CommandProcessingIncludes.h"
+#include <Services/CommandProcessing/CommandProcessingIncludes.h>
+#include <Services/ArduinoJson/ArduinoJson.h>
 #include <defaultlightconfig.h>
+#include <SmingCore/Debug.h>
 #include <pwmchannels.h>
 #include "application.h"
+#ifdef ENABLE_SSL
+	#include <ssl/private_key.h>
+	#include <ssl/cert.h>
+#endif
 
 const uint32_t period = 5000; // * 200ns ^= 1 kHz
 
@@ -53,18 +58,18 @@ void flashMeNow()
 		if (flashme_num % 2 == 0)
 		{
 			pwm_set_duty(period, flashme_channel);
-			pwm_start();				
+			pwm_start();
 		} else {
 			pwm_set_duty(0, flashme_channel);
-			pwm_start();				
+			pwm_start();
 		}
-		flashme_num--;	
+		flashme_num--;
 	} else {
 		// stop timer
 		flashTimer.stop();
 		// restore values
 		pwm_set_duty(flashme_origvalue, flashme_channel);
-		pwm_start();		
+		pwm_start();
 	}
 }
 
@@ -87,7 +92,7 @@ void flashChannel(uint8_t times, uint8_t channel)
 void wifiConnectOk()
 {
 	debugf("WiFi CONNECTED");
-	Serial.println(WifiStation.getIP().toString());
+	//Serial.println(WifiStation.getIP().toString());
 	startTelnetServer();
 	startMqttClient();
 	// Start publishing loop (also needed for mqtt reconnect)
@@ -112,7 +117,7 @@ void connectToWifi()
 	WifiStation.enable(true);
 	WifiStation.enableDHCP(NetConfig.enabledhcp);
 	WifiStation.setHostname(NetConfig.mqtt_clientid+".realraum.at");
-	WifiStation.config(NetConfig.wifi_ssid, NetConfig.wifi_pass); // Put you SSID and Password here	
+	WifiStation.config(NetConfig.wifi_ssid, NetConfig.wifi_pass); // Put you SSID and Password here
 	WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
 
 	// Run our method when station was connected to AP (or not connected)
@@ -200,30 +205,49 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 {
-	commandOutput->printf("Dumping Configuration\r\n");
-	commandOutput->printf("WiFi SSID: %s\r\n",NetConfig.wifi_ssid.c_str());
-	commandOutput->printf("WiFi Pass: %s\r\n",NetConfig.wifi_pass.c_str());
-	commandOutput->printf("IP: %s\r\n",NetConfig.ip.toString().c_str());
-	commandOutput->printf("NM: %s\r\n",NetConfig.netmask.toString().c_str());
-	commandOutput->printf("GW: %s\r\n",NetConfig.gw.toString().c_str());
-	commandOutput->printf("DHCP: %s\r\n",(NetConfig.enabledhcp)?"on":"off");
-	commandOutput->printf("MQTT Broker: %s:%d\r\n",NetConfig.mqtt_broker.c_str(),NetConfig.mqtt_port);
-	commandOutput->printf("MQTT ClientID: %s\r\n",NetConfig.mqtt_clientid.c_str());
-	commandOutput->printf("MQTT Login: %s / %s\r\n",NetConfig.mqtt_user.c_str(), NetConfig.mqtt_pass.c_str());
+	commandOutput->println("Dumping Configuration");
+	commandOutput->println("WiFi SSID: " + NetConfig.wifi_ssid);
+	commandOutput->println("WiFi Pass: " + NetConfig.wifi_pass);
+	commandOutput->println("IP: " + NetConfig.ip.toString());
+	commandOutput->println("NM: " + NetConfig.netmask.toString());
+	commandOutput->println("GW: " + NetConfig.gw.toString());
+	commandOutput->println((NetConfig.enabledhcp)?"DHCP: on":"DHCP: off");
+	commandOutput->println("MQTT Broker: " + NetConfig.mqtt_broker + ":" + String(NetConfig.mqtt_port));
+	commandOutput->println("MQTT ClientID: " + NetConfig.mqtt_clientid);
+	commandOutput->println("MQTT Login: " + NetConfig.mqtt_user +"/"+ NetConfig.mqtt_pass);
 }
 
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
-	commandOutput->printf("OK, saving values...\r\n");
+	commandOutput->println("OK, saving values...");
 	NetConfig.save();
 }
 
 void telnetCmdLs(String commandLine  ,CommandOutput* commandOutput)
 {
 	Vector<String> list = fileList();
-	for (int i=0; i<list.count(); i++) {
-    	commandOutput->printf("%s\tsize:%u\texists:%d\r\n",list[i].c_str(),fileGetSize(list[i]),fileExist(list[i]));
+	for (int i = 0; i < list.count(); i++)
+		commandOutput->println(String(fileGetSize(list[i])) + " " + list[i]);
+
+}
+
+void telnetCmdCatFile(String commandLine  ,CommandOutput* commandOutput)
+{
+	Vector<String> commandToken;
+	int numToken = splitString(commandLine, ' ' , commandToken);
+
+	if (numToken != 2)
+	{
+		commandOutput->println("Usage: cat <file>");
+		return;
+	}
+	if (fileExist(commandToken[1]))
+	{
+		commandOutput->println("Contents of "+commandToken[1]);
+		commandOutput->println(fileGetContent(commandToken[1]));
+	} else {
+		commandOutput->println("File '"+commandToken[1]+"' does not exist");
 	}
 }
 
@@ -246,9 +270,12 @@ void startTelnetServer()
 	telnetServer.listen(2323);
 	telnetServer.enableCommand(true);
 	//TODO: use encryption and client authentification
-	//telnetServer.setSslFingerprint(...,20);
-	//telnetServer.setSslClientKeyCert(...,...,....,...,....);
-	//telnetServer.useSsl = true;
+#ifdef ENABLE_SSL
+	telnetServer.addSslOptions(SSL_SERVER_VERIFY_LATER);
+	telnetServer.setSslClientKeyCert(default_private_key, default_private_key_len,
+							  default_certificate, default_certificate_len, NULL, true);
+	telnetServer.useSsl = true;
+#endif
 }
 
 //////////////////////////////////
@@ -258,14 +285,18 @@ void startTelnetServer()
 
 // Check for MQTT Disconnection
 void checkMQTTDisconnect(TcpClient& client, bool flag){
-	
+
 	// Called whenever MQTT connection is failed.
 	if (flag == true)
-		Serial.println("MQTT Broker Disconnected!!");
+	{
+		//Serial.println("MQTT Broker Disconnected!!");
+		flashChannel(2,CHAN_RED);
+	}
 	else
-		Serial.println("MQTT Broker Unreachable!!");
-	
-	flashChannel(2,CHAN_RED);
+	{
+		//Serial.println("MQTT Broker Unreachable!!");
+		flashChannel(3,CHAN_RED);
+	}
 
 	// Restart connection attempt after few seconds
 	// changes procMQTTTimer callback function
@@ -273,7 +304,7 @@ void checkMQTTDisconnect(TcpClient& client, bool flag){
 }
 
 void onMessageDelivered(uint16_t msgId, int type) {
-	Serial.printf("Message with id %d and QoS %d was delivered successfully.", msgId, (type==MQTT_MSG_PUBREC? 2: 1));
+	//Serial.printf("Message with id %d and QoS %d was delivered successfully.", msgId, (type==MQTT_MSG_PUBREC? 2: 1));
 }
 
 // Publish our message
@@ -283,7 +314,7 @@ void publishMessage()
 		startMqttClient(); // Auto reconnect
 
 	//Serial.println("Let's publish message now!");
-	//mqtt->publish("main/frameworks/sming", "Hello friends, from Internet of things :)"); 
+	//mqtt->publish("main/frameworks/sming", "Hello friends, from Internet of things :)");
 
 	//mqtt->publishWithQoS("important/frameworks/sming", "Request Return Delivery", 1, false, onMessageDelivered); // or publishWithQoS
 }
@@ -312,9 +343,9 @@ inline void setPWMDutyFromKey(JsonObject& root, String key, uint8_t pwm_channel)
 // Callback for messages, arrived from MQTT server
 void onMessageReceived(String topic, String message)
 {
-	Serial.print(topic);
-	Serial.print(":\r\n\t"); // Pretify alignment for printing
-	Serial.println(message);
+	//Serial.print(topic);
+	//Serial.print(":\r\n\t"); // Pretify alignment for printing
+	//Serial.println(message);
 
 	StaticJsonBuffer<200> jsonBuffer;
 
@@ -322,7 +353,7 @@ void onMessageReceived(String topic, String message)
 
 	if (!root.success())
 	{
-	  Serial.println("JSON parseObject() failed");
+	  //Serial.println("JSON parseObject() failed");
 	  return;
 	}
 
@@ -361,9 +392,6 @@ void startMqttClient()
 #ifdef ENABLE_SSL
 	mqtt->addSslOptions(SSL_SERVER_VERIFY_LATER);
 
-	#include <ssl/private_key.h>
-	#include <ssl/cert.h>
-
 	mqtt->setSslClientKeyCert(default_private_key, default_private_key_len,
 							  default_certificate, default_certificate_len, NULL, true);
 
@@ -385,27 +413,29 @@ void startMqttClient()
 // And system initialization was completed
 void ready()
 {
-	//setupPWM(); //also loads previously saved default settings
+	setupPWM(); //also loads previously saved default settings
 	NetConfig.load(); //loads netsettings from fs
-	Serial.println(NetConfig.wifi_ssid);
-	Serial.println(NetConfig.wifi_pass);
-	Serial.println(NetConfig.ip.toString());
+	//Serial.println(NetConfig.wifi_ssid);
+	//Serial.println(NetConfig.wifi_pass);
+	//Serial.println(NetConfig.ip.toString());
 	mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port);
 	connectToWifi();
 }
 
 void init()
 {
-	Serial.begin(115200);
-	Serial.systemDebugOutput(true); // Allow debug print to serial
+	//Serial.begin(115200);
+	//Serial.systemDebugOutput(true); // Allow debug print to serial
+	spiffs_mount(); // Mount file system, in order to work with files
 	commandHandler.registerCommand(CommandDelegate("set","Change network settings","configGroup", telnetCmdNetSettings));
 	commandHandler.registerCommand(CommandDelegate("save","Save network settings","configGroup", telnetCmdSave));
 	commandHandler.registerCommand(CommandDelegate("load","Save network settings","configGroup", telnetCmdSave));
 	commandHandler.registerCommand(CommandDelegate("show","Show network settings","configGroup", telnetCmdPrint));
 	commandHandler.registerCommand(CommandDelegate("ls","List files","configGroup", telnetCmdLs));
+	commandHandler.registerCommand(CommandDelegate("cat","List files","configGroup", telnetCmdCatFile));
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
 	commandHandler.registerSystemCommands();
-	Serial.commandProcessing(true);
+	//Serial.commandProcessing(true);
 	// Set system ready callback method
 	System.onReady(ready);
 }

@@ -5,18 +5,19 @@ import os
 import struct
 
 def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883):
-    NET_SETTINGS_FILE = ".net.conf"
-    WIFISSID_SETTINGS_FILE = ".wifi.ssid.conf"
-    WIFIPASS_SETTINGS_FILE = ".wifi.pass.conf"
-    MQTTCLIENT_SETTINGS_FILE = ".mqtt.clientid.conf"
-    MQTTUSER_SETTINGS_FILE = ".mqtt.user.conf"
-    MQTTPASS_SETTINGS_FILE = ".mqtt.pass.conf"
-    MQTTBROKER_SETTINGS_FILE = ".mqtt.broker.conf"
-    AUTHTOKEN_SETTINGS_FILE = ".authtoken.conf"
-    USEDHCP_SETTINGS_FILE = ".dhcp.flag"
+    NET_SETTINGS_FILE = "net.conf"
+    WIFISSID_SETTINGS_FILE = "wifi.ssid.conf"
+    WIFIPASS_SETTINGS_FILE = "wifi.pass.conf"
+    MQTTCLIENT_SETTINGS_FILE = "mqtt.clientid.conf"
+    MQTTUSER_SETTINGS_FILE = "mqtt.user.conf"
+    MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf"
+    MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf"
+    AUTHTOKEN_SETTINGS_FILE = "authtoken.conf"
+    USEDHCP_SETTINGS_FILE = "dhcp.flag"
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
-        fh.write(struct.pack(">IIII", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw)), mqtt_port))
+        fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
+        fh.write(struct.pack("<I",  int(mqtt_port)))
     with open(os.path.join(DIR, WIFISSID_SETTINGS_FILE),"wb") as fh:
         fh.write(wifi_ssid)
     with open(os.path.join(DIR, WIFIPASS_SETTINGS_FILE),"wb") as fh:
