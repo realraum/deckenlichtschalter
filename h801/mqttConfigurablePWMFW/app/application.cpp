@@ -71,14 +71,14 @@ void flashMeNow()
 	}
 }
 
-void flashChannel(uint8_t times, uint8_t channel)
+void flashSingleChannel(uint8_t times, uint8_t channel)
 {
 	flashme_channel = channel;
 	flashme_origvalue = pwm_get_duty(channel);
 	flashme_num = times*2;
 	pwm_set_duty(0,channel);
 	pwm_start();
-	flashTimer.initializeMs(500, flashMeNow).start(); // every 500ms
+	flashTimer.initializeMs(800, flashMeNow).start(); // every 800ms
 }
 
 
@@ -95,7 +95,7 @@ void wifiConnectOk()
 	startMqttClient();
 	// Start publishing loop (also needed for mqtt reconnect)
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
-	flashChannel(1,CHAN_GREEN);
+	flashSingleChannel(1,CHAN_GREEN);
 }
 
 // Will be called when WiFi station timeout was reached
@@ -103,7 +103,7 @@ void wifiConnectFail()
 {
 	debugf("WiFi NOT CONNECTED!");
 
-	flashChannel(1,CHAN_RED);
+	flashSingleChannel(1,CHAN_RED);
 
 	WifiStation.waitConnection(wifiConnectOk, 10, wifiConnectFail); // Repeat and check again
 }
@@ -252,23 +252,23 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	}
 	else if (commandToken[1] == "flash0")
 	{
-		flashChannel(3,0);
+		flashSingleChannel(3,0);
 	}
 	else if (commandToken[1] == "flash1")
 	{
-		flashChannel(3,1);
+		flashSingleChannel(3,1);
 	}
 	else if (commandToken[1] == "flash2")
 	{
-		flashChannel(3,2);
+		flashSingleChannel(3,2);
 	}
 	else if (commandToken[1] == "flash3")
 	{
-		flashChannel(3,3);
+		flashSingleChannel(3,3);
 	}
 	else if (commandToken[1] == "flash4")
 	{
-		flashChannel(3,4);
+		flashSingleChannel(3,4);
 	}
 
 }
@@ -344,12 +344,12 @@ void checkMQTTDisconnect(TcpClient& client, bool flag){
 	if (flag == true)
 	{
 		//Serial.println("MQTT Broker Disconnected!!");
-		flashChannel(2,CHAN_RED);
+		flashSingleChannel(2,CHAN_RED);
 	}
 	else
 	{
 		//Serial.println("MQTT Broker Unreachable!!");
-		flashChannel(3,CHAN_RED);
+		flashSingleChannel(3,CHAN_RED);
 	}
 
 	// Restart connection attempt after few seconds
@@ -444,7 +444,7 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_WW, CHAN_WW);
 		DefaultLightConfig.save(pwm_duty_default);
-		flashChannel(1,CHAN_BLUE);
+		flashSingleChannel(1,CHAN_BLUE);
 	}
 }
 
