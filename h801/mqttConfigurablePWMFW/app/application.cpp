@@ -1,8 +1,6 @@
 #include <user_config.h>
 #include <SmingCore/SmingCore.h>
 #include <SmingCore/Network/TelnetServer.h>
-#include <Services/CommandProcessing/CommandProcessingIncludes.h>
-#include <Services/ArduinoJson/ArduinoJson.h>
 #include <defaultlightconfig.h>
 #include <SmingCore/Debug.h>
 #include <pwmchannels.h>
