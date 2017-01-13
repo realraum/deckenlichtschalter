@@ -483,7 +483,6 @@ void startMqttClient()
 // And system initialization was completed
 void ready()
 {
-	setupPWM(); //also loads previously saved default settings
 	NetConfig.load(); //loads netsettings from fs
 	//Serial.println(NetConfig.wifi_ssid);
 	//Serial.println(NetConfig.wifi_pass);
@@ -496,7 +495,10 @@ void init()
 {
 	//Serial.begin(115200);
 	//Serial.systemDebugOutput(true); // Allow debug print to serial
+	//Serial.commandProcessing(true);
 	spiffs_mount(); // Mount file system, in order to work with files
+	setupPWM(); //Init PWM with spiffs saved default settings
+
 	commandHandler.registerCommand(CommandDelegate("set","Change network settings","configGroup", telnetCmdNetSettings));
 	commandHandler.registerCommand(CommandDelegate("save","Save network settings","configGroup", telnetCmdSave));
 	commandHandler.registerCommand(CommandDelegate("load","Save network settings","configGroup", telnetCmdSave));
@@ -506,7 +508,6 @@ void init()
 	commandHandler.registerCommand(CommandDelegate("light","Test light","systemGroup", telnetCmdLight));
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
 	commandHandler.registerSystemCommands();
-	//Serial.commandProcessing(true);
 	// Set system ready callback method
 	System.onReady(ready);
 }
