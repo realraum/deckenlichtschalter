@@ -25,11 +25,11 @@ void setupPWM()
 	// PWM setup
 	uint32 io_info[PWM_CHANNELS][3] = {
 		// MUX, FUNC, PIN
-		{PERIPHS_IO_MUX_MTDI_U,  FUNC_GPIO12, 12},
-		{PERIPHS_IO_MUX_MTDO_U,  FUNC_GPIO15, 15},
-		{PERIPHS_IO_MUX_MTCK_U,  FUNC_GPIO13, 13},
-		{PERIPHS_IO_MUX_MTMS_U,  FUNC_GPIO14, 14},
-		{PERIPHS_IO_MUX_GPIO5_U, FUNC_GPIO5 ,  5},
+		{PERIPHS_IO_MUX_MTDI_U,  FUNC_GPIO12, 12}, //B-
+		{PERIPHS_IO_MUX_MTDO_U,  FUNC_GPIO15, 15}, //R-
+		{PERIPHS_IO_MUX_MTCK_U,  FUNC_GPIO13, 13}, //G-
+		{PERIPHS_IO_MUX_MTMS_U,  FUNC_GPIO14, 14}, //W1-
+		{PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4 ,  4}, //W2-
 	};
 	// uint32 pwm_duty_initial[PWM_CHANNELS] = {0, 0, 0, 0, 0};
 	uint32 pwm_duty_initial[PWM_CHANNELS] = {0, 0, 0, 0, 0};
@@ -365,7 +365,7 @@ void onMessageReceived(String topic, String message)
 		pwm_start();
 	} else if (topic.endsWith("/defaultlight"))
 	{
-		uint32_t pwm_duty_default[5] = {0,0,0,0,0};
+		uint32_t pwm_duty_default[PWM_CHANNELS] = {0,0,0,0,0};
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_RED, CHAN_RED);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_BLUE, CHAN_BLUE);
