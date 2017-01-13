@@ -215,6 +215,63 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->println("MQTT Login: " + NetConfig.mqtt_user +"/"+ NetConfig.mqtt_pass);
 }
 
+void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
+{
+	Vector<String> commandToken;
+	int numToken = splitString(commandLine, ' ' , commandToken);
+	if (numToken != 2)
+	{
+		commandOutput->println("Usage light on|off|info|half|flash0,flash1,flash2,flash3,flash4");
+	}
+	else if (commandToken[1] == "on")
+	{
+		uint32_t deflightconf[PWM_CHANNELS]={0,0,0,0,0};
+		DefaultLightConfig.load(deflightconf);
+		for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			pwm_set_duty(deflightconf[i],i);
+		pwm_start();
+	}
+	else if (commandToken[1] == "off")
+	{
+		for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			pwm_set_duty(0,i);
+		pwm_start();
+	}
+	else if (commandToken[1] == "half")
+	{
+		for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			pwm_set_duty(period/2,i);
+		pwm_start();
+	}
+	else if (commandToken[1] == "info")
+	{
+		uint32_t deflightconf[PWM_CHANNELS]={0,0,0,0,0};
+		DefaultLightConfig.load(deflightconf);
+		commandOutput->println("Current: r:"+String(pwm_get_duty(CHAN_RED))+" g:"+String(pwm_get_duty(CHAN_GREEN))+" b:"+String(pwm_get_duty(CHAN_BLUE))+" cw:"+String(pwm_get_duty(CHAN_CW))+" ww:"+String(pwm_get_duty(CHAN_WW)));
+		commandOutput->println("Default: r:"+String(deflightconf[CHAN_RED])+" g:"+String(deflightconf[CHAN_GREEN])+" b:"+String(deflightconf[CHAN_BLUE])+" cw:"+String(deflightconf[CHAN_CW])+" ww:"+String(deflightconf[CHAN_WW]));
+	}
+	else if (commandToken[1] == "flash0")
+	{
+		flashChannel(3,0);
+	}
+	else if (commandToken[1] == "flash1")
+	{
+		flashChannel(3,1);
+	}
+	else if (commandToken[1] == "flash2")
+	{
+		flashChannel(3,2);
+	}
+	else if (commandToken[1] == "flash3")
+	{
+		flashChannel(3,3);
+	}
+	else if (commandToken[1] == "flash4")
+	{
+		flashChannel(3,4);
+	}
+
+}
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
@@ -227,7 +284,6 @@ void telnetCmdLs(String commandLine  ,CommandOutput* commandOutput)
 	Vector<String> list = fileList();
 	for (int i = 0; i < list.count(); i++)
 		commandOutput->println(String(fileGetSize(list[i])) + " " + list[i]);
-
 }
 
 void telnetCmdCatFile(String commandLine  ,CommandOutput* commandOutput)
@@ -319,9 +375,16 @@ void publishMessage()
 
 inline void setArrayFromKey(JsonObject& root, uint32_t a[5], String key, uint8_t pwm_channel)
 {
-	if (root.containsKey(key) && root[key].is<unsigned int>())
+	//BUG: can't check type because .is is buggy and does not compile in Sming 3.0.1.
+	//if (root.containsKey(key) && root[key].is<unsigned int>())
+	if (root.containsKey(key))
 	{
-		a[pwm_channel] = ((uint32_t)root[key]) * period/1000;
+		uint32_t value = (uint32_t)root[key];
+		if (value > 1000)
+		{
+			return;
+		}
+		a[pwm_channel] = value * period / 1000;
 		if (a[pwm_channel] > period)
 			a[pwm_channel] = period;
 	}
@@ -329,23 +392,32 @@ inline void setArrayFromKey(JsonObject& root, uint32_t a[5], String key, uint8_t
 
 inline void setPWMDutyFromKey(JsonObject& root, String key, uint8_t pwm_channel)
 {
-	if (root.containsKey(key) && root[key].is<unsigned int>())
+	//BUG: can't check type because .is is buggy and does not compile in Sming 3.0.1
+	// if (root.containsKey(key) && root[key].is<unsigned int>())
+	if (root.containsKey(key))
 	{
-		uint32_t newvalue = ((uint32_t)root[key])*period/1000;
-		if (newvalue > period)
-			newvalue = period;
-		pwm_set_duty(newvalue, pwm_channel);
+		uint32_t value = (uint32_t)root[key];
+		if (value > 1000)
+		{
+			return;
+		}
+		value = value * period / 1000;
+		if (value > period)
+			value = period;
+		pwm_set_duty(value, pwm_channel);
 	}
 }
 
 // Callback for messages, arrived from MQTT server
 void onMessageReceived(String topic, String message)
 {
-	//Serial.print(topic);
-	//Serial.print(":\r\n\t"); // Pretify alignment for printing
-	//Serial.println(message);
+	debugf("topic: %s",topic.c_str());
+	debugf("msg: %s",message.c_str());
+	//GRML BUG :-( It would be really nice to filter out retained messages,
+	//             to avoid the light powering up, going into defaultlight settings, then getting wifi and switching to a retained /light setting
+	//GRML :-( unfortunately we can't distinguish between retained and fresh messages here
 
-	StaticJsonBuffer<200> jsonBuffer;
+	DynamicJsonBuffer jsonBuffer;
 
 	JsonObject& root = jsonBuffer.parseObject(message);
 
@@ -416,7 +488,7 @@ void ready()
 	//Serial.println(NetConfig.wifi_ssid);
 	//Serial.println(NetConfig.wifi_pass);
 	//Serial.println(NetConfig.ip.toString());
-	mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port);
+	mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port, onMessageReceived);
 	connectToWifi();
 }
 
@@ -431,6 +503,7 @@ void init()
 	commandHandler.registerCommand(CommandDelegate("show","Show network settings","configGroup", telnetCmdPrint));
 	commandHandler.registerCommand(CommandDelegate("ls","List files","configGroup", telnetCmdLs));
 	commandHandler.registerCommand(CommandDelegate("cat","List files","configGroup", telnetCmdCatFile));
+	commandHandler.registerCommand(CommandDelegate("light","Test light","systemGroup", telnetCmdLight));
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
 	commandHandler.registerSystemCommands();
 	//Serial.commandProcessing(true);
