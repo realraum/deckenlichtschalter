@@ -55,7 +55,7 @@ void flashMeNow()
 	{
 		if (flashme_num % 2 == 0)
 		{
-			pwm_set_duty(period, flashme_channel);
+			pwm_set_duty(period/3, flashme_channel);
 			pwm_start();
 		} else {
 			pwm_set_duty(0, flashme_channel);
@@ -204,12 +204,15 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 {
 	commandOutput->println("Dumping Configuration");
-	commandOutput->println("WiFi SSID: " + NetConfig.wifi_ssid);
-	commandOutput->println("WiFi Pass: " + NetConfig.wifi_pass);
-	commandOutput->println("IP: " + NetConfig.ip.toString());
-	commandOutput->println("NM: " + NetConfig.netmask.toString());
-	commandOutput->println("GW: " + NetConfig.gw.toString());
+	commandOutput->println("WiFi SSID: " + NetConfig.wifi_ssid + " actualSSID: "+WifiStation.getSSID());
+	commandOutput->println("WiFi Pass: " + NetConfig.wifi_pass + " actualPASS: "+WifiStation.getPassword());
+	commandOutput->println("Hostname: " + WifiStation.getHostname());
+	commandOutput->println("MAC: " + WifiStation.getMAC());
+	commandOutput->println("IP: " + NetConfig.ip.toString() + " actualIP: "+WifiStation.getIP().toString());
+	commandOutput->println("NM: " + NetConfig.netmask.toString()+ " actualGW: "+WifiStation.getNetworkMask().toString());
+	commandOutput->println("GW: " + NetConfig.gw.toString()+ " actualGW: "+WifiStation.getNetworkGateway().toString());
 	commandOutput->println((NetConfig.enabledhcp)?"DHCP: on":"DHCP: off");
+	commandOutput->println((WifiStation.isEnabledDHCP())?"actual DHCP: on":"DHCP: off");
 	commandOutput->println("MQTT Broker: " + NetConfig.mqtt_broker + ":" + String(NetConfig.mqtt_port));
 	commandOutput->println("MQTT ClientID: " + NetConfig.mqtt_clientid);
 	commandOutput->println("MQTT Login: " + NetConfig.mqtt_user +"/"+ NetConfig.mqtt_pass);
