@@ -370,6 +370,23 @@ void onMessageReceived(String topic, String message)
 
 	DynamicJsonBuffer jsonBuffer;
 
+	// pleaserepeat does not care about message content, thus it is checked before using the jsonBuffer for parsing
+	// (as JsonBuffer should not be reused) This allows us to use that buffer for sending a message ourselves
+	if (topic.endsWith(JSON_TOPIC3_PLEASEREPEAT))
+	{
+		JsonObject& root = jsonBuffer.createObject();
+		root[JSONKEY_RED] = effect_target_values_[CHAN_RED];
+		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN];
+		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE];
+		root[JSONKEY_CW] = effect_target_values_[CHAN_CW];
+		root[JSONKEY_WW] = effect_target_values_[CHAN_WW];
+		root.printTo(message);
+		//publish to myself (where presumably everybody else also listens), the current settings
+		mqtt->publish(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
+		return; //return so we don't reuse the now used jsonBuffer
+	}
+
+	//use jsonBuffer to parse message
 	JsonObject& root = jsonBuffer.parseObject(message);
 
 	if (!root.success())
