@@ -3,20 +3,27 @@
 #include <pwmchannels.h>
 #include "lightcontrol.h"
 
+//these get set from outside and should not be read or written in timer functions
+uint32_t effect_target_values_[PWM_CHANNELS]={0,0,0,0,0};
+uint32_t effect_intermid_values_[PWM_CHANNELS]={0,0,0,0,0};
 
+//these get set from outside and are only used at the end (TODO)
+String mqtt_forward_to_;
+String mqtt_payload_;
+
+
+//internal types
 enum effect_id_type {EFF_NO, EFF_FLASH, EFF_FADE};
 
+//internal values
 Timer flashTimer;
-effect_id_type effect = EFF_NO;
-uint32_t apply_last_values[PWM_CHANNELS];
-uint32_t active_values[PWM_CHANNELS];
-uint32_t steps_left=0;
-int32_t fade_diff_values[PWM_CHANNELS];
-uint32_t effect_target_values[PWM_CHANNELS]={0,0,0,0,0};
-uint32_t effect_intermid_values[PWM_CHANNELS]={0,0,0,0,0};
-uint32_t effect_interval=800;
-String mqtt_forward_to;
-String mqtt_payload;
+effect_id_type effect_ = EFF_NO;
+uint32_t apply_last_values_[PWM_CHANNELS];
+uint32_t active_values_[PWM_CHANNELS];
+uint32_t steps_left_=0;
+int32_t fade_diff_values_[PWM_CHANNELS];
+
+
 ////////////////////
 //// PWM Stuff ////
 ///////////////////
@@ -33,12 +40,9 @@ void setupPWM()
 		{PERIPHS_IO_MUX_MTMS_U,  FUNC_GPIO14, 14}, //W1-
 		{PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4 ,  4}, //W2-
 	};
-	// uint32 pwm_duty_initial[PWM_CHANNELS] = {0, 0, 0, 0, 0};
-	uint32 pwm_duty_initial[PWM_CHANNELS] = {0, 0, 0, 0, 0};
 
-	DefaultLightConfig.load(pwm_duty_initial); //load initial default values
-
-	pwm_init(pwm_period, pwm_duty_initial, PWM_CHANNELS, io_info);
+	DefaultLightConfig.load(effect_target_values_); //load initial default values
+	pwm_init(pwm_period, effect_target_values_, PWM_CHANNELS, io_info);
 	pwm_start();
 }
 
@@ -47,10 +51,14 @@ void setupPWM()
 //// Light Stuff ////
 /////////////////////
 
+const uint32_t FADE_CALC_FACTOR_ = 10000;
+const uint32_t FADE_PERIOD_ = 80; //ms
+const uint32_t FLASH_PERIOD_ = 800; //ms
+
 void saveCurrentValues()
 {
 	for (uint8_t i=0;i<PWM_CHANNELS;i++)
-		apply_last_values[i] = pwm_get_duty(i);
+		apply_last_values_[i] = pwm_get_duty(i);
 }
 
 void applyValues(uint32_t values[PWM_CHANNELS])
@@ -63,21 +71,21 @@ void applyValues(uint32_t values[PWM_CHANNELS])
 void stopAndRestoreValues()
 {
 	flashTimer.stop();
-	applyValues(apply_last_values);
-	effect = EFF_NO;
+	applyValues(apply_last_values_);
+	effect_ = EFF_NO;
 }
 
 void timerFuncShowFlashEffect()
 {
-	if (steps_left > 0)
+	if (steps_left_ > 0)
 	{
-		if (steps_left % 2 == 0)
+		if (steps_left_ % 2 == 0)
 		{
-			applyValues(active_values);
+			applyValues(active_values_);
 		} else {
-			applyValues(effect_intermid_values);
+			applyValues(effect_intermid_values_);
 		}
-		steps_left--;
+		steps_left_--;
 	} else {
 		stopAndRestoreValues();
 	}
@@ -85,12 +93,15 @@ void timerFuncShowFlashEffect()
 
 void timerFuncShowFadeEffect()
 {
-	if (steps_left > 0)
+	if (steps_left_ > 0)
 	{
 		for (uint8_t i=0; i<PWM_CHANNELS; i++)
-			active_values[i] += fade_diff_values[i];
-		applyValues(active_values);			
-		steps_left--;
+		{
+			active_values_[i] += fade_diff_values_[i]; //calc in FADE_CALC_FACTOR_
+			pwm_set_duty(active_values_[i]/FADE_CALC_FACTOR_,i); //set in normal
+		}
+		steps_left_--;
+		pwm_start();
 	} else {
 		stopAndRestoreValues();
 	}
@@ -98,7 +109,7 @@ void timerFuncShowFadeEffect()
 
 void timerFuncShowEffect()
 {
-	switch (effect)
+	switch (effect_)
 	{
 		default:
 		case EFF_NO:
@@ -113,46 +124,63 @@ void timerFuncShowEffect()
 	}
 }
 
-void startFlash(uint8_t repetitions)
+void startFlash(uint8_t repetitions=DEFAULT_EFFECT_REPETITIONS, FLASHFLAGS intermed=FLASH_INTERMED_USERSET)
 {
-	if (effect != EFF_NO)
-		stopAndRestoreValues();
-	saveCurrentValues();
-	memcpy(active_values, effect_target_values, PWM_CHANNELS*sizeof(uint32_t));
-	applyValues(effect_intermid_values);
-	steps_left = repetitions * 2;
-	effect = EFF_FLASH;
-	flashTimer.initializeMs(effect_interval, timerFuncShowFlashEffect).start();
-}
-
-void flashSingleChannel(uint8_t times, uint8_t channel)
-{
-	if (channel >= PWM_CHANNELS)
+	if (repetitions > MAX_ALLOWED_EFFECT_REPETITIONS)
 		return;
-	if (effect != EFF_NO)
+	if (effect_ != EFF_NO)
 		stopAndRestoreValues();
 	saveCurrentValues();
-	memcpy(effect_target_values, apply_last_values, PWM_CHANNELS*sizeof(uint32_t));
-	memcpy(effect_intermid_values, apply_last_values, PWM_CHANNELS*sizeof(uint32_t));
-	effect_target_values[channel] = pwm_period/3;
-	effect_intermid_values[channel] = 0;
-	startFlash(times);
+	memcpy(active_values_, effect_target_values_, PWM_CHANNELS*sizeof(uint32_t));
+	switch (intermed)
+	{
+		case FLASH_INTERMED_DARK:
+		memset(effect_intermid_values_, 0, PWM_CHANNELS*sizeof(uint32_t));
+		break;
+		case FLASH_INTERMED_ORIG:
+		memcpy(effect_intermid_values_, apply_last_values_, PWM_CHANNELS*sizeof(uint32_t));
+		break;
+	}
+	applyValues(effect_intermid_values_);
+	steps_left_ = repetitions * 2;
+	effect_ = EFF_FLASH;
+	flashTimer.initializeMs(FLASH_PERIOD_, timerFuncShowFlashEffect).start();
 }
 
-void startFade(uint16_t steps)
+void flashSingleChannel(uint8_t repetitions, uint8_t channel)
 {
-	if (effect != EFF_NO)
+	if (channel >= PWM_CHANNELS || repetitions > MAX_ALLOWED_EFFECT_REPETITIONS || repetitions == 0)
+		return;
+	if (effect_ != EFF_NO)
+		stopAndRestoreValues();
+	saveCurrentValues();
+	memcpy(effect_target_values_, apply_last_values_, PWM_CHANNELS*sizeof(uint32_t));
+	memcpy(effect_intermid_values_, apply_last_values_, PWM_CHANNELS*sizeof(uint32_t));
+	effect_target_values_[channel] = pwm_period/3;
+	effect_intermid_values_[channel] = 0;
+	startFlash(repetitions);
+}
+
+void startFade(uint32_t duration_ms=DEFAULT_EFFECT_DURATION)
+{
+	if (duration_ms > MAX_ALLOWED_EFFECT_DURATION || duration_ms < MIN_ALLOWED_EFFECT_DURATION)
+		return;
+	if (effect_ != EFF_NO)
 		stopAndRestoreValues();
 	saveCurrentValues();		
+
+	uint32_t steps_left_ = duration_ms / FADE_PERIOD_;
+	//derzeit: maximal 750 steps_left möglich --> FACE_CALC_FACTOR = 10000
+
+
 	for (uint8_t i=0; i<PWM_CHANNELS; i++)
 	{
-		fade_diff_values[i] = ((int32_t)effect_target_values[i] - (int32_t)apply_last_values[i]) / (int32_t)steps;
+		fade_diff_values_[i] = ((int32_t)effect_target_values_[i] - (int32_t)apply_last_values_[i])*FADE_CALC_FACTOR_ / (int32_t)steps_left_;
+		active_values_[i] = apply_last_values_[i] * FADE_CALC_FACTOR_;
 	}
-	steps_left = steps;
 
-	//copy active_values to apply_last_values so active_values get applied on stop or interrupt of effect
-	memcpy(apply_last_values, effect_target_values, PWM_CHANNELS*sizeof(uint32_t));
-	memcpy(active_values, effect_target_values, PWM_CHANNELS*sizeof(uint32_t));
-	effect = EFF_FADE;
-	flashTimer.initializeMs(effect_interval, timerFuncShowFadeEffect).start();
+	//copy effect_target_values_ to apply_last_values_ so effect_target_values_ get applied on stop or interrupt of effect
+	memcpy(apply_last_values_, effect_target_values_, PWM_CHANNELS*sizeof(uint32_t));
+	effect_ = EFF_FADE;
+	flashTimer.initializeMs(FADE_PERIOD_, timerFuncShowFadeEffect).start();
 }

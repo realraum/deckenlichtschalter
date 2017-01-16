@@ -96,6 +96,11 @@ struct NetConfigStorage
 	}
 
 	bool exist() { return fileExist(NET_SETTINGS_FILE); }
+
+	String getMQTTTopic(String topic3, bool all=false)
+	{
+		return JSON_TOPIC1+((all) ? JSON_TOPIC2_ALL : mqtt_clientid)+topic3;
+	}
 };
 
 static NetConfigStorage NetConfig;

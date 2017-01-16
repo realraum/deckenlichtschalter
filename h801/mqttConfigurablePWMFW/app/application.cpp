@@ -5,82 +5,14 @@
 #include <SmingCore/Debug.h>
 #include <pwmchannels.h>
 #include "application.h"
+#include "lightcontrol.h"
 #ifdef ENABLE_SSL
 	#include <ssl/private_key.h>
 	#include <ssl/cert.h>
 #endif
 
-const uint32_t period = 5000; // * 200ns ^= 1 kHz
 
-Timer flashTimer;
 Timer procMQTTTimer;
-
-////////////////////
-//// PWM Stuff ////
-///////////////////
-
-//init PWM and restore stored pwm values
-void setupPWM()
-{
-	// PWM setup
-	uint32 io_info[PWM_CHANNELS][3] = {
-		// MUX, FUNC, PIN
-		{PERIPHS_IO_MUX_MTDO_U,  FUNC_GPIO15, 15}, //R-
-		{PERIPHS_IO_MUX_MTCK_U,  FUNC_GPIO13, 13}, //G-
-		{PERIPHS_IO_MUX_MTDI_U,  FUNC_GPIO12, 12}, //B-
-		{PERIPHS_IO_MUX_MTMS_U,  FUNC_GPIO14, 14}, //W1-
-		{PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4 ,  4}, //W2-
-	};
-	// uint32 pwm_duty_initial[PWM_CHANNELS] = {0, 0, 0, 0, 0};
-	uint32 pwm_duty_initial[PWM_CHANNELS] = {0, 0, 0, 0, 0};
-
-	DefaultLightConfig.load(pwm_duty_initial); //load initial default values
-
-	pwm_init(period, pwm_duty_initial, PWM_CHANNELS, io_info);
-	pwm_start();
-}
-
-///////////////////////////////////////////
-//// Userfeedback and Flash-LEDs Stuff ////
-///////////////////////////////////////////
-
-
-uint32_t flashme_num = 0;
-uint8_t flashme_channel = 0;
-uint32_t flashme_origvalue = 0;
-
-void flashMeNow()
-{
-	if (flashme_num > 0)
-	{
-		if (flashme_num % 2 == 0)
-		{
-			pwm_set_duty(period/3, flashme_channel);
-			pwm_start();
-		} else {
-			pwm_set_duty(0, flashme_channel);
-			pwm_start();
-		}
-		flashme_num--;
-	} else {
-		// stop timer
-		flashTimer.stop();
-		// restore values
-		pwm_set_duty(flashme_origvalue, flashme_channel);
-		pwm_start();
-	}
-}
-
-void flashSingleChannel(uint8_t times, uint8_t channel)
-{
-	flashme_channel = channel;
-	flashme_origvalue = pwm_get_duty(channel);
-	flashme_num = times*2;
-	pwm_set_duty(0,channel);
-	pwm_start();
-	flashTimer.initializeMs(800, flashMeNow).start(); // every 800ms
-}
-
 
 ///////////////////////////////////////
 ///// WIFI Stuff
@@ -224,7 +156,7 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	int numToken = splitString(commandLine, ' ' , commandToken);
 	if (numToken != 2)
 	{
-		commandOutput->println("Usage light on|off|info|half|flash0,flash1,flash2,flash3,flash4");
+		commandOutput->println("Usage light on|off|info|half|flash0,flash1,flash2,flash3");
 	}
 	else if (commandToken[1] == "on")
 	{
@@ -243,7 +175,7 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	else if (commandToken[1] == "half")
 	{
 		for (uint8_t i=0;i<PWM_CHANNELS;i++)
-			pwm_set_duty(period/2,i);
+			pwm_set_duty(pwm_period/2,i);
 		pwm_start();
 	}
 	else if (commandToken[1] == "info")
@@ -252,6 +184,8 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 		DefaultLightConfig.load(deflightconf);
 		commandOutput->println("Current: r:"+String(pwm_get_duty(CHAN_RED))+" g:"+String(pwm_get_duty(CHAN_GREEN))+" b:"+String(pwm_get_duty(CHAN_BLUE))+" cw:"+String(pwm_get_duty(CHAN_CW))+" ww:"+String(pwm_get_duty(CHAN_WW)));
 		commandOutput->println("Default: r:"+String(deflightconf[CHAN_RED])+" g:"+String(deflightconf[CHAN_GREEN])+" b:"+String(deflightconf[CHAN_BLUE])+" cw:"+String(deflightconf[CHAN_CW])+" ww:"+String(deflightconf[CHAN_WW]));
+		commandOutput->println("effect_target_values_: r:"+String(effect_target_values_[CHAN_RED])+" g:"+String(effect_target_values_[CHAN_GREEN])+" b:"+String(effect_target_values_[CHAN_BLUE])+" cw:"+String(effect_target_values_[CHAN_CW])+" ww:"+String(effect_target_values_[CHAN_WW]));
+		commandOutput->println("effect_intermid_values_: r:"+String(effect_intermid_values_[CHAN_RED])+" g:"+String(effect_intermid_values_[CHAN_GREEN])+" b:"+String(effect_intermid_values_[CHAN_BLUE])+" cw:"+String(effect_intermid_values_[CHAN_CW])+" ww:"+String(effect_intermid_values_[CHAN_WW]));
 	}
 	else if (commandToken[1] == "flash0")
 	{
@@ -259,7 +193,17 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	}
 	else if (commandToken[1] == "flash1")
 	{
-		flashSingleChannel(3,1);
+		effect_target_values_[0]=pwm_period/3;
+		effect_target_values_[1]=0;
+		effect_target_values_[2]=pwm_period/3;
+		effect_target_values_[3]=0;
+		effect_target_values_[4]=10;
+		effect_intermid_values_[0]=0;
+		effect_intermid_values_[1]=pwm_get_duty(1);
+		effect_intermid_values_[2]=0;
+		effect_intermid_values_[3]=pwm_get_duty(3);
+		effect_intermid_values_[4]=pwm_get_duty(4);
+		startFlash(2,FLASH_INTERMED_USERSET);
 	}
 	else if (commandToken[1] == "flash2")
 	{
@@ -267,11 +211,12 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	}
 	else if (commandToken[1] == "flash3")
 	{
-		flashSingleChannel(3,3);
-	}
-	else if (commandToken[1] == "flash4")
-	{
-		flashSingleChannel(3,4);
+		effect_target_values_[0]=pwm_period/3;
+		effect_target_values_[1]=0;
+		effect_target_values_[2]=pwm_period/3;
+		effect_target_values_[3]=0;
+		effect_target_values_[4]=10;
+		startFlash(2,FLASH_INTERMED_DARK);
 	}
 
 }
@@ -387,9 +332,12 @@ inline void setArrayFromKey(JsonObject& root, uint32_t a[5], String key, uint8_t
 		{
 			return;
 		}
-		a[pwm_channel] = value * period / 1000;
-		if (a[pwm_channel] > period)
-			a[pwm_channel] = period;
+		a[pwm_channel] = value * pwm_period / 1000;
+		if (a[pwm_channel] > pwm_period)
+			a[pwm_channel] = pwm_period;
+	} else
+	{
+		a[pwm_channel] = pwm_get_duty(pwm_channel);
 	}
 }
 
@@ -404,9 +352,9 @@ inline void setPWMDutyFromKey(JsonObject& root, String key, uint8_t pwm_channel)
 		{
 			return;
 		}
-		value = value * period / 1000;
-		if (value > period)
-			value = period;
+		value = value * pwm_period / 1000;
+		if (value > pwm_period)
+			value = pwm_period;
 		pwm_set_duty(value, pwm_channel);
 	}
 }
@@ -430,15 +378,35 @@ void onMessageReceived(String topic, String message)
 	  return;
 	}
 
-	if (topic.endsWith("/light"))
+	if (topic.endsWith(JSON_TOPIC3_LIGHT))
 	{
-		setPWMDutyFromKey(root, JSONKEY_RED, CHAN_RED);
-		setPWMDutyFromKey(root, JSONKEY_GREEN, CHAN_GREEN);
-		setPWMDutyFromKey(root, JSONKEY_BLUE, CHAN_BLUE);
-		setPWMDutyFromKey(root, JSONKEY_CW, CHAN_CW);
-		setPWMDutyFromKey(root, JSONKEY_WW, CHAN_WW);
-		pwm_start();
-	} else if (topic.endsWith("/defaultlight"))
+		setArrayFromKey(root, effect_target_values_, JSONKEY_RED, CHAN_RED);
+		setArrayFromKey(root, effect_target_values_, JSONKEY_GREEN, CHAN_GREEN);
+		setArrayFromKey(root, effect_target_values_, JSONKEY_BLUE, CHAN_BLUE);
+		setArrayFromKey(root, effect_target_values_, JSONKEY_CW, CHAN_CW);
+		setArrayFromKey(root, effect_target_values_, JSONKEY_WW, CHAN_WW);
+
+		if (root.containsKey(JSONKEY_FLASH))
+		{
+			JsonObject& effectobj = root[JSONKEY_FLASH];
+			uint32_t repetitions = DEFAULT_EFFECT_REPETITIONS;
+			if (effectobj.containsKey(JSONKEY_REPETITIONS))
+				repetitions = effectobj[JSONKEY_REPETITIONS];
+			startFlash(repetitions, FLASH_INTERMED_ORIG);
+		}
+		else if (root.containsKey(JSONKEY_FADE))
+		{
+			JsonObject& effectobj = root[JSONKEY_FADE];
+			uint32_t duration = DEFAULT_EFFECT_REPETITIONS;
+			if (effectobj.containsKey(JSONKEY_DURATION))
+				duration = effectobj[JSONKEY_DURATION];
+			startFade(duration);
+		} else
+		{
+			//apply Values right now
+			applyValues(effect_target_values_);
+		}
+	} else if (topic.endsWith(JSON_TOPIC3_DEFAULTLIGHT))
 	{
 		uint32_t pwm_duty_default[PWM_CHANNELS] = {0,0,0,0,0};
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_RED, CHAN_RED);
@@ -471,10 +439,12 @@ void startMqttClient()
 #endif
 	// Assign a disconnect callback function
 	mqtt->setCompleteDelegate(checkMQTTDisconnect);
-	mqtt->subscribe("action/ceilingAll/light");
-	mqtt->subscribe("action/ceilingAll/defaultlight");
-	mqtt->subscribe(String("action/")+NetConfig.mqtt_clientid+"/light");
-	mqtt->subscribe(String("action/")+NetConfig.mqtt_clientid+"/defaultlight");
+	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,true));
+	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
+	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
+	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,false));
+	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
+	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
 }
 
 //////////////////////////////////////

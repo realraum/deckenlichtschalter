@@ -15,5 +15,16 @@
 #define JSONKEY_CW "cw"
 #define JSONKEY_WW "ww"
 
+#define JSONKEY_FLASH "flash"
+#define JSONKEY_FADE "fade"
+#define JSONKEY_REPETITIONS "repetitions"
+#define JSONKEY_DURATION "duration"
+
+const String JSON_TOPIC1 = "action/";
+const String JSON_TOPIC2_ALL ="ceilingAll";
+const String JSON_TOPIC3_LIGHT = "/light";
+const String JSON_TOPIC3_DEFAULTLIGHT = "/defaultlight";
+const String JSON_TOPIC3_PLEASEREPEAT = "/pleaserepeat";
+
 
 #endif // USERCONFIG_H
