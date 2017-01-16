@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-MqttClient *mqtt;
+MqttClient *mqtt = 0;
 TelnetServer telnetServer;
 
 void setupPWM();

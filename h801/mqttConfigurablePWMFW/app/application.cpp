@@ -104,7 +104,7 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	}
 	else if (commandToken[1] == "mqttport")
 	{
-		uint32_t newport = atoi(commandToken[2].c_str());
+		uint32_t newport = commandToken[2].toInt();
 		commandOutput->printf("%s: '%d'\r\n",commandToken[1].c_str(),newport);
 		if (newport > 0 && newport < 65536)
 			NetConfig.mqtt_port = newport;
@@ -359,6 +359,22 @@ inline void setPWMDutyFromKey(JsonObject& root, String key, uint8_t pwm_channel)
 	}
 }
 
+//if present and an array of strings, will forward entire json to next element in list
+//minus that element in the list
+void checkForwardInJsonAndSetCC(JsonObject& root, JsonObject& checkme)
+{
+	if (checkme.containsKey(JSONKEY_FORWARD))
+	{
+		JsonArray& cc_list = checkme[JSONKEY_FORWARD];
+		if (cc_list.success() && cc_list.size() > 0)
+		{
+			mqtt_forward_to_ = cc_list.get<String>(0);
+			cc_list.removeAt(0);
+			root.printTo(mqtt_payload_);
+		}
+	}
+}
+
 // Callback for messages, arrived from MQTT server
 void onMessageReceived(String topic, String message)
 {
@@ -368,7 +384,7 @@ void onMessageReceived(String topic, String message)
 	//             to avoid the light powering up, going into defaultlight settings, then getting wifi and switching to a retained /light setting
 	//GRML :-( unfortunately we can't distinguish between retained and fresh messages here
 
-	DynamicJsonBuffer jsonBuffer;
+	StaticJsonBuffer<1024> jsonBuffer;
 
 	// pleaserepeat does not care about message content, thus it is checked before using the jsonBuffer for parsing
 	// (as JsonBuffer should not be reused) This allows us to use that buffer for sending a message ourselves
@@ -403,12 +419,15 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, effect_target_values_, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_WW, CHAN_WW);
 
+
+		//-----
 		if (root.containsKey(JSONKEY_FLASH))
 		{
 			JsonObject& effectobj = root[JSONKEY_FLASH];
 			uint32_t repetitions = DEFAULT_EFFECT_REPETITIONS;
 			if (effectobj.containsKey(JSONKEY_REPETITIONS))
 				repetitions = effectobj[JSONKEY_REPETITIONS];
+			checkForwardInJsonAndSetCC(root, effectobj);
 			startFlash(repetitions, FLASH_INTERMED_ORIG);
 		}
 		else if (root.containsKey(JSONKEY_FADE))
@@ -417,6 +436,7 @@ void onMessageReceived(String topic, String message)
 			uint32_t duration = DEFAULT_EFFECT_REPETITIONS;
 			if (effectobj.containsKey(JSONKEY_DURATION))
 				duration = effectobj[JSONKEY_DURATION];
+			checkForwardInJsonAndSetCC(root, effectobj);
 			startFade(duration);
 		} else
 		{

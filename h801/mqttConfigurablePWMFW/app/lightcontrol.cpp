@@ -23,6 +23,8 @@ uint32_t active_values_[PWM_CHANNELS];
 uint32_t steps_left_=0;
 int32_t fade_diff_values_[PWM_CHANNELS];
 
+//externally imported stuff
+extern MqttClient *mqtt;
 
 ////////////////////
 //// PWM Stuff ////
@@ -73,6 +75,10 @@ void stopAndRestoreValues()
 	flashTimer.stop();
 	applyValues(apply_last_values_);
 	effect_ = EFF_NO;
+	if (0 != mqtt && mqtt_forward_to_.length() > 0)
+		mqtt->publish(mqtt_forward_to_, mqtt_payload_, false);
+	mqtt_forward_to_="";
+	mqtt_payload_="";
 }
 
 void timerFuncShowFlashEffect()
@@ -167,7 +173,7 @@ void startFade(uint32_t duration_ms=DEFAULT_EFFECT_DURATION)
 		return;
 	if (effect_ != EFF_NO)
 		stopAndRestoreValues();
-	saveCurrentValues();		
+	saveCurrentValues();
 
 	uint32_t steps_left_ = duration_ms / FADE_PERIOD_;
 	//derzeit: maximal 750 steps_left möglich --> FACE_CALC_FACTOR = 10000
