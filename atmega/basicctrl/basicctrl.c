@@ -55,7 +55,7 @@ void handle_cmd(uint8_t cmd)
     relay_set(current_relay - 'a', cmd); break;
   default: printf("error\r\n"); return;
   }
-  printf("state of output %c is now: %d\r\n", current_relay, relay_get(current_relay - 'a'));
+  printf("state of output %c is now: %c\r\n", current_relay, relay_get(current_relay - 'a'));
 }
 
 int main(void)

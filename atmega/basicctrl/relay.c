@@ -79,14 +79,14 @@ void relay_toggle(uint8_t num)
 uint8_t relay_get(uint8_t num)
 {
   switch(num) {
-  case 0: return (PINF & 1<<PF4) ? 0 : 1;
-  case 1: return (PINF & 1<<PF5) ? 0 : 1;
-  case 2: return (PINF & 1<<PF6) ? 0 : 1;
-  case 3: return (PINF & 1<<PF7) ? 0 : 1;
-  case 4: return (PINB & 1<<PB1) ? 0 : 1;
-  case 5: return (PINB & 1<<PB3) ? 0 : 1;
-  case 6: return (PINB & 1<<PB2) ? 0 : 1;
-  case 7: return (PINB & 1<<PB6) ? 0 : 1;
+  case 0: return (PINF & 1<<PF4) ? RELAY_OFF : RELAY_ON;
+  case 1: return (PINF & 1<<PF5) ? RELAY_OFF : RELAY_ON;
+  case 2: return (PINF & 1<<PF6) ? RELAY_OFF : RELAY_ON;
+  case 3: return (PINF & 1<<PF7) ? RELAY_OFF : RELAY_ON;
+  case 4: return (PINB & 1<<PB1) ? RELAY_OFF : RELAY_ON;
+  case 5: return (PINB & 1<<PB3) ? RELAY_OFF : RELAY_ON;
+  case 6: return (PINB & 1<<PB2) ? RELAY_OFF : RELAY_ON;
+  case 7: return (PINB & 1<<PB6) ? RELAY_OFF : RELAY_ON;
   }
   return 0;
 }
