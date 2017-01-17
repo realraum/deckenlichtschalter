@@ -11,9 +11,9 @@
 
 TelnetServer telnetServer;
 HttpFirmwareUpdate ota_updater;
-String ota_update_url_0, ota_update_url_9;
-uint32_t auth_ip;
-uint16_t auth_port=0;
+bool ota_url_set=false;
+uint32_t auth_ip=-1; //invalid ip
+uint16_t auth_port=-1; //invalid port
 
 void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 {
@@ -97,14 +97,15 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 {
-	commandOutput->println("Dumping Configuration");
-	commandOutput->println("WiFi SSID: " + NetConfig.wifi_ssid + " actualSSID: "+WifiStation.getSSID());
-	commandOutput->println("WiFi Pass: " + NetConfig.wifi_pass + " actualPASS: "+WifiStation.getPassword());
+	commandOutput->println("You are connecting from: " + telnetServer.getRemoteIp().toString() + ":" + String(telnetServer.getRemotePort()));
+	commandOutput->println("== Dumping Configuration ==");
+	commandOutput->println("WiFi SSID: " + NetConfig.wifi_ssid + " actual: "+WifiStation.getSSID());
+	commandOutput->println("WiFi Pass: " + NetConfig.wifi_pass + " actual: "+WifiStation.getPassword());
 	commandOutput->println("Hostname: " + WifiStation.getHostname());
 	commandOutput->println("MAC: " + WifiStation.getMAC());
-	commandOutput->println("IP: " + NetConfig.ip.toString() + " actualIP: "+WifiStation.getIP().toString());
-	commandOutput->println("NM: " + NetConfig.netmask.toString()+ " actualGW: "+WifiStation.getNetworkMask().toString());
-	commandOutput->println("GW: " + NetConfig.gw.toString()+ " actualGW: "+WifiStation.getNetworkGateway().toString());
+	commandOutput->println("IP: " + NetConfig.ip.toString() + " actual: "+WifiStation.getIP().toString());
+	commandOutput->println("NM: " + NetConfig.netmask.toString()+ " actual: "+WifiStation.getNetworkMask().toString());
+	commandOutput->println("GW: " + NetConfig.gw.toString()+ " actual: "+WifiStation.getNetworkGateway().toString());
 	commandOutput->println((NetConfig.enabledhcp)?"DHCP: on":"DHCP: off");
 	commandOutput->println((WifiStation.isEnabledDHCP())?"actual DHCP: on":"DHCP: off");
 	commandOutput->println("MQTT Broker: " + NetConfig.mqtt_broker + ":" + String(NetConfig.mqtt_port));
@@ -253,7 +254,7 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 	{
 		commandOutput->println("Usage: update <url>|godoit");
 		return;
-	} else if (String("godoit") == commandToken[1] && ota_update_url_0.length() > 0 && ota_update_url_9.length() > 0)
+	} else if (String("godoit") == commandToken[1])
 	{
 		stopMqttClient(); //disconnect MQTT
 		stopAndRestoreValues(); // stop effects
@@ -261,13 +262,18 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 		for (uint8_t i=0;i<PWM_CHANNELS;i++)
 			pwm_set_duty(0,i);
 		pwm_start();
-		ota_updater.addItem(0x0000, ota_update_url_0);
-		ota_updater.addItem(0x9000, ota_update_url_9);
+		//start firmware update
 		commandOutput->println("OK, updating now");
 		ota_updater.start();
+		while (ota_updater.isProcessing ())
+		{
+			commandOutput->printf(".");
+			delayMilliseconds(500);
+		}
 	} else {
-		ota_update_url_0 = commandToken[1] + "0x00000.bin";
-		ota_update_url_9 = commandToken[1] + "0x09000.bin";
+		String ota_update_url_0 = commandToken[1] + "0x00000.bin";
+		String ota_update_url_9 = commandToken[1] + "0x09000.bin";
+		ota_url_set = true;
 		commandOutput->println("Update URLs set, please check");
 		commandOutput->println(ota_update_url_0);
 		commandOutput->println(ota_update_url_9);
@@ -277,11 +283,16 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetAuth(String commandLine  ,CommandOutput* commandOutput)
 {
-	if (commandLine != "auth prevents mistakes "+NetConfig.authtoken)
-		return;
-	auth_ip = telnetServer.getRemoteIp();
-	auth_port = telnetServer.getRemotePort();
-	commandOutput->println("go ahead, but if you break it, you fix it");
+	if (commandLine == "auth prevents mistakes "+NetConfig.authtoken)
+	{
+		auth_ip = telnetServer.getRemoteIp();
+		auth_port = telnetServer.getRemotePort();
+		commandOutput->println("go ahead, but if you break it, you fix it");
+	} else {
+		auth_ip = 0;
+		auth_port = 0;
+		commandOutput->println("no dice");
+	}
 }
 
 void startTelnetServer()
