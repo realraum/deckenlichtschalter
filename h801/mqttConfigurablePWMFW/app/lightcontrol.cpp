@@ -104,8 +104,8 @@ void timerFuncShowFadeEffect()
 	{
 		for (uint8_t i=0; i<PWM_CHANNELS; i++)
 		{
-			active_values_[i] = (uint32_t) ((int32_t)active_values_[i] + fade_diff_values_[i]); //calc in FADE_CALC_FACTOR_
-			pwm_set_duty(active_values_[i]/FADE_CALC_FACTOR_,i); //set in normal
+			active_values_[i] = active_values_[i] + fade_diff_values_[i]; //calc in FADE_CALC_FACTOR_
+			pwm_set_duty(active_values_[i] / FADE_CALC_FACTOR_,i); //set in normal
 		}
 		steps_left_--;
 		pwm_start();
@@ -182,7 +182,7 @@ void startFade(uint32_t duration_ms=DEFAULT_EFFECT_DURATION)
 
 	for (uint8_t i=0; i<PWM_CHANNELS; i++)
 	{
-		fade_diff_values_[i] = ((int32_t)effect_target_values_[i] - (int32_t)apply_last_values_[i])*FADE_CALC_FACTOR_ / (int32_t)steps_left_;
+		fade_diff_values_[i] = (effect_target_values_[i] - apply_last_values_[i])*FADE_CALC_FACTOR_ / steps_left_;
 		active_values_[i] = apply_last_values_[i] * FADE_CALC_FACTOR_;
 	}
 

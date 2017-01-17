@@ -65,7 +65,8 @@ inline void setArrayFromKey(JsonObject& root, uint32_t a[5], String key, uint8_t
 			a[pwm_channel] = pwm_period;
 	} else
 	{
-		a[pwm_channel] = pwm_get_duty(pwm_channel);
+		//this allows us to set the default to current light values by sending an empty json object to /defaultlight
+		a[pwm_channel] = effect_target_values_[pwm_channel];
 	}
 }
 
