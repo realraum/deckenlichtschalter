@@ -161,7 +161,7 @@ void onMessageReceived(String topic, String message)
 		else if (root.containsKey(JSONKEY_FADE))
 		{
 			JsonObject& effectobj = root[JSONKEY_FADE];
-			uint32_t duration = DEFAULT_EFFECT_REPETITIONS;
+			uint32_t duration = DEFAULT_EFFECT_DURATION;
 			if (effectobj.containsKey(JSONKEY_DURATION))
 				duration = effectobj[JSONKEY_DURATION];
 			checkForwardInJsonAndSetCC(root, effectobj);
@@ -169,7 +169,8 @@ void onMessageReceived(String topic, String message)
 		} else
 		{
 			//apply Values right now
-			applyValues(effect_target_values_);
+			stopAndRestoreValues(); //disable any Effects
+			applyValues(effect_target_values_); //apply light
 		}
 	} else if (topic.endsWith(JSON_TOPIC3_DEFAULTLIGHT))
 	{

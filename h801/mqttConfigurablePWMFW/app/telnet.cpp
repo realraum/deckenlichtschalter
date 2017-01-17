@@ -277,7 +277,7 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetAuth(String commandLine  ,CommandOutput* commandOutput)
 {
-	if (commandLine != "auth prevents mistaktes "+NetConfig.authtoken)
+	if (commandLine != "auth prevents mistakes "+NetConfig.authtoken)
 		return;
 	auth_ip = telnetServer.getRemoteIp();
 	auth_port = telnetServer.getRemotePort();
