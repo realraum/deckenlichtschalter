@@ -12,6 +12,7 @@ void connectToWifi();
 void startTelnetServer();
 void publishMessage();
 void startMqttClient();
+void stopMqttClient();
 void ready();
 void init();
 #endif

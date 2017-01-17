@@ -58,6 +58,9 @@ void connectToWifi()
 ///// Telnet Backup command interface
 ///////////////////////////////////////
 
+HttpFirmwareUpdate ota_updater;
+String ota_update_url_0, ota_update_url_9;
+
 void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 {
 	Vector<String> commandToken;
@@ -265,6 +268,37 @@ void telnetCmdReboot(String commandLine  ,CommandOutput* commandOutput)
 	telnetServer.flush();
 	telnetServer.close();
 	System.restart();
+}
+
+void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
+{
+	Vector<String> commandToken;
+	int numToken = splitString(commandLine, ' ' , commandToken);
+
+	if (2 != numToken)
+	{
+		commandOutput->println("Usage: update <url>|godoit");
+		return;
+	} else if (String("godoit") == commandToken[1] && ota_update_url_0.length() > 0 && ota_update_url_9.length() > 0)
+	{
+		stopMqttClient(); //disconnect MQTT
+		stopAndRestoreValues(); // stop effects
+		//disable lights
+		for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			pwm_set_duty(0,i);
+		pwm_start();
+		ota_updater.addItem(0x0000, ota_update_url_0);
+		ota_updater.addItem(0x9000, ota_update_url_9);
+		commandOutput->println("OK, updating now");
+		ota_updater.start();
+	} else {
+		ota_update_url_0 = commandToken[1] + "0x00000.bin";
+		ota_update_url_9 = commandToken[1] + "0x09000.bin";
+		commandOutput->println("Update URLs set, please check");
+		commandOutput->println(ota_update_url_0);
+		commandOutput->println(ota_update_url_9);
+	}
+
 }
 
 void startTelnetServer()
@@ -484,6 +518,19 @@ void startMqttClient()
 	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
 }
 
+void stopMqttClient()
+{
+	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,true));
+	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
+	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
+	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,false));
+	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
+	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+	mqtt->setKeepAlive(0);
+	mqtt->setPingRepeatTime(0);
+	procMQTTTimer.stop();
+}
+
 //////////////////////////////////////
 ////// Base System Stuff  ////////////
 //////////////////////////////////////
@@ -517,6 +564,7 @@ void init()
 	commandHandler.registerCommand(CommandDelegate("cat","List files","configGroup", telnetCmdCatFile));
 	commandHandler.registerCommand(CommandDelegate("light","Test light","systemGroup", telnetCmdLight));
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
+	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","systemGroup", telnetAirUpdate));
 	commandHandler.registerSystemCommands();
 	// Set system ready callback method
 	System.onReady(ready);

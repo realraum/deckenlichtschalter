@@ -21,5 +21,6 @@ void applyValues(uint32_t values[PWM_CHANNELS]);
 void startFlash(uint8_t repetitions, FLASHFLAGS intermed);
 void flashSingleChannel(uint8_t repetitions, uint8_t channel);
 void startFade(uint32_t duration_ms);
+void stopAndRestoreValues();
 
 #endif
