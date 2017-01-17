@@ -175,8 +175,8 @@ void startFade(uint32_t duration_ms=DEFAULT_EFFECT_DURATION)
 		stopAndRestoreValues();
 	saveCurrentValues();
 
-	uint32_t steps_left_ = duration_ms / FADE_PERIOD_ + ((duration_ms % FADE_PERIOD_)? 1 : 0);
-	//derzeit: maximal 751 steps_left möglich --> FACE_CALC_FACTOR = 10000
+	steps_left_ = duration_ms / FADE_PERIOD_ + ((duration_ms % FADE_PERIOD_)? 1 : 0);
+	//derzeit: maximal 600 steps_left möglich --> FACE_CALC_FACTOR = 10000
 
 
 	for (uint8_t i=0; i<PWM_CHANNELS; i++)
