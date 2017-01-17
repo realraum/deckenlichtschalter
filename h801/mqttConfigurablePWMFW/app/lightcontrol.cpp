@@ -73,6 +73,7 @@ void applyValues(uint32_t values[PWM_CHANNELS])
 void stopAndRestoreValues()
 {
 	flashTimer.stop();
+	steps_left_ = 0;
 	applyValues(apply_last_values_);
 	effect_ = EFF_NO;
 	if (0 != mqtt && mqtt_forward_to_.length() > 0)
@@ -103,7 +104,7 @@ void timerFuncShowFadeEffect()
 	{
 		for (uint8_t i=0; i<PWM_CHANNELS; i++)
 		{
-			active_values_[i] += fade_diff_values_[i]; //calc in FADE_CALC_FACTOR_
+			active_values_[i] = (uint32_t) ((int32_t)active_values_[i] + fade_diff_values_[i]); //calc in FADE_CALC_FACTOR_
 			pwm_set_duty(active_values_[i]/FADE_CALC_FACTOR_,i); //set in normal
 		}
 		steps_left_--;
