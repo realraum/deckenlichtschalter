@@ -22,7 +22,7 @@
 
 NAME := basicctrl
 BOARD_TYPE := arduinoProMicro
-OBJ := $(NAME).o
+OBJ := $(NAME).o relay.o keypad.o
 LIBS := util led lufa-descriptor-usbserial usbio
 EXTERNAL_LIBS := lufa
 SPREADAVR_PATH := ../contrib/avr-utils
