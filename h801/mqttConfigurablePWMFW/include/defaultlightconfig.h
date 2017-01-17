@@ -36,7 +36,7 @@ struct DefaultLightConfigStorage
 	bool exist() { return fileExist(DEFAULTLIGHT_SETTINGS_FILE)	&& fileGetSize(DEFAULTLIGHT_SETTINGS_FILE) >= PWM_CHANNELS*sizeof(uint32_t); }
 };
 
-static DefaultLightConfigStorage DefaultLightConfig;
+extern DefaultLightConfigStorage DefaultLightConfig;
 
 struct NetConfigStorage
 {
@@ -103,6 +103,6 @@ struct NetConfigStorage
 	}
 };
 
-static NetConfigStorage NetConfig;
+extern NetConfigStorage NetConfig;
 
 #endif /* INCLUDE_DEFAULTCONFIG_H_ */

@@ -281,6 +281,7 @@ void telnetAuth(String commandLine  ,CommandOutput* commandOutput)
 		return;
 	auth_ip = telnetServer.getRemoteIp();
 	auth_port = telnetServer.getRemotePort();
+	commandOutput->println("go ahead, but if you break it, you fix it");
 }
 
 void startTelnetServer()
@@ -300,7 +301,7 @@ void telnetRegisterCmdsWithCommandHandler()
 {
 	commandHandler.registerCommand(CommandDelegate("set","Change network settings","configGroup", telnetCmdNetSettings));
 	commandHandler.registerCommand(CommandDelegate("save","Save network settings","configGroup", telnetCmdSave));
-	commandHandler.registerCommand(CommandDelegate("load","Save network settings","configGroup", telnetCmdSave));
+	commandHandler.registerCommand(CommandDelegate("load","Save network settings","configGroup", telnetCmdLoad));
 	commandHandler.registerCommand(CommandDelegate("show","Show network settings","configGroup", telnetCmdPrint));
 	commandHandler.registerCommand(CommandDelegate("ls","List files","configGroup", telnetCmdLs));
 	commandHandler.registerCommand(CommandDelegate("cat","List files","configGroup", telnetCmdCatFile));

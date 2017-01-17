@@ -12,6 +12,8 @@
 	#include <ssl/cert.h>
 #endif
 
+NetConfigStorage NetConfig;
+DefaultLightConfigStorage DefaultLightConfig;
 
 ///////////////////////////////////////
 ///// WIFI Stuff
