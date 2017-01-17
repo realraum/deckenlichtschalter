@@ -90,3 +90,12 @@ uint8_t relay_get(uint8_t num)
   }
   return 0;
 }
+
+void relay_set(uint8_t num, uint8_t action)
+{
+  switch(action) {
+  case RELAY_OFF: relay_off(num); return;
+  case RELAY_ON: relay_on(num); return;
+  case RELAY_TOGGLE: relay_toggle(num); return;
+  }
+}

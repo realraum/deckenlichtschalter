@@ -25,6 +25,11 @@
 
 #define RELAY_NUM 8
 
+#define RELAY_OFF      '0'
+#define RELAY_ON       '1'
+#define RELAY_TOGGLE   't'
+#define RELAY_NOCHANGE '-'
+
 void relay_init(void);
 
 void relay_on(uint8_t num);
@@ -32,5 +37,6 @@ void relay_off(uint8_t num);
 void relay_toggle(uint8_t num);
 
 uint8_t relay_get(uint8_t num);
+void relay_set(uint8_t num, uint8_t action);
 
 #endif
