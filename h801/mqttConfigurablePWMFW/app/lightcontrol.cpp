@@ -54,7 +54,7 @@ void setupPWM()
 /////////////////////
 
 const uint32_t FADE_CALC_FACTOR_ = 10000;
-const uint32_t FADE_PERIOD_ = 80; //ms
+const uint32_t FADE_PERIOD_ = 100; //ms
 const uint32_t FLASH_PERIOD_ = 800; //ms
 
 void saveCurrentValues()
