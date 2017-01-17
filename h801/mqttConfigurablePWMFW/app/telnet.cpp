@@ -12,14 +12,21 @@
 TelnetServer telnetServer;
 HttpFirmwareUpdate ota_updater;
 String ota_update_url_0, ota_update_url_9;
+uint32_t auth_ip;
+uint16_t auth_port=0;
 
 void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 {
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
+	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	{
+		commandOutput->println("Prevent Mistakes, give auth token");
+		return;
+	}
 	if (numToken != 3)
 	{
-		commandOutput->printf("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass <value>\r\n");
+		commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass <value>");
 	}
 	else if (commandToken[1] == "ip")
 	{
@@ -178,6 +185,11 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
+	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	{
+		commandOutput->println("Prevent Mistakes, give auth token");
+		return;
+	}
 	commandOutput->println("OK, saving values...");
 	NetConfig.save();
 }
@@ -191,6 +203,11 @@ void telnetCmdLs(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdCatFile(String commandLine  ,CommandOutput* commandOutput)
 {
+	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	{
+		commandOutput->println("Prevent Mistakes, give auth token");
+		return;
+	}
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
 
@@ -227,6 +244,11 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
 
+	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	{
+		commandOutput->println("Prevent Mistakes, give auth token");
+		return;
+	}
 	if (2 != numToken)
 	{
 		commandOutput->println("Usage: update <url>|godoit");
@@ -253,9 +275,17 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 
 }
 
+void telnetAuth(String commandLine  ,CommandOutput* commandOutput)
+{
+	if (commandLine != "auth prevents mistaktes "+NetConfig.authtoken)
+		return;
+	auth_ip = telnetServer.getRemoteIp();
+	auth_port = telnetServer.getRemotePort();
+}
+
 void startTelnetServer()
 {
-	telnetServer.listen(2323);
+	telnetServer.listen(TELNET_PORT_);
 	telnetServer.enableCommand(true);
 	//TODO: use encryption and client authentification
 #ifdef ENABLE_SSL
@@ -277,4 +307,5 @@ void telnetRegisterCmdsWithCommandHandler()
 	commandHandler.registerCommand(CommandDelegate("light","Test light","systemGroup", telnetCmdLight));
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
 	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","systemGroup", telnetAirUpdate));
+	commandHandler.registerCommand(CommandDelegate("auth","auth token","systemGroup", telnetAuth));
 }

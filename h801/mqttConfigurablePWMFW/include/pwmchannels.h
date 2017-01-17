@@ -27,5 +27,6 @@ const String JSON_TOPIC3_LIGHT = "/light";
 const String JSON_TOPIC3_DEFAULTLIGHT = "/defaultlight";
 const String JSON_TOPIC3_PLEASEREPEAT = "/pleaserepeat";
 
+const uint32_t TELNET_PORT_ = 2323;
 
 #endif // USERCONFIG_H
