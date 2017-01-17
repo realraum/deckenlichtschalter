@@ -119,7 +119,7 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	int numToken = splitString(commandLine, ' ' , commandToken);
 	if (numToken != 2)
 	{
-		commandOutput->println("Usage light on|off|info|half|flash0,flash1,flash2,flash3");
+		commandOutput->println("Usage light on|off|info|half|flash0,flash1,flash2,fade2black");
 	}
 	else if (commandToken[1] == "on")
 	{
@@ -170,10 +170,6 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	}
 	else if (commandToken[1] == "flash2")
 	{
-		flashSingleChannel(3,2);
-	}
-	else if (commandToken[1] == "flash3")
-	{
 		effect_target_values_[0]=pwm_period/3;
 		effect_target_values_[1]=0;
 		effect_target_values_[2]=pwm_period/3;
@@ -181,7 +177,15 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 		effect_target_values_[4]=10;
 		startFlash(2,FLASH_INTERMED_DARK);
 	}
-
+	else if (commandToken[1] == "fade2black")
+	{
+		effect_target_values_[0]=0;
+		effect_target_values_[1]=0;
+		effect_target_values_[2]=0;
+		effect_target_values_[3]=0;
+		effect_target_values_[4]=0;
+		startFade(2000);
+	}
 }
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
