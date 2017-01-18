@@ -262,10 +262,11 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 	{
 		stopMqttClient(); //disconnect MQTT
 		stopAndRestoreValues(); // stop effects
-		//disable lights
-		for (uint8_t i=0;i<PWM_CHANNELS;i++)
-			pwm_set_duty(0,i);
-		pwm_start();
+		// set light to same state they will be in
+		// once GPIOs switch to INPUT
+		// so there won't be a sudden power drop during flash when all LEDs switch on
+		uint32_t light_during_flash[PWM_CHANNELS] = {0,1000,1000,1000,0};
+		applyValues(light_during_flash);
 		//start firmware update
 		commandOutput->println("OK, updating now");
 		ota_updater.start();
