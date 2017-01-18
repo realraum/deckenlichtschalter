@@ -21,24 +21,48 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 
 #include "usbio.h"
 
 #include "keypad.h"
 #include "relay.h"
 
-static uint8_t fancy_buf[16];
+static uint8_t fancy_buf_idx;
+static uint8_t fancy_buf[RELAY_NUM+2];
 
 void fancy_init(void)
 {
   usbio_init();
+  fancy_buf_idx = 0;
   memset(fancy_buf, 0, sizeof(fancy_buf));
 }
 
 static int16_t fancy_read(int16_t bytes_received, uint8_t* changed)
 {
-  *changed = 0;
-  return bytes_received;
+  uint8_t bytes_consumed = 0;
+
+  for(;;) {
+    fancy_buf[fancy_buf_idx] = (uint8_t)getchar();
+    bytes_consumed++;
+    if(fancy_buf[fancy_buf_idx] == '\n' || fancy_buf[fancy_buf_idx] == '\r') {
+      if(fancy_buf_idx == RELAY_NUM) {
+        for(uint8_t i = 0; i < RELAY_NUM; ++i) {
+          relay_set(i, fancy_buf[i]);
+        }
+        *changed = 1;
+      }
+      fancy_buf_idx = 0;
+    } else {
+      if((++fancy_buf_idx) >= sizeof(fancy_buf)) {
+        fancy_buf_idx = sizeof(fancy_buf) - 1;
+      }
+    }
+    if(bytes_consumed == bytes_received) {
+      break;
+    }
+  }
+  return bytes_consumed;
 }
 
 uint8_t fancy_task(void)
