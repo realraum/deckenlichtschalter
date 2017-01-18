@@ -53,8 +53,8 @@ void setupPWM()
 //// Light Stuff ////
 /////////////////////
 
-const int32_t FADE_CALC_FACTOR_ = 10000;
-const uint32_t FADE_PERIOD_ = 100; //ms
+const int8_t FADE_CALC_BASE2_EXPONENT_ = 15;
+const uint32_t FADE_PERIOD_ = 40; //ms == 25fps
 const uint32_t FLASH_PERIOD_ = 800; //ms
 
 void saveCurrentValues()
@@ -111,8 +111,8 @@ void timerFuncShowFadeEffect()
 	{
 		for (uint8_t i=0; i<PWM_CHANNELS; i++)
 		{
-			active_values_[i] = active_values_[i] + fade_diff_values_[i]; //calc in FADE_CALC_FACTOR_
-			pwm_set_duty(static_cast<uint32_t>(active_values_[i] / FADE_CALC_FACTOR_),i); //set in normal
+			active_values_[i] = active_values_[i] + fade_diff_values_[i]; //calc in FADE_CALC_BASE2_EXPONENT_
+			pwm_set_duty(static_cast<uint32_t>(active_values_[i] >> FADE_CALC_BASE2_EXPONENT_),i); //set in normal
 		}
 		steps_left_--;
 		pwm_start();
@@ -184,12 +184,13 @@ void startFade(uint32_t duration_ms=DEFAULT_EFFECT_DURATION)
 	saveCurrentValues();
 
 	steps_left_ = duration_ms / FADE_PERIOD_ + ((duration_ms % FADE_PERIOD_)? 1 : 0);
-	//derzeit: maximal 600 steps_left möglich --> FACE_CALC_FACTOR = 10000
+	//at 25fps: maximum possible value of steps_left: MAX_ALLOWED_EFFECT_DURATION/FADE_PERIOD = 60000/40 = 1500
+	//          --> ld(1500)=11bit --> set FADE_CALC_BASE2_EXPONENT_:= 15bit since 11+15 < 31bit
 
 	for (uint8_t i=0; i<PWM_CHANNELS; i++)
 	{
-		fade_diff_values_[i] = (static_cast<int32_t>(effect_target_values_[i]) - static_cast<int32_t>(apply_last_values_[i]))*FADE_CALC_FACTOR_ / static_cast<int32_t>(steps_left_);
-		active_values_[i] = static_cast<int32_t>(apply_last_values_[i]) * FADE_CALC_FACTOR_;
+		fade_diff_values_[i] = ((static_cast<int32_t>(effect_target_values_[i]) - static_cast<int32_t>(apply_last_values_[i])) << FADE_CALC_BASE2_EXPONENT_) / static_cast<int32_t>(steps_left_);
+		active_values_[i] = static_cast<int32_t>(apply_last_values_[i]) << FADE_CALC_BASE2_EXPONENT_;
 	}
 
 	//copy effect_target_values_ to apply_last_values_ so effect_target_values_ get applied on stop or interrupt of effect
