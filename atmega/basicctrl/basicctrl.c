@@ -36,7 +36,16 @@
 
 uint8_t current_relay = 'a';
 
-void handle_cmd(uint8_t cmd)
+static void print_relay_state(void)
+{
+  for(uint8_t i = 0; i < RELAY_NUM; i++) {
+    putchar(relay_get(i));
+  }
+  putchar('\r');
+  putchar('\n');
+}
+
+static void handle_cmd(uint8_t cmd)
 {
   switch(cmd) {
   case 'a':
@@ -53,9 +62,9 @@ void handle_cmd(uint8_t cmd)
   case 't':
   case '-':
     relay_set(current_relay - 'a', cmd); break;
-  default: printf("error\r\n"); return;
+  default: printf("????????\r\n"); return;
   }
-  printf("state of output %c is now: %c\r\n", current_relay, relay_get(current_relay - 'a'));
+  print_relay_state();
 }
 
 int main(void)
@@ -80,6 +89,9 @@ int main(void)
       BytesReceived--;
     }
 
+    if(keypad_task()) {
+      print_relay_state();
+    }
     usbio_task();
   }
 }

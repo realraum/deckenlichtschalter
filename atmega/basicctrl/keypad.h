@@ -26,5 +26,6 @@
 #define KEYPAD_NUM 8
 
 void keypad_init(void);
+uint8_t keypad_task(void);
 
 #endif
