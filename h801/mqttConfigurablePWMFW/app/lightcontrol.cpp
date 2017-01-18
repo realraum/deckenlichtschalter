@@ -19,8 +19,8 @@ enum effect_id_type {EFF_NO, EFF_FLASH, EFF_FADE};
 Timer flashTimer;
 effect_id_type effect_ = EFF_NO;
 uint32_t apply_last_values_[PWM_CHANNELS];
-uint32_t active_values_[PWM_CHANNELS];
-uint32_t steps_left_=0;
+int32_t active_values_[PWM_CHANNELS];
+int32_t steps_left_=0;
 int32_t fade_diff_values_[PWM_CHANNELS];
 
 //externally imported stuff
@@ -53,7 +53,7 @@ void setupPWM()
 //// Light Stuff ////
 /////////////////////
 
-const uint32_t FADE_CALC_FACTOR_ = 10000;
+const int32_t FADE_CALC_FACTOR_ = 10000;
 const uint32_t FADE_PERIOD_ = 100; //ms
 const uint32_t FLASH_PERIOD_ = 800; //ms
 
@@ -61,6 +61,13 @@ void saveCurrentValues()
 {
 	for (uint8_t i=0;i<PWM_CHANNELS;i++)
 		apply_last_values_[i] = pwm_get_duty(i);
+}
+
+void applyValues(int32_t values[PWM_CHANNELS])
+{
+	for (uint8_t i=0;i<PWM_CHANNELS;i++)
+		pwm_set_duty(static_cast<uint32_t>(values[i]),i);
+	pwm_start();
 }
 
 void applyValues(uint32_t values[PWM_CHANNELS])
@@ -105,7 +112,7 @@ void timerFuncShowFadeEffect()
 		for (uint8_t i=0; i<PWM_CHANNELS; i++)
 		{
 			active_values_[i] = active_values_[i] + fade_diff_values_[i]; //calc in FADE_CALC_FACTOR_
-			pwm_set_duty(active_values_[i] / FADE_CALC_FACTOR_,i); //set in normal
+			pwm_set_duty(static_cast<uint32_t>(active_values_[i] / FADE_CALC_FACTOR_),i); //set in normal
 		}
 		steps_left_--;
 		pwm_start();
@@ -179,11 +186,10 @@ void startFade(uint32_t duration_ms=DEFAULT_EFFECT_DURATION)
 	steps_left_ = duration_ms / FADE_PERIOD_ + ((duration_ms % FADE_PERIOD_)? 1 : 0);
 	//derzeit: maximal 600 steps_left möglich --> FACE_CALC_FACTOR = 10000
 
-
 	for (uint8_t i=0; i<PWM_CHANNELS; i++)
 	{
-		fade_diff_values_[i] = (effect_target_values_[i] - apply_last_values_[i])*FADE_CALC_FACTOR_ / steps_left_;
-		active_values_[i] = apply_last_values_[i] * FADE_CALC_FACTOR_;
+		fade_diff_values_[i] = (static_cast<int32_t>(effect_target_values_[i]) - static_cast<int32_t>(apply_last_values_[i]))*FADE_CALC_FACTOR_ / static_cast<int32_t>(steps_left_);
+		active_values_[i] = static_cast<int32_t>(apply_last_values_[i]) * FADE_CALC_FACTOR_;
 	}
 
 	//copy effect_target_values_ to apply_last_values_ so effect_target_values_ get applied on stop or interrupt of effect
