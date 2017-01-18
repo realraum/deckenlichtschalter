@@ -296,8 +296,8 @@ void telnetAuth(String commandLine  ,CommandOutput* commandOutput)
 		auth_port = telnetServer.getRemotePort();
 		commandOutput->println("go ahead, but if you break it, you fix it");
 	} else {
-		auth_ip = 0;
-		auth_port = 0;
+		auth_ip = -1;
+		auth_port = -1;
 		commandOutput->println("no dice");
 	}
 }
