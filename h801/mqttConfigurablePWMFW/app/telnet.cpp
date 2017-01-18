@@ -281,6 +281,9 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 		commandOutput->println("Update URLs set, please check");
 		commandOutput->println(ota_update_url_0);
 		commandOutput->println(ota_update_url_9);
+		// let's not overwrite the bootloader just yet for the first few tests
+		// ota_updater.addItem(0x00000,ota_update_url_0);
+		ota_updater.addItem(0x09000,ota_update_url_9);
 	}
 
 }
