@@ -20,42 +20,10 @@
  *  along with basicctrl. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <avr/wdt.h>
-#include <avr/interrupt.h>
+#ifndef LIGHTBASIC_fancy_h_INCLUDED
+#define LIGHTBASIC_fancy_h_INCLUDED
 
-#include "util.h"
+void fancy_init(void);
+uint8_t fancy_task(void);
 
-#include "relay.h"
-#include "keypad.h"
-#include "fancy.h"
-
-static void print_relay_state(void)
-{
-  for(uint8_t i = 0; i < RELAY_NUM; i++) {
-    putchar(relay_get(i));
-  }
-  putchar('\r');
-  putchar('\n');
-}
-
-int main(void)
-{
-  MCUSR &= ~(1 << WDRF);
-  wdt_disable();
-
-  cpu_init();
-  relay_init();
-  keypad_init();
-  fancy_init();
-  sei();
-
-  for(;;) {
-    if(keypad_task()) {
-      print_relay_state();
-    }
-    if(fancy_task()) {
-      print_relay_state();
-    }
-  }
-}
+#endif
