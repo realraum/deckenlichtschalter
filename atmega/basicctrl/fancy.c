@@ -58,11 +58,11 @@ static int16_t fancy_read(int16_t bytes_received, uint8_t* changed)
         fancy_buf_idx = sizeof(fancy_buf) - 1;
       }
     }
-    if(bytes_consumed == bytes_received) {
+    if(bytes_consumed >= bytes_received) {
       break;
     }
   }
-  return bytes_consumed;
+  return bytes_consumed > bytes_received ? bytes_received : bytes_consumed;
 }
 
 uint8_t fancy_task(void)
