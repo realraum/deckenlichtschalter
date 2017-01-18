@@ -20,8 +20,8 @@
  *  along with basicctrl. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIGHTCTRL_relay_h_INCLUDED
-#define LIGHTCTRL_relay_h_INCLUDED
+#ifndef BASICCTRL_relay_h_INCLUDED
+#define BASICCTRL_relay_h_INCLUDED
 
 #define RELAY_NUM 8
 

@@ -20,8 +20,8 @@
  *  along with basicctrl. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIGHTCTRL_keypad_h_INCLUDED
-#define LIGHTCTRL_keypad_h_INCLUDED
+#ifndef BASICCTRL_keypad_h_INCLUDED
+#define BASICCTRL_keypad_h_INCLUDED
 
 #define KEYPAD_NUM 8
 

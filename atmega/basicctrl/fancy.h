@@ -20,8 +20,8 @@
  *  along with basicctrl. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIGHTBASIC_fancy_h_INCLUDED
-#define LIGHTBASIC_fancy_h_INCLUDED
+#ifndef BASICCTRL_fancy_h_INCLUDED
+#define BASICCTRL_fancy_h_INCLUDED
 
 void fancy_init(void);
 uint8_t fancy_task(void);
