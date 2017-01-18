@@ -265,7 +265,7 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 		// set light to same state they will be in
 		// once GPIOs switch to INPUT
 		// so there won't be a sudden power drop during flash when all LEDs switch on
-		uint32_t light_during_flash[PWM_CHANNELS] = {0,1000,1000,1000,0};
+		uint32_t light_during_flash[PWM_CHANNELS] = {0,pwm_period,pwm_period,pwm_period,0};
 		applyValues(light_during_flash);
 		//start firmware update
 		commandOutput->println("OK, updating now");
