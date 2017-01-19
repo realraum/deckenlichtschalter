@@ -199,6 +199,11 @@ Useful if you want to discover current light values. Subscribe to the same topic
     mosquitto_pub -t action/ceiling1/pleaserepeat -m '{}'
 
 
+Advanced Usage Examples
+=======================
+
+see ```testscripts/fadeanime.py``` for an example script that one after another changes each light to a new random colour. Choosing a new colour after all lights have changed.
+
 
 Telnet Interface
 ================
@@ -236,6 +241,7 @@ Changing Settings
 Over-The-Air Update Notes
 =========================
 
+Compile using Sming
 
 Update Procedure
 ----------------
