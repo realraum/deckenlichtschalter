@@ -205,3 +205,19 @@ Telnet Interface
 
 
 TODO
+
+
+Over-The-Air Update Notes
+=========================
+
+ * H801 has 1MiB flash 
+     * ```SPI_SIZE=1M```
+ * We divide the 1MiB into two 512KiB slots and boot one of them using rBoot bootloader
+     * ``RBOOT_TWO_ROMS=1```
+ * On OTA-Update, the currently unused slot is written, then the slot ist switched and bootet into after restart.
+ * Each slot's SPIFFS is set to size 64KiB and put at end of the 512KiB.
+     * ``` SPIFF_SIZE=65536```
+     * ``` RBOOT_SPIFFS_0   ?= $(shell echo $$((  0x80000 - $(SPIFF_SIZE) )) ) ```
+     * ``` RBOOT_SPIFFS_1   ?= $(shell echo $$(( 0x100000 - $(SPIFF_SIZE) )) ) ```
+
+
