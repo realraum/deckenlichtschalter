@@ -203,8 +203,34 @@ Useful if you want to discover current light values. Subscribe to the same topic
 Telnet Interface
 ================
 
+Telnet-Port is 2323
 
-TODO
+Changing Settings
+-----------------
+
+  * ```load```  
+  reads SPIFF files and provides their contents via NetConfig structs. Largely useless except to undo mistakes with ```set```.
+
+  * ```cat``` and ```ls```  
+  provide a peek into what would be loaded
+
+  * ```show```  
+  lists the current settings and some status. Actual stuff are currently applied settings, the rest is the content of the NetConfig struct.
+
+  * ```set```  
+  can be used to change the settings in the NetConfig structs.
+
+  * ```save```  
+  writes NetConfig struct data to SPIFF, making changes permanent. Call ```restart``` to use new settings.
+
+  * ```restart```  
+  restart's the H801. Afterwards new settings from SPIFF will be used.
+
+  * ```auth```  
+  prevents accidential mistakes
+
+  * ```update```  
+  can update the firmware over-the-air. See next section.
 
 
 Over-The-Air Update Notes
