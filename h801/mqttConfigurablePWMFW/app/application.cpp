@@ -23,7 +23,7 @@ DefaultLightConfigStorage DefaultLightConfig;
 void wifiConnectOk()
 {
 	debugf("WiFi CONNECTED");
-	//Serial.println(WifiStation.getIP().toString());
+	// Serial.println(WifiStation.getIP().toString());
 	startTelnetServer();
 	startMqttClient();
 	// Start publishing loop (also needed for mqtt reconnect)
@@ -64,19 +64,40 @@ void connectToWifi()
 void ready()
 {
 	NetConfig.load(); //loads netsettings from fs
-	//Serial.println(NetConfig.wifi_ssid);
-	//Serial.println(NetConfig.wifi_pass);
-	//Serial.println(NetConfig.ip.toString());
+	// Serial.println(NetConfig.wifi_ssid);
+	// Serial.println(NetConfig.wifi_pass);
 	instantinateMQTT();
 	connectToWifi();
 }
 
 void init()
 {
-	//Serial.begin(115200);
-	//Serial.systemDebugOutput(true); // Allow debug print to serial
-	//Serial.commandProcessing(true);
-	spiffs_mount(); // Mount file system, in order to work with files
+	// Serial.begin(115200);
+	// Serial.systemDebugOutput(true); // Allow debug print to serial
+	// Serial.commandProcessing(true);
+	// Mount file system, in order to work with files
+	int slot = rboot_get_current_rom();
+#ifndef DISABLE_SPIFFS
+	if (slot == 0) {
+#ifdef RBOOT_SPIFFS_0
+		debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_0 + 0x40200000, SPIFF_SIZE);
+		spiffs_mount_manual(RBOOT_SPIFFS_0 + 0x40200000, SPIFF_SIZE);
+#else
+		debugf("trying to mount spiffs at %x, length %d", 0x40300000, SPIFF_SIZE);
+		spiffs_mount_manual(0x40300000, SPIFF_SIZE);
+#endif
+	} else {
+#ifdef RBOOT_SPIFFS_1
+		debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_1 + 0x40200000, SPIFF_SIZE);
+		spiffs_mount_manual(RBOOT_SPIFFS_1 + 0x40200000, SPIFF_SIZE);
+#else
+		debugf("trying to mount spiffs at %x, length %d", 0x40500000, SPIFF_SIZE);
+		spiffs_mount_manual(0x40500000, SPIFF_SIZE);
+#endif
+	}
+#else
+	debugf("spiffs disabled");
+#endif
 	setupPWM(); //Init PWM with spiffs saved default settings
 
 	telnetRegisterCmdsWithCommandHandler();

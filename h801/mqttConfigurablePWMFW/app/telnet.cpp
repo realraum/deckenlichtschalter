@@ -3,6 +3,7 @@
 #include <defaultlightconfig.h>
 #include <lightcontrol.h>
 #include "mqtt.h"
+#include "otaupdate.h"
 #include "telnet.h"
 
 ///////////////////////////////////////
@@ -10,20 +11,18 @@
 ///////////////////////////////////////
 
 TelnetServer telnetServer;
-HttpFirmwareUpdate ota_updater;
-bool ota_url_set=false;
-uint32_t auth_ip=-1; //invalid ip
-uint16_t auth_port=-1; //invalid port
+int16_t auth_num_cmds=0;
 
 void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 {
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
-	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	if (auth_num_cmds > 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;
 	}
+	auth_num_cmds--;
 	if (numToken != 3)
 	{
 		commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass <value>");
@@ -190,11 +189,12 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
-	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	if (auth_num_cmds > 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;
 	}
+	auth_num_cmds--;
 	commandOutput->println("OK, saving values...");
 	NetConfig.save();
 }
@@ -208,11 +208,12 @@ void telnetCmdLs(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdCatFile(String commandLine  ,CommandOutput* commandOutput)
 {
-	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	if (auth_num_cmds > 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;
 	}
+	auth_num_cmds--;
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
 
@@ -249,42 +250,29 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
 
-	if (((uint32_t) telnetServer.getRemoteIp()) != auth_ip || telnetServer.getRemotePort() != auth_port)
+	if (auth_num_cmds > 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;
 	}
-	if (2 != numToken)
+	auth_num_cmds--;
+
+	if (2 != numToken )
 	{
-		commandOutput->println("Usage: update <url>|godoit");
+		commandOutput->println("Usage: update <url dir to files>");
 		return;
-	} else if (String("godoit") == commandToken[1])
+	} else
 	{
-		stopMqttClient(); //disconnect MQTT
-		stopAndRestoreValues(); // stop effects
-		// set light to same state they will be in
-		// once GPIOs switch to INPUT
-		// so there won't be a sudden power drop during flash when all LEDs switch on
-		uint32_t light_during_flash[PWM_CHANNELS] = {0,pwm_period,pwm_period,pwm_period,0};
-		applyValues(light_during_flash);
-		//start firmware update
-		commandOutput->println("OK, updating now");
-		ota_updater.start();
-		while (ota_updater.isProcessing ())
+		if (commandToken[1].length() > 0 && commandToken[1].startsWith("http") && commandToken[1].endsWith("/"))
 		{
-			commandOutput->printf(".");
-			delayMilliseconds(500);
+			commandOutput->println("URL OK: "+commandToken[1]);
+		} else
+		{
+			commandOutput->println("Invalid URL: "+commandToken[1]);
+			return;
 		}
-	} else {
-		String ota_update_url_0 = commandToken[1] + "0x00000.bin";
-		String ota_update_url_9 = commandToken[1] + "0x09000.bin";
-		ota_url_set = true;
-		commandOutput->println("Update URLs set, please check");
-		commandOutput->println(ota_update_url_0);
-		commandOutput->println(ota_update_url_9);
-		// let's not overwrite the bootloader just yet for the first few tests
-		// ota_updater.addItem(0x00000,ota_update_url_0);
-		ota_updater.addItem(0x09000,ota_update_url_9);
+		commandOutput->println("Updating...");
+		OtaUpdate(commandToken[1]+"rom0.bin",commandToken[1]+"rom1.bin",commandToken[1]+"spiff_rom.bin");
 	}
 
 }
@@ -293,12 +281,10 @@ void telnetAuth(String commandLine  ,CommandOutput* commandOutput)
 {
 	if (commandLine == "auth prevents mistakes "+NetConfig.authtoken)
 	{
-		auth_ip = telnetServer.getRemoteIp();
-		auth_port = telnetServer.getRemotePort();
-		commandOutput->println("go ahead, but if you break it, you fix it");
+		auth_num_cmds = 3;
+		commandOutput->println("go ahead, use your 3 commands wisely (if you break it, you fix it)");
 	} else {
-		auth_ip = -1;
-		auth_port = -1;
+		auth_num_cmds = 0;
 		commandOutput->println("no dice");
 	}
 }
@@ -318,12 +304,12 @@ void startTelnetServer()
 
 void telnetRegisterCmdsWithCommandHandler()
 {
-	commandHandler.registerCommand(CommandDelegate("set","Change network settings","configGroup", telnetCmdNetSettings));
-	commandHandler.registerCommand(CommandDelegate("save","Save network settings","configGroup", telnetCmdSave));
-	commandHandler.registerCommand(CommandDelegate("load","Save network settings","configGroup", telnetCmdLoad));
-	commandHandler.registerCommand(CommandDelegate("show","Show network settings","configGroup", telnetCmdPrint));
+	commandHandler.registerCommand(CommandDelegate("set","Change settings","configGroup", telnetCmdNetSettings));
+	commandHandler.registerCommand(CommandDelegate("save","Save settings","configGroup", telnetCmdSave));
+	commandHandler.registerCommand(CommandDelegate("load","Load settings","configGroup", telnetCmdLoad));
+	commandHandler.registerCommand(CommandDelegate("show","Show settings","configGroup", telnetCmdPrint));
 	commandHandler.registerCommand(CommandDelegate("ls","List files","configGroup", telnetCmdLs));
-	commandHandler.registerCommand(CommandDelegate("cat","List files","configGroup", telnetCmdCatFile));
+	commandHandler.registerCommand(CommandDelegate("cat","Cat file contents","configGroup", telnetCmdCatFile));
 	commandHandler.registerCommand(CommandDelegate("light","Test light","systemGroup", telnetCmdLight));
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
 	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","systemGroup", telnetAirUpdate));
