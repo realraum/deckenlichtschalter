@@ -210,6 +210,25 @@ TODO
 Over-The-Air Update Notes
 =========================
 
+
+Update Procedure
+----------------
+
+1. configure SPIFFS using ```ceilingspiffsconfig.py```
+2. ```make clean; make```
+3. ```cd out/firmware```
+4. start Webserver: ```python -m SimpleHTTPServer 8080```
+5. connect via telnet to H801, e.g. ```telnet ceiling1.lan 2323```
+6. provide configured auth string: ```auth prevents mistakes <...>```
+7. start OTA update: e.g. ```update http://mypc.lan/```
+8. terminate telnet session
+9. wait
+10. power-cycle H801
+
+
+Developement Notes
+------------------
+
  * H801 has 1MiB flash 
      * ```SPI_SIZE=1M```
  * We divide the 1MiB into two 512KiB slots and boot one of them using rBoot bootloader
@@ -219,5 +238,6 @@ Over-The-Air Update Notes
      * ``` SPIFF_SIZE=65536```
      * ``` RBOOT_SPIFFS_0   ?= $(shell echo $$((  0x80000 - $(SPIFF_SIZE) )) ) ```
      * ``` RBOOT_SPIFFS_1   ?= $(shell echo $$(( 0x100000 - $(SPIFF_SIZE) )) ) ```
+
 
 
