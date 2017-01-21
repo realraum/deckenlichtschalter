@@ -1,6 +1,19 @@
 H801 MQTT controllable light
 ============================
 
+Blink Codes & Userfeedback
+==========================
+
+Blink GREEN Once: Wifi connected successfully
+
+Blink RED Once: WiFi connection error
+
+Blink RED Twice: MQTT connection error
+
+Blink RED Thrice: MQTT broker unreachable
+
+Blink Blue Once: New default power-on setting accepted
+
 
 MQTT Usage
 ==========
