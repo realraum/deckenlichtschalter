@@ -52,13 +52,15 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"bluebar":       ActionNameHandler{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote C 1
 	"labortisch":    ActionNameHandler{codeon: []byte{0xa2, 0xa2, 0x8a}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH}, //polling 01000 a
 	"boilerolga":    ActionNameHandler{codeon: []byte{0xa2, 0x8a, 0x8a}, codeoff: []byte{0xa2, 0x8a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 b
-	"couchred":      ActionNameHandler{codeon: []byte{0x8a, 0xa0, 0x8a}, codeoff: []byte{0x8a, 0xa0, 0x2a}, handler: RFCode2TTY},  //pollin 00101 a
-	"cxleds":        ActionNameHandler{codeon: []byte{0x8a, 0x88, 0x8a}, codeoff: []byte{0x8a, 0x88, 0x2a}, handler: RFCode2TTY},  //pollin 00101 b
-	"couchwhite":    ActionNameHandler{codeon: []byte{0x8a, 0xa8, 0x88}, codeoff: []byte{0x8a, 0xa8, 0x28}, handler: RFCode2TTY},  //pollin 00101 d
-	"mashadecke":    ActionNameHandler{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2BOTH}, //pollin 00101 c
-	"boiler":        ActionNameHandler{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
-	"spots":         ActionNameHandler{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
-	"abwasch":       ActionNameHandler{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2MQTT}, //alte jk16 decke vorne
+	// "??":            ActionNameHandler{codeon: []byte{0xa2, 0x2a, 0x8a}, codeoff: []byte{0xa2, 0x2a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 c
+	"floodtesla": ActionNameHandler{codeon: []byte{0xa2, 0xaa, 0x88}, codeoff: []byte{0xa2, 0xaa, 0x28}, handler: RFCode2BOTH}, //polling 01000 b
+	"couchred":   ActionNameHandler{codeon: []byte{0x8a, 0xa0, 0x8a}, codeoff: []byte{0x8a, 0xa0, 0x2a}, handler: RFCode2TTY},  //pollin 00101 a
+	"cxleds":     ActionNameHandler{codeon: []byte{0x8a, 0x88, 0x8a}, codeoff: []byte{0x8a, 0x88, 0x2a}, handler: RFCode2TTY},  //pollin 00101 b
+	"couchwhite": ActionNameHandler{codeon: []byte{0x8a, 0xa8, 0x88}, codeoff: []byte{0x8a, 0xa8, 0x28}, handler: RFCode2TTY},  //pollin 00101 d
+	"mashadecke": ActionNameHandler{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2BOTH}, //pollin 00101 c
+	"boiler":     ActionNameHandler{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
+	"spots":      ActionNameHandler{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
+	"abwasch":    ActionNameHandler{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2MQTT}, //alte jk16 decke vorne
 	//rf not to be included in any, just for resetting POEarduino
 	"olgatemp": ActionNameHandler{codeon: []byte{0x00, 0xa2, 0x8a}, codeoff: []byte{0x00, 0xa2, 0x2a}, handler: RFCode2TTY}, // Funksteckdose an welcher olgafreezer.realraum.at hängt
 
@@ -126,9 +128,9 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ceiling6":         ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
 
 	//Meta Events
-	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch"}},
-	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower"}},
-	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
+	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla"}},
+	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
 func init() {
