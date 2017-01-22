@@ -9,11 +9,14 @@ import (
 	"github.com/codegangsta/martini"
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
+	"github.com/realraum/door_and_sensors/r3events"
 )
 
 const (
 	ws_ctx_ceilinglights = "ceilinglights"
-	ws_ctx_switch        = "switch"
+	ws_ctx_fancylight    = "fancylight"
+	ws_ctx_ledpattern    = "ledpattern"
+	ws_ctx_switch        = "actiononname"
 	ws_ctx_button_used   = "wbp"
 )
 
@@ -27,9 +30,20 @@ type wsMessageOut struct {
 	Data interface{} `json:"data"`
 }
 
-type wsDataSwitch struct {
-	Name   string
-	Action string
+type wsDataPipeLEDsPattern struct {
+	Pattern string `json:"pattern"`
+	Arg     int64  `json:"arg,omitempty"`
+	Arg1    int64  `json:"arg1,omitempty"`
+}
+
+type wsDataFancyLight struct {
+	Name string `json:"name"`
+	R    uint64 `json:"r"`
+	G    uint64 `json:"g"`
+	B    uint64 `json:"b"`
+	CW   uint64 `json:"cw"`
+	WW   uint64 `json:"ww"`
+	Fade bool   `json:"fade"`
 }
 
 type jsonButtonUsed struct {
@@ -69,11 +83,7 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 		if len(v) == 0 {
 			continue
 		}
-		if v == "1" || v == "on" || v == "send" {
-			SwitchNameAsync(name, true)
-		} else if v == "0" || v == "off" {
-			SwitchNameAsync(name, false)
-		}
+		switch_name_chan_ <- r3events.LightCtrlActionOnName{name, v}
 	}
 	w.Write(<-ourfuture)
 	return
@@ -243,19 +253,13 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 
 		switch v.Ctx {
 		case ws_ctx_switch:
-			var data wsDataSwitch
+			var data r3events.LightCtrlActionOnName
 			err = mapstructure.Decode(v.Data, &data)
 			if err != nil {
 				LogWS_.Printf("%s Data decode error: %s", v.Ctx, err)
 				continue
 			}
-
-			switch data.Action {
-			case "1", "on", "send":
-				SwitchNameAsync(data.Name, true)
-			case "0", "off":
-				SwitchNameAsync(data.Name, false)
-			}
+			switch_name_chan_ <- data
 		}
 	}
 }

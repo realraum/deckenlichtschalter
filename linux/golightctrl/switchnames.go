@@ -24,11 +24,6 @@ type RFCmdToSend struct {
 	code    []byte
 }
 
-type SwitchNameCall struct {
-	name  string
-	onoff bool
-}
-
 const (
 	IRCmd2MQTT            = "IRCmd2MQTT"
 	RFCode2TTY            = "RFCode2TTY"
@@ -41,7 +36,7 @@ const (
 	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
 
-var switch_name_chan_ chan SwitchNameCall
+var switch_name_chan_ chan r3events.LightCtrlActionOnName
 var MQTT_ir_chan_ chan string
 var MQTT_ledpattern_chan_ chan *r3events.SetPipeLEDsPattern
 var RF433_linearize_chan_ chan RFCmdToSend
@@ -134,20 +129,28 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 }
 
 func init() {
-	switch_name_chan_ = make(chan SwitchNameCall, 50)
+	switch_name_chan_ = make(chan r3events.LightCtrlActionOnName, 50)
 	RF433_linearize_chan_ = make(chan RFCmdToSend, 10)
 	MQTT_ir_chan_ = make(chan string, 10)
 	MQTT_ledpattern_chan_ = make(chan *r3events.SetPipeLEDsPattern, 5)
 	go GoSwitchNameAsync()
 }
 
-func SwitchNameAsync(name string, onoff bool) {
-	switch_name_chan_ <- SwitchNameCall{name, onoff}
-}
-
 func GoSwitchNameAsync() {
+FORLOOP:
 	for snc := range switch_name_chan_ {
-		if err := SwitchName(snc.name, snc.onoff); err != nil {
+		var onoff bool
+		switch snc.Action {
+		case "1", "on", "send":
+			onoff = true
+		case "0", "off":
+			onoff = false
+		case "toggle":
+			//TODO
+		default:
+			continue FORLOOP
+		}
+		if err := SwitchName(snc.Name, onoff); err != nil {
 			LogRF433_.Println(err)
 		}
 	}

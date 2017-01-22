@@ -103,3 +103,55 @@ func goSetLEDPipePatternViaMQTT(mqttc mqtt.Client, pipepattern_chan chan *r3even
 		mqttc.Publish(r3events.ACT_PIPELEDS_PATTERN, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(*r3evtptr))
 	}
 }
+
+func SubscribeAndAttachCallback(mqttc mqtt.Client, filter string, callback mqtt.MessageHandler) {
+	tk := mqttc.Subscribe(filter, 0, callback)
+	tk.Wait()
+	if tk.Error() != nil {
+		LogMQTT_.Fatalf("Error subscribing to %s:%s", filter, tk.Error())
+	} else {
+		LogMQTT_.Printf("SubscribeAndForwardToChannel successfull")
+		addSubscribedTopics(tk.(*mqtt.SubscribeToken).Result())
+	}
+	return
+}
+
+func SubscribeAndForwardToChannel(mqttc mqtt.Client, filter string) (channel chan mqtt.Message) {
+	channel = make(chan mqtt.Message, 100)
+	tk := mqttc.Subscribe(filter, 0, func(mqttc mqtt.Client, msg mqtt.Message) { channel <- msg })
+	tk.Wait()
+	if tk.Error() != nil {
+		LogMQTT_.Fatalf("Error subscribing to %s:%s", filter, tk.Error())
+	} else {
+		LogMQTT_.Printf("SubscribeAndForwardToChannel successfull")
+		addSubscribedTopics(tk.(*mqtt.SubscribeToken).Result())
+	}
+	return
+}
+
+func SubscribeMultipleAndForwardToChannel(mqttc mqtt.Client, filters []string) (channel chan mqtt.Message) {
+	channel = make(chan mqtt.Message, 100)
+	filtermap := make(map[string]byte, len(filters))
+	for _, topicfilter := range filters {
+		filtermap[topicfilter] = 0 //qos == 0
+	}
+	tk := mqttc.SubscribeMultiple(filtermap, func(mqttc mqtt.Client, msg mqtt.Message) {
+		LogMQTT_.Printf("forwarding mqtt message to channel %+v", msg)
+		channel <- msg
+	})
+	tk.Wait()
+	if tk.Error() != nil {
+		LogMQTT_.Fatalf("Error subscribing to %s:%s", filters, tk.Error())
+	} else {
+		LogMQTT_.Printf("SubscribeMultipleAndForwardToChannel successfull")
+		addSubscribedTopics(tk.(*mqtt.SubscribeToken).Result())
+	}
+	return
+}
+
+func UnsubscribeMultiple(mqttc mqtt.Client, topics ...string) {
+	mqttc.Unsubscribe(topics...)
+	for _, topic := range topics {
+		removeSubscribedTopic(topic)
+	}
+}

@@ -129,7 +129,7 @@ function openWebSocket(webSocketUrl) {
       }
       var name = id.substr(id.indexOf("_")+1);
       if (webSocketSupport) {
-        ws.send("switch",{name:name, action:'1'});
+        ws.send("actiononname",{Name:name, Action:'1'});
       } else {
         sendMultiButton(name+"=1");
       }
@@ -143,7 +143,7 @@ function openWebSocket(webSocketUrl) {
       }
       var name = id.substr(id.indexOf("_")+1);
       if (webSocketSupport) {
-        ws.send("switch",{name:name, action:'0'});
+        ws.send("actiononname",{Name:name, Action:'0'});
       } else {
         sendMultiButton(name+"=0");
       }

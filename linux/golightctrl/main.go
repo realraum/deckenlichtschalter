@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	pubsub "github.com/btittelbach/pubsub"
+	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/realraum/door_and_sensors/r3events"
 )
 
@@ -64,11 +66,20 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 	}()
 	//
 	//
-	//now try connect to mqtt daemon
+	//now try connect to mqtt daemon until it works once
 	for {
 		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), r3events.CLIENTID_LIGHTCTRL)
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
+			SubscribeAndAttachCallback(mqttc, r3events.ACT_LIGHTCTRL_NAME, func(c mqtt.Client, msg mqtt.Message) {
+				var aon r3events.LightCtrlActionOnName
+				if msg.Retained() {
+					return
+				}
+				if err := json.Unmarshal(msg.Payload(), &aon); err != nil {
+					switch_name_chan_ <- aon
+				}
+			})
 			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
 			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
 			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
