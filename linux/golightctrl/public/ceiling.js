@@ -61,7 +61,7 @@ function switchButtonWebSocket(light, sendState) {
     Name: light,
     Action: sendState ? '1' : '0'
   };
-  ws.send("actiononname",message);
+  ws.send("LightCtrlActionOnName",message);
 }
 
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';

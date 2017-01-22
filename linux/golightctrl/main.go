@@ -12,7 +12,7 @@ import (
 	"time"
 
 	pubsub "github.com/btittelbach/pubsub"
-	"github.com/eclipse/paho.mqtt.golang"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/realraum/door_and_sensors/r3events"
 )
 
@@ -61,6 +61,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 				return
 			case <-MQTT_ledpattern_chan_:
 			case <-MQTT_ir_chan_:
+			case <-MQTT_fancylight_chan_:
 			}
 		}
 	}()
@@ -80,16 +81,31 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 					switch_name_chan_ <- aon
 				}
 			})
+			receive_fancylight_state_updates := func(clientid string, c mqtt.Client, msg mqtt.Message) {
+				var fancy wsMsgFancyLight
+				fancy.Name = clientid
+				if msg.Retained() {
+					return
+				}
+				if err := json.Unmarshal(msg.Payload(), &fancy.Setting); err != nil {
+					//TODO: retain lates state somewhere and broadcast it to all websocket clients
+				}
+			}
+			for _, cid := range []string{r3events.CLIENTID_CEILING1, r3events.CLIENTID_CEILING2, r3events.CLIENTID_CEILING3, r3events.CLIENTID_CEILING4, r3events.CLIENTID_CEILING5, r3events.CLIENTID_CEILING6} {
+				SubscribeAndAttachCallback(mqttc, r3events.TOPIC_ACTIONS+cid+r3events.TYPE_LIGHT, func(c mqtt.Client, msg mqtt.Message) { receive_fancylight_state_updates(cid, c, msg) })
+			}
 			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
 			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
 			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
 			go goSetLEDPipePatternViaMQTT(mqttc, MQTT_ledpattern_chan_)
+			go goSetFancyLightsViaMQTT(mqttc, MQTT_fancylight_chan_)
 			go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, mqttc)
+			//and LAST but not least:
+			RequestStatusFromAllFancyLightsMQTT(mqttc)
 			return // no need to keep on trying, mqtt-auto-reconnect will do the rest now
 		} else {
 			time.Sleep(5 * time.Minute)
 		}
-
 	}
 }
 
@@ -128,6 +144,7 @@ func main() {
 		}
 	}
 
+	go GoSwitchNameAsync()
 	go goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan)
 	go goListenForButtons(tty_button_chan)
 	go goRunMartini()

@@ -3,7 +3,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/codegangsta/martini"
@@ -14,46 +16,11 @@ import (
 
 const (
 	ws_ctx_ceilinglights = "ceilinglights"
-	ws_ctx_fancylight    = "fancylight"
-	ws_ctx_ledpattern    = "ledpattern"
-	ws_ctx_switch        = "actiononname"
+	ws_ctx_fancylight    = "FancyLight"
+	ws_ctx_ledpattern    = "SetPipeLEDsPattern"
+	ws_ctx_switch        = "LightCtrlActionOnName"
 	ws_ctx_button_used   = "wbp"
 )
-
-type wsMessage struct {
-	Ctx  string                 `json:"ctx"`
-	Data map[string]interface{} `json:"data"`
-}
-
-type wsMessageOut struct {
-	Ctx  string      `json:"ctx"`
-	Data interface{} `json:"data"`
-}
-
-type wsDataPipeLEDsPattern struct {
-	Pattern string `json:"pattern"`
-	Arg     int64  `json:"arg,omitempty"`
-	Arg1    int64  `json:"arg1,omitempty"`
-}
-
-type wsDataFancyLight struct {
-	Name string `json:"name"`
-	R    uint64 `json:"r"`
-	G    uint64 `json:"g"`
-	B    uint64 `json:"b"`
-	CW   uint64 `json:"cw"`
-	WW   uint64 `json:"ww"`
-	Fade bool   `json:"fade"`
-}
-
-type jsonButtonUsed struct {
-	Name string `json:"name"`
-}
-
-type JsonFuture struct {
-	future   chan []byte
-	wxFormat bool
-}
 
 const (
 	ws_ping_period_      = time.Duration(58) * time.Second
@@ -66,10 +33,10 @@ var wsupgrader = websocket.Upgrader{} // use default options with Origin Check
 
 // handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
 // returns json formated state of Ceiling Lights
-func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightstate_chan chan JsonFuture) {
+func webHandleCGISwitch(w http.ResponseWriter, r *http.Request, retained_lightstate_chan chan JsonFuture) {
 	defer func() {
 		if x := recover(); x != nil {
-			LogWS_.Println("webHandleSwitchCGI", x)
+			LogWS_.Println("webHandleCGISwitch", x)
 		}
 	}()
 	if err := r.ParseForm(); err != nil {
@@ -89,7 +56,55 @@ func webHandleSwitchCGI(w http.ResponseWriter, r *http.Request, retained_lightst
 	return
 }
 
-// cache Lights Change Update for webHandleSwitchCGI()
+func SanityCheckWSFancyLight(data *wsMsgFancyLight) error {
+	if strings.ContainsAny(data.Name, "/+#!?") {
+		return fmt.Errorf("Invalid character in name")
+	}
+	if (data.Setting.R != nil && *data.Setting.R > 1000) ||
+		(data.Setting.G != nil && *data.Setting.G > 1000) ||
+		(data.Setting.B != nil && *data.Setting.B > 1000) ||
+		(data.Setting.WW != nil && *data.Setting.WW > 1000) ||
+		(data.Setting.CW != nil && *data.Setting.CW > 1000) {
+		return fmt.Errorf("Luminosity not in valid range [0..1000]")
+	}
+	if len(data.Setting.Flash.Cc) > 7 || len(data.Setting.Fade.Cc) > 7 {
+		return fmt.Errorf("Cc too long")
+	}
+	return nil
+}
+
+// handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
+// returns json formated state of Ceiling Lights
+func webHandleCGIFancyLight(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if x := recover(); x != nil {
+			LogWS_.Println("webHandleCGIFancyLight", x)
+		}
+	}()
+	if err := r.ParseForm(); err != nil {
+		LogWS_.Print(err)
+		return
+	}
+	var data wsMsgFancyLight
+	data.Name = r.FormValue("name")
+	if len(data.Name) == 0 {
+		w.Write([]byte("err"))
+		return
+	}
+	if err := json.Unmarshal([]byte(r.FormValue("setting")), &data.Setting); err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if err := SanityCheckWSFancyLight(&data); err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+	MQTT_fancylight_chan_ <- &data
+	w.Write([]byte("ok"))
+	return
+}
+
+// cache Lights Change Update for webHandleCGISwitch()
 func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture) {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
 	lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
@@ -115,7 +130,7 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 		case <-shutdown_chan:
 			return
 		case lc := <-lights_changed_chan:
-			//prepare and retain json for webHandleSwitchCGI()
+			//prepare and retain json for webHandleCGISwitch()
 			updateCache(lc.(CeilingLightStateMap))
 			//also send update to all Websocket Clients
 			ps_.PubNonBlocking(cached_websocketreply_json, PS_WEBSOCK_ALL_JSON)
@@ -260,6 +275,18 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 				continue
 			}
 			switch_name_chan_ <- data
+		case ws_ctx_fancylight:
+			var data wsMsgFancyLight
+			err = mapstructure.Decode(v.Data, &data)
+			if err != nil {
+				LogWS_.Printf("%s Data decode error: %s", v.Ctx, err)
+				continue
+			}
+			if err = SanityCheckWSFancyLight(&data); err != nil {
+				LogWS_.Printf("%s Error during SanityCheckWSFancyLight: %s", v.Ctx, err)
+				continue
+			}
+			MQTT_fancylight_chan_ <- &data
 		}
 	}
 }
@@ -285,7 +312,7 @@ func goRunMartini() {
 	go goRetainCeilingLightsJSONForLater(retained_lightstate_chan)
 	go goJSONMarshalStuffForWebSockClients()
 
-	m.Get("/cgi-bin/mswitch.cgi", func(w http.ResponseWriter, r *http.Request) { webHandleSwitchCGI(w, r, retained_lightstate_chan) })
+	m.Get("/cgi-bin/mswitch.cgi", func(w http.ResponseWriter, r *http.Request) { webHandleCGISwitch(w, r, retained_lightstate_chan) })
 	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) { webHandleWebSocket(w, r, retained_lightstate_chan) })
 	m.Get("/cgi-bin/switch.cgi", webRedirectToSwitchHTML)
 	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToSwitchHTML)

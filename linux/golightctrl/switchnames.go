@@ -6,23 +6,9 @@ import (
 	"time"
 
 	"github.com/btittelbach/pubsub"
-	"github.com/eclipse/paho.mqtt.golang"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/realraum/door_and_sensors/r3events"
 )
-
-type ActionNameHandler struct {
-	handler     string
-	codeon      []byte
-	codeoff     []byte
-	codedefault []byte
-	metaaction  []string
-	pipepattern *r3events.SetPipeLEDsPattern
-}
-
-type RFCmdToSend struct {
-	handler string
-	code    []byte
-}
 
 const (
 	IRCmd2MQTT            = "IRCmd2MQTT"
@@ -35,11 +21,6 @@ const (
 	POST_RF433_MQTT_DELAY = 600 * time.Millisecond
 	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
-
-var switch_name_chan_ chan r3events.LightCtrlActionOnName
-var MQTT_ir_chan_ chan string
-var MQTT_ledpattern_chan_ chan *r3events.SetPipeLEDsPattern
-var RF433_linearize_chan_ chan RFCmdToSend
 
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	//RF Power Outlets
@@ -126,14 +107,6 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
 	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla"}},
 	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
-}
-
-func init() {
-	switch_name_chan_ = make(chan r3events.LightCtrlActionOnName, 50)
-	RF433_linearize_chan_ = make(chan RFCmdToSend, 10)
-	MQTT_ir_chan_ = make(chan string, 10)
-	MQTT_ledpattern_chan_ = make(chan *r3events.SetPipeLEDsPattern, 5)
-	go GoSwitchNameAsync()
 }
 
 func GoSwitchNameAsync() {
