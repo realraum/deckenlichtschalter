@@ -23,6 +23,13 @@ const (
 )
 
 const (
+	recall_sturdyceiling_cgi RetainRecallID = iota
+	recall_sturdyceiling_ws  RetainRecallID = iota
+	recall_fancyceiling_ws   RetainRecallID = iota
+	recall_ledpipe_ws        RetainRecallID = iota
+)
+
+const (
 	ws_ping_period_      = time.Duration(58) * time.Second
 	ws_read_timeout_     = time.Duration(70) * time.Second // must be > than ws_ping_period_
 	ws_write_timeout_    = time.Duration(9) * time.Second
@@ -109,9 +116,17 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
 	lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
 	defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
+	fancylight_update_chan := ps_.Sub(PS_FANCYLIGHT_CHANGED)
+	defer ps_.Unsub(fancylight_update_chan, PS_FANCYLIGHT_CHANGED)
+	ledpipe_update_chan := ps_.Sub(PS_LEDPIPE_CHANGED)
+	defer ps_.Unsub(ledpipe_update_chan, PS_LEDPIPE_CHANGED)
+
+	//TODO FIX ME
 
 	var cached_switchcgireply_json []byte
 	var cached_websocketreply_json []byte
+	var cached_ledpipe_json []byte
+	var cached_fancylight_json map[string][]byte //one json []byte for each clientID.. fancy1, fancy2, etc
 	var err error
 	updateCache := func(lsm CeilingLightStateMap) {
 		cached_switchcgireply_json, err = json.Marshal(lsm)
@@ -167,9 +182,15 @@ func goJSONMarshalStuffForWebSockClients() {
 	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
 	//lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
 	button_used_chan := ps_.Sub(PS_IRRF433_CHANGED)
+	fancylight_update_chan := ps_.Sub(PS_FANCYLIGHT_CHANGED)
+	ledpipe_update_chan := ps_.Sub(PS_LEDPIPE_CHANGED)
 	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
 	//defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
 	defer ps_.Unsub(button_used_chan, PS_IRRF433_CHANGED)
+	defer ps_.Unsub(fancylight_update_chan, PS_FANCYLIGHT_CHANGED)
+	defer ps_.Unsub(ledpipe_update_chan, PS_LEDPIPE_CHANGED)
+
+	//TODO FIX ME
 
 	for {
 		msg := wsMessageOut{}

@@ -79,8 +79,25 @@ var buttons = {
   ceiling6: false
 };
 
+function renderCeilingButtonUpdate(data) {
+  for (var keyid in data) {
+    btn = document.getElementById(keyid);
+    if ($(btn).hasClass("rfir"))
+    {
+      var origclass = snd_btn.className;
+      snd_btn.className += " activatedbtn";
+
+      setTimeout(function(){
+        snd_btn.className = origclass;
+      },900);
+    }
+  }
+}
+
 function openWebSocket(webSocketUrl) {
   ws.registerContext("ceilinglights",setButtonStates);
+  ws.registerContext("FancyLight",setFancyLightStates);
+  ws.registerContext("wbp",renderCeilingButtonUpdate);
   ws.open(webSocketUrl);
 }
 

@@ -22,9 +22,12 @@ type jsonButtonUsed struct {
 	Name string `json:"name"`
 }
 
+typedef RetainRecallID uint32
+
+
 type JsonFuture struct {
-	future   chan []byte
-	wxFormat bool
+	future   chan [][]byte
+	what  []RetainRecallID
 }
 
 type ActionNameHandler struct {

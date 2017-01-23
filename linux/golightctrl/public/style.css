@@ -69,6 +69,10 @@ nav a {
     padding-top: 7%;
 }
 
+.light.rfir.activatedbtn {
+    border: 5px solid cyan;
+}
+
 #ceiling2, #ceiling4, #ceiling6 {
     top: 21%;
 }
