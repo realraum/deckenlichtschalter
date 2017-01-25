@@ -17,7 +17,7 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 {
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
-	if (auth_num_cmds > 0)
+	if (auth_num_cmds <= 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;
@@ -189,7 +189,7 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
-	if (auth_num_cmds > 0)
+	if (auth_num_cmds <= 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;
@@ -208,7 +208,7 @@ void telnetCmdLs(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdCatFile(String commandLine  ,CommandOutput* commandOutput)
 {
-	if (auth_num_cmds > 0)
+	if (auth_num_cmds <= 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;
@@ -250,7 +250,7 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
 
-	if (auth_num_cmds > 0)
+	if (auth_num_cmds <= 0)
 	{
 		commandOutput->println("Prevent Mistakes, give auth token");
 		return;

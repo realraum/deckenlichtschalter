@@ -120,11 +120,11 @@ void onMessageReceived(String topic, String message)
 	if (topic.endsWith(JSON_TOPIC3_PLEASEREPEAT))
 	{
 		JsonObject& root = jsonBuffer.createObject();
-		root[JSONKEY_RED] = effect_target_values_[CHAN_RED];
-		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN];
-		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE];
-		root[JSONKEY_CW] = effect_target_values_[CHAN_CW];
-		root[JSONKEY_WW] = effect_target_values_[CHAN_WW];
+		root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * 1000 / pwm_period;
+		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * 1000 / pwm_period;
+		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * 1000 / pwm_period;
+		root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * 1000 / pwm_period;
+		root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * 1000 / pwm_period;
 		root.printTo(message);
 		//publish to myself (where presumably everybody else also listens), the current settings
 		mqtt->publish(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
