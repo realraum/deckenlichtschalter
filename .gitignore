@@ -6,3 +6,5 @@ atmega/*/*.d
 atmega/*/*.d.*
 atmega/*/*.hex
 atmega/*/*.elf
+basic-light box/*.stl
+basic-light box/*.fcstd1
