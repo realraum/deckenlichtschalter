@@ -1,0 +1,45 @@
+
+body {
+	background:#FFDB58;
+}
+
+div.colorlevelcontainer {
+	height:1.9em; width:10em; display:inline-block; vertical-align:middle; border:1px solid black; margin-left:1ex; background-color:white;
+}
+
+div.colorlevel {
+	width:5%; height:100%; display:inline-block;
+}
+
+input.colortext {
+	width:5ex;
+}
+
+div.colorvalue {
+ background-color:white;
+ margin:4px;
+}
+
+div.previewcontainer {
+	width:10em;
+	height:4em;
+	display:inline-block;
+}
+
+div#cwwwcolor,
+div#rgbcolor {
+	width:10em;
+	height:4em;
+	position:absolute;
+	background-color:white;
+}
+
+div#cwwwcolor {
+	opacity: 0.0;
+	margin-left:3em;
+}
+
+div.colorpickerrow {
+	margin:1ex;
+	width:100%;
+}

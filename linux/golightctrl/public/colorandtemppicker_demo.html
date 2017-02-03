@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="author" content="Bernhard Tittelbach">
+    <meta charset="utf-8">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="colorandtemppicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="colorandtemppicker.css">
+</head>
+<body>
+<div class="colorpickerrow">
+<div style="width:256px; display:inline-block;">
+<div id="pickcolourtempcontainer" style="width:256px; height:256px;">
+<!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
+<canvas id="pickcolourtemp" width="181" height="181" style="width:181px; height:181px; transform: translate(21%,21%) rotate(45deg);"></canvas>
+</div>
+<div class="colorvalue" id="WhiteTemp">Colour Temperature Balance<br/><input type="range" min="0" max="1000" step="1" disabled></input></div>
+<div class="colorvalue" id="WhiteBrightness">Brightness<br/><input type="range" min="0" max="1000" step="1" disabled></input></div>
+<div class="colorvalue" id="CW">CW <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(71,171,255);" class="colorlevel"></div></div></div>
+<div class="colorvalue" id="WW">WW <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(255,250,202);" class="colorlevel"></div></div></div>
+</div>
+
+<div style="width:256px; display:inline-block;">
+<div id="pickcolourcontainer" style="width:256px; height:256px;">
+<!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
+<canvas id="pickcolour" width="256" height="256"></canvas>
+</div>
+<div class="colorvalue" id="R">R: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(255,0,0);" class="colorlevel"></div></div></div>
+<div class="colorvalue" id="G">G: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(0,255,0);" class="colorlevel"></div></div></div>
+<div class="colorvalue" id="B">B: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(0,0,255);" class="colorlevel"></div></div></div>
+<div class="previewcontainer">
+<div id="rgbcolor"></div>
+<div id="cwwwcolor"></div>
+</div>
+</div>
+
+<div>
+<input type="button" value="Apply To" /><br/>
+<select><option>All</option><option>Ceiling1</option><option>Ceiling2</option><option>Ceiling3</option><option>Ceiling4</option><option>Ceiling5</option><option>Ceiling6</option></select>
+</div>
+
+
+
+<!-- todo: apply Button -->
+<!-- todo: Clear to zero / full buttons -->
+<!-- todo: Reset button -->
+
+</div>
+
+
+<div class="colorpickerrow">
+<h2>History</h2>
+
+<!-- todo -->
+</div>
+
+<div class="colorpickerrow">
+<h2>Excercises left to the fellow hacker:</h2>
+<ul>
+<li>Make nice layout with e.g. bootstrap</li>
+<li>Add axes indicating "brighness" and "colour-temp-balance"</li>
+<li>Enable range-sliders and update values from them</li>
+<li>Indicate current selected colour on canvas using e.g. crosshairs</li>
+<li>Save and display favorite settings</li>
+<li>Display history of chosen settings</li>
+<li>Measure, calculate and display lux</li>
+<li>add small "Set to 0/Max" Buttons</li>
+<li>fix the colorlevel elemnts so we can reliably set min/max value </li>
+</ul>
+</div>
+
+<script type="text/javascript">(function(){init_colour_temp_picker()})();</script>
+</body>
+</html>

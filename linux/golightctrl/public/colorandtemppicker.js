@@ -1,102 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="author" content="Bernhard Tittelbach">
-    <meta charset="utf-8">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <style>
-
-body {
-	background:lightgray;
-}
-
-div.colorlevelcontainer {
-	height:1.5em; width:8em; display:inline-block; vertical-align:middle; border:1px solid black; margin-left:1ex; background-color:white;
-}
-
-div.colorlevel {
-	width:66%; height:100%; display:inline-block;
-}
-
-input.colortext {
-	width:5ex;
-}
-
-div.colorvalue {
- background-color:white;
- margin:4px;
-}
-
-div.previewcontainer {
-	width:10em;
-	height:4em;
-	display:inline-block;
-}
-
-div#cwwwcolor,
-div#rgbcolor {
-	width:10em;
-	height:4em;
-	position:absolute;
-	background-color:white;
-}
-
-div#cwwwcolor {
-	opacity: 0.0;
-}
-
-    </style>
-</head>
-<body>
-<p>
-<div style="float:left;">
-<div id="pickcolourtempcontainer" style="width:256px; height:256px;">
-<!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
-<canvas id="pickcolourtemp" width="181" height="181" style="width:181px; height:181px; transform: translate(21%,21%) rotate(45deg);"></canvas>
-</div>
-<div class="colorvalue" id="WhiteTemp">White ColourTemperature<br/><input type="range" min="0" max="1000" step="1" disabled></input></div>
-<div class="colorvalue" id="WhiteBrightness">White Brightness<br/><input type="range" min="0" max="1000" step="1" disabled></input></div>
-<div class="colorvalue" id="CW">CW <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(71,171,255);" class="colorlevel"></div></div></div>
-<div class="colorvalue" id="WW">WW <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(255,250,202);" class="colorlevel"></div></div></div>
-</div>
-
-<div  style="float:left;">
-<div style="width:256px; height:256px; border:0px solid black;">
-<!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
-<canvas id="pickcolour" width="256" height="256"></canvas>
-</div>
-<div class="colorvalue" id="R">R: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(255,0,0);" class="colorlevel"></div></div></div>
-<div class="colorvalue" id="G">G: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(0,255,0);" class="colorlevel"></div></div></div>
-<div class="colorvalue" id="B">B: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(0,0,255);" class="colorlevel"></div></div></div>
-<div class="previewcontainer">
-<div id="rgbcolor"></div>
-<div id="cwwwcolor"></div>
-</div>
-</div>
-
-<div>
-<input type="button" value="Apply To" /><br/>
-<select><option>All</option><option>Ceiling1</option><option>Ceiling2</option><option>Ceiling3</option><option>Ceiling4</option><option>Ceiling5</option><option>Ceiling6</option></select>
-</div>
-
-<!-- todo: apply Button -->
-<!-- todo: Clear to zero / full buttons -->
-<!-- todo: Reset button -->
-
-</p>
-
-
-<p>
-<div>
-<h2>Saved Values</h2>
-
-<!-- todo -->
-
-</div>
-</p>
-<script type="text/javascript">
-main();
-
 // This blog post was a big help:
 // http://www.nixtu.info/2014/12/html5-canvas-gradients-rectangle.html
 
@@ -110,18 +11,20 @@ function toHex(n) {
   return "0123456789ABCDEF".charAt((n-n%16)/16)  + "0123456789ABCDEF".charAt(n%16);
 }
 
-function drawcolourtemppicker() {
-    var canvas = document.getElementById("pickcolourtemp");
+function drawcolourtemppicker(elemid) {
+    var canvas = document.getElementById(elemid);
+    var canvas2d = canvas.getContext('2d');
+    console.log(canvas);
 
-    quadGradient(canvas, {
+    quadGradient(canvas, canvas2d, {
       topLeft: [1,1,1,1],
       topRight: [1, 0xfa/0xff, 0xc0/0xff, 1],
       bottomLeft: [71/0xff, 171/0xff, 1, 1],
       bottomRight: [0, 0, 0, 1]
     });
 
-    var canvas2d = canvas.getContext('2d');
-	$('#pickcolourtemp').click(function(event){
+	var pickcolour = function(event){
+	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  // getting user coordinates
 	  var untransX = event.pageX - this.offsetLeft;
 	  var untransY = event.pageY - this.offsetTop;
@@ -146,17 +49,20 @@ function drawcolourtemppicker() {
 	  $('#WhiteTemp input').val(ctempmix);
 	  var img_data = canvas2d.getImageData(transX, transY, 1, 1);
 	  $('#cwwwcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")").css("opacity",brightness/1000.0);
-	});    
+	};
+	$(canvas).click(pickcolour);
+	$(canvas).mousemove(pickcolour);
+
 }
 
 
-function drawcolourpicker() {
-	var canvas = document.getElementById('pickcolour');
+function drawcolourpicker(elemid) {
+	var canvas = document.getElementById(elemid);
 	var canvas2d = canvas.getContext('2d');
 
 	rainbowWhiteBlackGradient(canvas, canvas2d);
-
-	$(canvas).click(function(event){
+	var pickcolour = function(event){
+	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  // getting user coordinates
 	  var x = event.pageX - this.offsetLeft;
 	  var y = event.pageY - this.offsetTop;
@@ -176,12 +82,14 @@ function drawcolourpicker() {
 	  $('#G div.colorlevel').css("width",G*100/255+"%");
 	  $('#B div.colorlevel').css("width",B*100/255+"%");
 	  $('#rgbcolor').css("background-color","rgb("+R+","+G+","+B+")");
-	});
+	};
+	$(canvas).click(pickcolour);
+	$(canvas).mousemove(pickcolour);
 }
 
-function main() {
-	drawcolourtemppicker();
-	drawcolourpicker();
+function init_colour_temp_picker() {
+	drawcolourtemppicker("pickcolourtemp");
+	drawcolourpicker("pickcolour");
 
 	changecolourlevel = function(event){if (this.value < 0 || this.value > 1000) {return;}; $(this).siblings().find('.colorlevel').css("width",this.value/10+"%");}
 	$('#R input').change(changecolourlevel);
@@ -190,12 +98,18 @@ function main() {
 	$('#WW input').change(changecolourlevel);
 	$('#CW input').change(changecolourlevel);
 	changetextfromlevel = function(event){
+	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  var x = event.pageX - this.offsetLeft;
 	  // var y = event.pageY - this.offsetTop;
 	  var promille = Math.trunc(x*1000/this.offsetWidth);
 	  $(this).siblings("input").val(promille);
 	  $(this).find('.colorlevel').css("width",x);
 	};
+	$('#R div.colorlevelcontainer').mousemove(changetextfromlevel);
+	$('#G div.colorlevelcontainer').mousemove(changetextfromlevel);
+	$('#B div.colorlevelcontainer').mousemove(changetextfromlevel);
+	$('#WW div.colorlevelcontainer').mousemove(changetextfromlevel);
+	$('#CW div.colorlevelcontainer').mousemove(changetextfromlevel);
 	$('#R div.colorlevelcontainer').click(changetextfromlevel);
 	$('#G div.colorlevelcontainer').click(changetextfromlevel);
 	$('#B div.colorlevelcontainer').click(changetextfromlevel);
@@ -229,8 +143,7 @@ function rainbowWhiteBlackGradient(canvas,ctx) {
     ctx.fillRect(0,0,w,h);  	
 }
 
-function quadGradient(canvas, corners) { 
-    var ctx = canvas.getContext('2d');
+function quadGradient(canvas, ctx, corners) { 
     var w = canvas.width;
     var h = canvas.height;
     var gradient, startColor, endColor, fac;
@@ -271,8 +184,3 @@ function lerp(a, b, fac) {
         return v * (1 - fac) + b[i] * fac;
     });
 }
-
-
-</script>
-</body>
-</html>
