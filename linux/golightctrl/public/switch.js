@@ -42,11 +42,6 @@ function updateButtons(uri) {
   req.send(null);
 }
 
-function sendMultiButton( str ) {
-  url = "/cgi-bin/mswitch.cgi?"+str;
-  updateButtons(url);
-}
-
 function sendYmhButton( btn ) {
   //alert(btn);
   document.getElementById('indicator').style.backgroundColor="red";
@@ -97,6 +92,14 @@ function remoteKeyboard( e ) {
 
 document.onkeydown = remoteKeyboard;
 
+var fancycolorpicker_apply_name="ceiling1";
+function popupFancyColorPicker(event) {
+  var x = event.pageX;
+  var y = event.pageY;
+  $("#fancycolorpicker").css("left",x).css("top",y).css("visibility","visible").animate(1000);
+  fancycolorpicker_apply_name = this.getAttribute("name");
+}
+
 
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
 var cgiUrl = '/cgi-bin/mswitch.cgi';
@@ -121,6 +124,7 @@ function openWebSocket(webSocketUrl) {
 
   var onbtns = document.getElementsByClassName('onbutton');
   var offbtns = document.getElementsByClassName('offbutton');
+  var fancypresetbtns = document.getElementsByClassName('fancylightpresetbutton');
   for (var i = 0; i < onbtns.length; i++) {
     onbtns[i].addEventListener('click', function() {
       var id = this.getAttribute('id');
@@ -149,6 +153,60 @@ function openWebSocket(webSocketUrl) {
       }
     });
   }
+  for (var i = 0; i < fancypresetbtns.length; i++) {
+    fancypresetbtns[i].addEventListener('click', function() {
+      var name = this.getAttribute("name");
+      if (!name) { return;  }
+      var R = parseInt(this.getAttribute("ledr")) || 0;
+      var G = parseInt(this.getAttribute("ledg")) || 0;
+      var B = parseInt(this.getAttribute("ledb")) || 0;
+      var CW = parseInt(this.getAttribute("ledcw")) || 0;
+      var WW = parseInt(this.getAttribute("ledww")) || 0;
+      var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
+      if (webSocketSupport) {
+        ws.send("FancyLight",{name:name, setting:settings});
+      } else {
+        var req = new XMLHttpRequest;
+        req.overrideMimeType("application/json");
+        req.open("GET", "/cgi-bin/fancylight.cgi?name="+name+"&setting="+JSON.stringify(settings), true);
+        req.onload  = function() {
+          if (req.status != 200) {
+            return;
+          }
+        };
+        req.setRequestHeader("googlechromefix","");
+        req.send(null);
+      }
+    });
+  }
+  $(".fancylightcolourtempselectorbutton").click(popupFancyColorPicker);
+  $("#fancycolorpicker_close_button").click(function(event){$("#fancycolorpicker").css("visibility","hidden")});
+  $("#fancycolorpicker_apply_button").click(function(event){
+      var R = parseInt($('#R input').val()) || 0;
+      var G = parseInt($('#G input').val()) || 0;
+      var B = parseInt($('#B input').val()) || 0;
+      var CW = parseInt($('#CW input').val()) || 0;
+      var WW = parseInt($('#WW input').val()) || 0;
+      var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
+      if (webSocketSupport) {
+        ws.send("FancyLight",{name:fancycolorpicker_apply_name, setting:settings});
+      } else {
+        var req = new XMLHttpRequest;
+        req.overrideMimeType("application/json");
+        req.open("GET", "/cgi-bin/fancylight.cgi?name="+fancycolorpicker_apply_name+"&setting="+JSON.stringify(settings), true);
+        req.onload  = function() {
+          if (req.status != 200) {
+            return;
+          }
+        };
+        req.setRequestHeader("googlechromefix","");
+        req.send(null);
+      }
+  });
+  //draw color picker canvases
+  init_colour_temp_picker();
+
+
   //TODO: support yamahabuttons and rf433 buttons via websocket
 
 })();

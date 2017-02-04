@@ -1,8 +1,3 @@
-
-body {
-	background:#FFDB58;
-}
-
 div.colorlevelcontainer {
 	height:1.9em; width:10em; display:inline-block; vertical-align:middle; border:1px solid black; margin-left:1ex; background-color:white;
 }
@@ -21,25 +16,44 @@ div.colorvalue {
 }
 
 div.previewcontainer {
-	width:10em;
+	width:12em;
 	height:4em;
 	display:inline-block;
+	background-color: black;
 }
 
-div#cwwwcolor,
 div#rgbcolor {
-	width:10em;
+	width:9em;
 	height:4em;
 	position:absolute;
-	background-color:white;
+	background-color:black;
+}
+
+div#cwwwoverrgbcolor {
+	width:6em;
+	height:4em;
+	position:absolute;
+	opacity: 0.0;
+	margin-left:3em;
 }
 
 div#cwwwcolor {
-	opacity: 0.0;
 	margin-left:3em;
+	width:9em;
+	height:4em;
+	position:absolute;
+	background-color:black;	
 }
 
 div.colorpickerrow {
 	margin:1ex;
 	width:100%;
+}
+
+div#fancycolorpicker {
+	visibility:hidden;
+	position:absolute;
+	background:#FFDB58;
+	border:5px solid gray;
+	text-align: left;
 }

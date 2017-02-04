@@ -7,6 +7,9 @@
     <title>Realraum RF and Relay Power</title>
 
     <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="https://realraum.at/js/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="colorandtemppicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="colorandtemppicker.css">    
   </head>
   <body>
     <nav>
@@ -54,6 +57,27 @@
     </map>
 
     <div class="content">
+
+<div style="float:left;">
+        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
+        <div class="switchbox">
+        <span class="alignbuttonsleft">
+        <button class="fancylightpresetbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="color:white; background-color:black;">Off</button>
+        <button class="fancylightpresetbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="1000" style="color:black; background-color:yellow;">WarmWhite</button>
+        <button class="fancylightcolourtempselectorbutton" name="ceiling2">Pick</button>
+        </span>
+        <div class="switchnameright">Decke Durchgang (O)</div></div>
+        <br>
+        <div class="switchbox">
+        <span class="alignbuttonsleft">
+        <button class="fancylightpresetbutton" name="ceilingAll" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="color:white; background-color:black;">Off</button>
+        <button class="fancylightpresetbutton" name="ceilingAll" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="1000" style="color:black; background-color:yellow;">WarmWhite</button>
+        <button class="fancylightcolourtempselectorbutton" name="ceiling2">Pick</button>
+        </span>
+        <div class="switchnameright">Alle</div></div>
+        <br>
+        </div>
+      </div>
 
       <div style="float:left;">
         <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
@@ -264,6 +288,39 @@
 
     </div>
 
+<div id="fancycolorpicker">
+  <div class="colorpickerrow">
+  <div style="width:256px; display:inline-block;">
+    <div id="pickcolourtempcontainer" style="width:256px; height:256px;">
+      <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
+      <canvas id="pickcolourtemp" width="181" height="181" style="width:181px; height:181px; transform: translate(21%,21%) rotate(45deg);"></canvas>
+    </div>
+    <div class="colorvalue" id="WhiteTemp">Colour Temperature Balance<br/><input type="range" min="0" max="1000" step="1" disabled></input></div>
+  <div class="colorvalue" id="WhiteBrightness">Brightness<br/><input type="range" min="0" max="1000" step="1" disabled></input></div>
+  <div class="colorvalue" id="CW">CW <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(71,171,255);" class="colorlevel"></div></div></div>
+  <div class="colorvalue" id="WW">WW <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(255,250,202);" class="colorlevel"></div></div></div>
+  </div>
+
+  <div style="width:256px; display:inline-block;">
+  <div id="pickcolourcontainer" style="width:256px; height:256px;">
+  <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
+  <canvas id="pickcolour" width="256" height="256"></canvas>
+  </div>
+  <div class="colorvalue" id="R">R: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(255,0,0);" class="colorlevel"></div></div></div>
+  <div class="colorvalue" id="G">G: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(0,255,0);" class="colorlevel"></div></div></div>
+  <div class="colorvalue" id="B">B: <input class="colortext" type="text"></input><div class="colorlevelcontainer"><div style="background-color:rgb(0,0,255);" class="colorlevel"></div></div></div>
+  </div>
+  </div>
+  <div class="colorpickerrow">
+    <div class="previewcontainer">
+      <div id="cwwwcolor"></div>
+      <div id="rgbcolor"></div>
+      <div id="cwwwoverrgbcolor"></div>
+    </div>  
+    <button id="fancycolorpicker_apply_button">Apply</button>
+    <button id="fancycolorpicker_close_button">Close</button>
+  </div>
+</div>
     <script type="text/javascript" src="websocket.js"></script>
     <script type="text/javascript" src="switch.js"></script>
   </body>

@@ -26,8 +26,7 @@ function drawcolourtemppicker(elemid) {
 	var pickcolour = function(event){
 	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  // getting user coordinates
-	  var untransX = event.pageX - this.offsetLeft;
-	  var untransY = event.pageY - this.offsetTop;
+	  //var untransY = event.pageY - this.offsetTop;
 	  var transX = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
 	  var transY = (typeof event.offsetY == "number") ? event.offsetY : event.layerY || 0;
 
@@ -38,7 +37,8 @@ function drawcolourtemppicker(elemid) {
 	  var diamondwidth = Math.sqrt(squarewidth*squarewidth*2);
 	  var CW = (squarewidth - transX)   *1000/squarewidth;
 	  var WW = (squarewidth - transY)   *1000/squarewidth; //0...1000
-	  var brightness = (diamondwidth - untransY) *1000/diamondwidth;
+	  //var brightness = (diamondwidth - untransY) *1000/diamondwidth;
+	  var brightness = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
 	  var ctempmix = WW*1000/CW/2;	
 	  // making the color the value of the input
 	  $('#CW input').val(Math.trunc(CW));
@@ -48,7 +48,8 @@ function drawcolourtemppicker(elemid) {
 	  $('#WhiteBrightness input').val(brightness);
 	  $('#WhiteTemp input').val(ctempmix);
 	  var img_data = canvas2d.getImageData(transX, transY, 1, 1);
-	  $('#cwwwcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")").css("opacity",brightness/1000.0);
+	  $('#cwwwoverrgbcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")").css("opacity",brightness/1000.0);
+	  $('#cwwwcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")");
 	};
 	$(canvas).click(pickcolour);
 	$(canvas).mousemove(pickcolour);
@@ -64,8 +65,8 @@ function drawcolourpicker(elemid) {
 	var pickcolour = function(event){
 	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  // getting user coordinates
-	  var x = event.pageX - this.offsetLeft;
-	  var y = event.pageY - this.offsetTop;
+	  var x = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
+	  var y = (typeof event.offsetY == "number") ? event.offsetY : event.layerY || 0;
 	  // getting image data and RGB values
 	  //var img_data = canvas2d.getImageData(0,0, this.width,this.height);
 	  //var pxoffset = (y*img_data.width+x)*4;
@@ -99,7 +100,7 @@ function init_colour_temp_picker() {
 	$('#CW input').change(changecolourlevel);
 	changetextfromlevel = function(event){
 	  if (event.type == "mousemove" && event.buttons != 1) {return;}
-	  var x = event.pageX - this.offsetLeft;
+	  var x = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
 	  // var y = event.pageY - this.offsetTop;
 	  var promille = Math.trunc(x*1000/this.offsetWidth);
 	  $(this).siblings("input").val(promille);

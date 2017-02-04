@@ -337,5 +337,6 @@ func goRunMartini() {
 	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) { webHandleWebSocket(w, r, retained_lightstate_chan) })
 	m.Get("/cgi-bin/switch.cgi", webRedirectToSwitchHTML)
 	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToSwitchHTML)
+	m.Get("/cgi-bin/fancylight.cgi", webHandleCGIFancyLight)
 	m.RunOnAddr(EnvironOrDefault("GOLIGHTCTRL_HTTP_INTERFACE", DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE))
 }
