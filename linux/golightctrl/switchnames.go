@@ -96,6 +96,8 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"huefadeF70":       ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "huefade", Speed: 230, Brightness: 70}, handler: LEDPattern2MQTT},
 	"rstrobo":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "rstrobo"}, handler: LEDPattern2MQTT},
 	"pipeoff":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "off"}, handler: LEDPattern2MQTT},
+	"twinkle":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "twinkle", Speed: 150, Hue: -1, Arg: 8}, handler: LEDPattern2MQTT},
+	"hypersparkle":     ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "hypersparkle", Speed: 150, Hue: 190, Brightness: 10, EffectBrightness: 100, Arg: 10}, handler: LEDPattern2MQTT},
 	"ceiling1":         ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
 	"ceiling2":         ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: CeilingLightByteState},
 	"ceiling3":         ActionNameHandler{codeon: []byte{2, 1}, codeoff: []byte{2, 0}, handler: CeilingLightByteState},
