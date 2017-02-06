@@ -116,8 +116,10 @@ func goSetFancyLightsViaMQTT(mqttc mqtt.Client, fancylights_chan chan *wsMsgFanc
 		return
 	}
 	for r3evtptr := range fancylights_chan {
+		json := r3events.MarshalEvent2ByteOrPanic(r3evtptr.Setting)
 		LogMQTT_.Printf("goSetFancyLightsViaMQTT: %+v", *r3evtptr)
-		mqttc.Publish(r3events.TOPIC_ACTIONS+r3evtptr.Name+r3events.TYPE_LIGHT, MQTT_QOS_NOCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evtptr.Setting))
+		LogMQTT_.Printf("goSetFancyLightsViaMQTT: %s", json)
+		mqttc.Publish(r3events.TOPIC_ACTIONS+r3evtptr.Name+"/"+r3events.TYPE_LIGHT, MQTT_QOS_NOCONFIRMATION, false, json)
 	}
 }
 

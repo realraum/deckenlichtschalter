@@ -23,10 +23,10 @@ const (
 )
 
 const (
-	recall_sturdyceiling_cgi RetainRecallID = iota
-	recall_sturdyceiling_ws  RetainRecallID = iota
-	recall_fancyceiling_ws   RetainRecallID = iota
-	recall_ledpipe_ws        RetainRecallID = iota
+	recall_basiclight_cgi  RetainRecallID = iota
+	recall_basiclight_ws   RetainRecallID = iota
+	recall_fancyceiling_ws RetainRecallID = iota
+	recall_ledpipe_ws      RetainRecallID = iota
 )
 
 const (
@@ -50,8 +50,8 @@ func webHandleCGISwitch(w http.ResponseWriter, r *http.Request, retained_lightst
 		LogWS_.Print(err)
 		return
 	}
-	ourfuture := make(chan []byte, 2)
-	retained_lightstate_chan <- JsonFuture{future: ourfuture}
+	ourfuture := make(chan OurFutures, 2)
+	retained_lightstate_chan <- JsonFuture{future: ourfuture, what: []RetainRecallID{recall_basiclight_cgi}}
 	for name, _ := range actionname_map_ {
 		v := r.FormValue(name)
 		if len(v) == 0 {
@@ -59,7 +59,10 @@ func webHandleCGISwitch(w http.ResponseWriter, r *http.Request, retained_lightst
 		}
 		switch_name_chan_ <- r3events.LightCtrlActionOnName{name, v}
 	}
-	w.Write(<-ourfuture)
+	futures := <-ourfuture
+	for _, f := range futures {
+		w.Write(f)
+	}
 	return
 }
 
@@ -74,7 +77,7 @@ func SanityCheckWSFancyLight(data *wsMsgFancyLight) error {
 		(data.Setting.CW != nil && *data.Setting.CW > 1000) {
 		return fmt.Errorf("Luminosity not in valid range [0..1000]")
 	}
-	if len(data.Setting.Flash.Cc) > 7 || len(data.Setting.Fade.Cc) > 7 {
+	if (data.Setting.Flash != nil && len(data.Setting.Flash.Cc) > 7) || (data.Setting.Fade != nil && len(data.Setting.Fade.Cc) > 7) {
 		return fmt.Errorf("Cc too long")
 	}
 	return nil
@@ -158,11 +161,24 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 				updateCache(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
 
 			}
-			var reply []byte
-			if f.wxFormat {
-				reply = cached_websocketreply_json
-			} else {
-				reply = cached_switchcgireply_json
+			var reply = make(OurFutures, len(f.what))
+			for idx, retid := range f.what {
+				switch retid {
+				case recall_basiclight_cgi:
+					reply[idx] = cached_switchcgireply_json
+				case recall_basiclight_ws:
+					reply[idx] = cached_websocketreply_json
+				case recall_fancyceiling_ws:
+					reply[idx] = []byte("")
+					reply = append(reply, make([]byte, len(cached_fancylight_json)))
+					iidx := len(reply)
+					for _, fl := range cached_fancylight_json {
+						iidx--
+						reply[iidx] = fl
+					}
+				case recall_ledpipe_ws:
+					reply[idx] = cached_ledpipe_json
+				}
 			}
 			select {
 			case f.future <- reply:
@@ -263,10 +279,11 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 	LogWS_.Println("Client connected", ws.RemoteAddr())
 
 	//send client the inital CeilingLightsState
-	ourfuture := make(chan []byte, 2)
-	retained_lightstate_chan <- JsonFuture{future: ourfuture, wxFormat: true}
-	ws.WriteMessage(websocket.TextMessage, <-ourfuture)
-
+	ourfuture := make(chan OurFutures, 2)
+	retained_lightstate_chan <- JsonFuture{future: ourfuture, what: []RetainRecallID{recall_basiclight_cgi}}
+	for _, f := range <-ourfuture {
+		ws.WriteMessage(websocket.TextMessage, f)
+	}
 	//2nd goroutine per client that handles async push info
 	//e.g. sends updates about CeilingLight states and maybe about RF Send Actions
 	// IMPORTANT: After this function runs, WE (THIS FUNCTION) should no longer use ws.WriteMessage(..)

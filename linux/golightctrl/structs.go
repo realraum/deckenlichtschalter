@@ -22,12 +22,13 @@ type jsonButtonUsed struct {
 	Name string `json:"name"`
 }
 
-typedef RetainRecallID uint32
+type RetainRecallID uint32
 
+type OurFutures [][]byte
 
 type JsonFuture struct {
-	future   chan [][]byte
-	what  []RetainRecallID
+	future chan OurFutures
+	what   []RetainRecallID
 }
 
 type ActionNameHandler struct {

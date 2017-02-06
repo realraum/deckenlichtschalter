@@ -35,14 +35,14 @@ function drawcolourtemppicker(elemid) {
 	  // var WWwhole = Math.trunc(x*1000/rotatedwidth);
 	  var squarewidth = $(canvas).width();
 	  var diamondwidth = Math.sqrt(squarewidth*squarewidth*2);
-	  var CW = (squarewidth - transX)   *1000/squarewidth;
-	  var WW = (squarewidth - transY)   *1000/squarewidth; //0...1000
+	  var CW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transX)   *1000/squarewidth)));
+	  var WW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transY)   *1000/squarewidth))); //0...1000
 	  //var brightness = (diamondwidth - untransY) *1000/diamondwidth;
 	  var brightness = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
 	  var ctempmix = WW*1000/CW/2;	
 	  // making the color the value of the input
-	  $('#CW input').val(Math.trunc(CW));
-	  $('#WW input').val(Math.trunc(WW));
+	  $('#CW input').val(CW);
+	  $('#WW input').val(WW);
 	  $('#CW div.colorlevel').css("width",CW/10+"%");
 	  $('#WW div.colorlevel').css("width",WW/10+"%");
 	  $('#WhiteBrightness input').val(brightness);
@@ -75,13 +75,16 @@ function drawcolourpicker(elemid) {
 	  var R = img_data.data[pxoffset+0];
 	  var G = img_data.data[pxoffset+1];
 	  var B = img_data.data[pxoffset+2];
+	  var r1k = Math.trunc(Math.max(0,Math.min(1000,R*1000/255)));
+	  var g1k = Math.trunc(Math.max(0,Math.min(1000,G*1000/255)));
+	  var b1k = Math.trunc(Math.max(0,Math.min(1000,B*1000/255)));
 	  // making the color the value of the input
-	  $('#R input').val(Math.trunc(R*1000/255));
-	  $('#G input').val(Math.trunc(G*1000/255));
-	  $('#B input').val(Math.trunc(B*1000/255));
-	  $('#R div.colorlevel').css("width",R*100/255+"%");
-	  $('#G div.colorlevel').css("width",G*100/255+"%");
-	  $('#B div.colorlevel').css("width",B*100/255+"%");
+	  $('#R input').val(r1k);
+	  $('#G input').val(g1k);
+	  $('#B input').val(b1k);
+	  $('#R div.colorlevel').css("width",r1k/10+"%");
+	  $('#G div.colorlevel').css("width",g1k/10+"%");
+	  $('#B div.colorlevel').css("width",b1k/10+"%");
 	  $('#rgbcolor').css("background-color","rgb("+R+","+G+","+B+")");
 	};
 	$(canvas).click(pickcolour);
@@ -102,7 +105,7 @@ function init_colour_temp_picker() {
 	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  var x = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
 	  // var y = event.pageY - this.offsetTop;
-	  var promille = Math.trunc(x*1000/this.offsetWidth);
+	  var promille = Math.trunc(Math.max(0,Math.min(1000,x*1000/this.offsetWidth)));
 	  $(this).siblings("input").val(promille);
 	  $(this).find('.colorlevel').css("width",x);
 	};

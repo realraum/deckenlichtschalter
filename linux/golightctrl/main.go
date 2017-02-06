@@ -60,7 +60,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 	//
 	//now try connect to mqtt daemon until it works once
 	for {
-		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), r3events.CLIENTID_LIGHTCTRL)
+		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
 			SubscribeAndAttachCallback(mqttc, r3events.ACT_LIGHTCTRL_NAME, func(c mqtt.Client, msg mqtt.Message) {
@@ -82,8 +82,8 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 					//TODO: retain lates state somewhere and broadcast it to all websocket clients
 				}
 			}
-			for _, cid := range []string{r3events.CLIENTID_CEILING1, r3events.CLIENTID_CEILING2, r3events.CLIENTID_CEILING3, r3events.CLIENTID_CEILING4, r3events.CLIENTID_CEILING5, r3events.CLIENTID_CEILING6} {
-				SubscribeAndAttachCallback(mqttc, r3events.TOPIC_ACTIONS+cid+r3events.TYPE_LIGHT, func(c mqtt.Client, msg mqtt.Message) { receive_fancylight_state_updates(cid, c, msg) })
+			for _, cid := range []string{r3events.CLIENTID_CEILING1, r3events.CLIENTID_CEILING2, r3events.CLIENTID_CEILING3, r3events.CLIENTID_CEILING4, r3events.CLIENTID_CEILING5, r3events.CLIENTID_CEILING6, r3events.CLIENTID_CEILING7, r3events.CLIENTID_CEILING8, r3events.CLIENTID_CEILINGALL} {
+				SubscribeAndAttachCallback(mqttc, r3events.TOPIC_ACTIONS+cid+"/"+r3events.TYPE_LIGHT, func(c mqtt.Client, msg mqtt.Message) { receive_fancylight_state_updates(cid, c, msg) })
 			}
 			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
 			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
