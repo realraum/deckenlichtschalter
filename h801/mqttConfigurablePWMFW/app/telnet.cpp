@@ -118,7 +118,7 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	int numToken = splitString(commandLine, ' ' , commandToken);
 	if (numToken != 2)
 	{
-		commandOutput->println("Usage light on|off|info|half|flash0,flash1,flash2,fade2black");
+		commandOutput->println("Usage light on|off|info|half|flash0|fade2black");
 	}
 	else if (commandToken[1] == "on")
 	{
@@ -152,29 +152,6 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	else if (commandToken[1] == "flash0")
 	{
 		flashSingleChannel(3,0);
-	}
-	else if (commandToken[1] == "flash1")
-	{
-		effect_target_values_[0]=pwm_period/3;
-		effect_target_values_[1]=0;
-		effect_target_values_[2]=pwm_period/3;
-		effect_target_values_[3]=0;
-		effect_target_values_[4]=10;
-		effect_intermid_values_[0]=0;
-		effect_intermid_values_[1]=pwm_get_duty(1);
-		effect_intermid_values_[2]=0;
-		effect_intermid_values_[3]=pwm_get_duty(3);
-		effect_intermid_values_[4]=pwm_get_duty(4);
-		startFlash(2,FLASH_INTERMED_USERSET);
-	}
-	else if (commandToken[1] == "flash2")
-	{
-		effect_target_values_[0]=pwm_period/3;
-		effect_target_values_[1]=0;
-		effect_target_values_[2]=pwm_period/3;
-		effect_target_values_[3]=0;
-		effect_target_values_[4]=10;
-		startFlash(2,FLASH_INTERMED_DARK);
 	}
 	else if (commandToken[1] == "fade2black")
 	{

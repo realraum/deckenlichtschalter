@@ -15,6 +15,7 @@
 NetConfigStorage NetConfig;
 DefaultLightConfigStorage DefaultLightConfig;
 
+
 ///////////////////////////////////////
 ///// WIFI Stuff
 ///////////////////////////////////////
@@ -40,16 +41,20 @@ void wifiConnectFail()
 	WifiStation.waitConnection(wifiConnectOk, 10, wifiConnectFail); // Repeat and check again
 }
 
+void configureWifi()
+{
+	WifiAccessPoint.enable(false);
+	WifiStation.enable(true);
+	WifiStation.setHostname(NetConfig.mqtt_clientid+".realraum.at");
+	WifiStation.config(NetConfig.wifi_ssid, NetConfig.wifi_pass); // Put you SSID and Password here
+	WifiStation.enableDHCP(NetConfig.enabledhcp);
+	if (!NetConfig.enabledhcp)
+		WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
+}
+
 void connectToWifi()
 {
 	debugf("connecting 2 WiFi");
-	WifiAccessPoint.enable(false);
-	WifiStation.enable(true);
-	WifiStation.enableDHCP(NetConfig.enabledhcp);
-	WifiStation.setHostname(NetConfig.mqtt_clientid+".realraum.at");
-	WifiStation.config(NetConfig.wifi_ssid, NetConfig.wifi_pass); // Put you SSID and Password here
-	WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
-
 	// Run our method when station was connected to AP (or not connected)
 	WifiStation.waitConnection(wifiConnectOk, 30, wifiConnectFail); // We recommend 20+ seconds at start
 }
@@ -57,18 +62,6 @@ void connectToWifi()
 //////////////////////////////////////
 ////// Base System Stuff  ////////////
 //////////////////////////////////////
-
-
-// Will be called when WiFi hardware and software initialization was finished
-// And system initialization was completed
-void ready()
-{
-	NetConfig.load(); //loads netsettings from fs
-	// Serial.println(NetConfig.wifi_ssid);
-	// Serial.println(NetConfig.wifi_pass);
-	instantinateMQTT();
-	connectToWifi();
-}
 
 void init()
 {
@@ -99,9 +92,12 @@ void init()
 	debugf("spiffs disabled");
 #endif
 	setupPWM(); //Init PWM with spiffs saved default settings
-
 	telnetRegisterCmdsWithCommandHandler();
 	commandHandler.registerSystemCommands();
+	// configure stuff that needs to be done before system is ready
+	NetConfig.load(); //loads netsettings from fs
+	configureWifi();
+	instantinateMQTT();
 	// Set system ready callback method
-	System.onReady(ready);
+	System.onReady(connectToWifi);
 }
