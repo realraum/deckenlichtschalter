@@ -4,7 +4,7 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883):
+def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000):
     NET_SETTINGS_FILE = "net.conf"
     WIFISSID_SETTINGS_FILE = "wifi.ssid.conf"
     WIFIPASS_SETTINGS_FILE = "wifi.pass.conf"
@@ -14,10 +14,13 @@ def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user
     MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf"
     AUTHTOKEN_SETTINGS_FILE = "authtoken.conf"
     USEDHCP_SETTINGS_FILE = "dhcp.flag"
+    FAN_SETTINGS_FILE = "fan.conf"
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
         fh.write(struct.pack("<I",  int(mqtt_port)))
+    with open(os.path.join(DIR, FAN_SETTINGS_FILE),"wb") as fh:
+        fh.write(struct.pack("<I",  int(fan_threshold)))
     with open(os.path.join(DIR, WIFISSID_SETTINGS_FILE),"wb") as fh:
         fh.write(wifi_ssid)
     with open(os.path.join(DIR, WIFIPASS_SETTINGS_FILE),"wb") as fh:

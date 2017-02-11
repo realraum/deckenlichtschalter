@@ -17,6 +17,8 @@ extern uint32_t effect_intermid_values_[PWM_CHANNELS];
 extern String mqtt_forward_to_;
 extern String mqtt_payload_;
 
+void enableFan(bool en);
+void checkFanNeeded();
 void applyValues(uint32_t values[PWM_CHANNELS]);
 void startFlash(uint8_t repetitions, FLASHFLAGS intermed);
 void flashSingleChannel(uint8_t repetitions, uint8_t channel);

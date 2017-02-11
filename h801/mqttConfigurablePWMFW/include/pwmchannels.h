@@ -9,6 +9,8 @@
 #define CHAN_CW 3     //W1 on GPIO14
 #define CHAN_WW 4     //W2 on GPIO4
 
+#define FAN_GPIO 16
+
 #define JSONKEY_RED "r"
 #define JSONKEY_GREEN "g"
 #define JSONKEY_BLUE "b"

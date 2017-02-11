@@ -15,6 +15,7 @@ void OtaUpdate_prepareSystem()
 	// so there won't be a sudden power drop during flash when all LEDs switch on
 	uint32_t light_during_flash[PWM_CHANNELS] = {0,pwm_period,pwm_period,pwm_period,0};
 	applyValues(light_during_flash);
+	enableFan(true);
 	//start firmware update
 }
 

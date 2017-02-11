@@ -46,8 +46,30 @@ void setupPWM()
 	DefaultLightConfig.load(effect_target_values_); //load initial default values
 	pwm_init(pwm_period, effect_target_values_, PWM_CHANNELS, io_info);
 	pwm_start();
+	// GPIO / FAN Setup
+	pinMode(FAN_GPIO, OUTPUT);
+	// Check Fan
+	checkFanNeeded();
 }
 
+///////////////////////////////////////
+///// Related Hardware Stuff
+///////////////////////////////////////
+
+void enableFan(bool en)
+{
+	digitalWrite(FAN_GPIO,(en)? HIGH:LOW);
+}
+
+void checkFanNeeded()
+{
+	uint32_t pwm_sum = 0;
+	for (uint8_t i=0;i<PWM_CHANNELS;i++)
+	{
+		pwm_sum += pwm_get_duty(i);
+	}
+	enableFan(pwm_sum >= NetConfig.fan_threshold);
+}
 
 /////////////////////
 //// Light Stuff ////
@@ -66,15 +88,21 @@ void saveCurrentValues()
 void applyValues(int32_t values[PWM_CHANNELS])
 {
 	for (uint8_t i=0;i<PWM_CHANNELS;i++)
+	{
 		pwm_set_duty(static_cast<uint32_t>(values[i]),i);
+	}
 	pwm_start();
+	checkFanNeeded();
 }
 
 void applyValues(uint32_t values[PWM_CHANNELS])
 {
 	for (uint8_t i=0;i<PWM_CHANNELS;i++)
+	{
 		pwm_set_duty(values[i],i);
+	}
 	pwm_start();
+	checkFanNeeded();
 }
 
 void stopAndRestoreValues()

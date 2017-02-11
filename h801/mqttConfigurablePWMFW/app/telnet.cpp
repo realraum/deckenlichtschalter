@@ -25,7 +25,7 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	auth_num_cmds--;
 	if (numToken != 3)
 	{
-		commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass <value>");
+		commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass|fan <value>");
 	}
 	else if (commandToken[1] == "ip")
 	{
@@ -70,6 +70,11 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 		if (newport > 0 && newport < 65536)
 			NetConfig.mqtt_port = newport;
 	}
+	else if (commandToken[1] == "fan")
+	{
+		NetConfig.fan_threshold = commandToken[2].toInt();
+		commandOutput->printf("%s: '%d'\r\n",commandToken[1].c_str(),NetConfig.fan_threshold);
+	}
 	else if (commandToken[1] == "mqttclientid")
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
@@ -110,6 +115,7 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->println("MQTT Broker: " + NetConfig.mqtt_broker + ":" + String(NetConfig.mqtt_port));
 	commandOutput->println("MQTT ClientID: " + NetConfig.mqtt_clientid);
 	commandOutput->println("MQTT Login: " + NetConfig.mqtt_user +"/"+ NetConfig.mqtt_pass);
+	commandOutput->println("FAN Threshold: " + String(NetConfig.fan_threshold) + "/"+String(PWM_CHANNELS*pwm_period));
 }
 
 void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
@@ -161,6 +167,28 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 		effect_target_values_[3]=0;
 		effect_target_values_[4]=0;
 		startFade(2000);
+	}
+}
+
+void telnetCmdFan(String commandLine  ,CommandOutput* commandOutput)
+{
+	Vector<String> commandToken;
+	int numToken = splitString(commandLine, ' ' , commandToken);
+	if (numToken != 2)
+	{
+		commandOutput->println("Usage fan on|off|auto");
+	}
+	else if (commandToken[1] == "on")
+	{
+		enableFan(true);
+	}
+	else if (commandToken[1] == "off")
+	{
+		enableFan(false);
+	}
+	else if (commandToken[1] == "auto")
+	{
+		checkFanNeeded();
 	}
 }
 
@@ -291,4 +319,5 @@ void telnetRegisterCmdsWithCommandHandler()
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
 	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","systemGroup", telnetAirUpdate));
 	commandHandler.registerCommand(CommandDelegate("auth","auth token","systemGroup", telnetAuth));
+	commandHandler.registerCommand(CommandDelegate("fan","fanctrl","systemGroup", telnetCmdFan));
 }

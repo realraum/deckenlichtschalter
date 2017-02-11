@@ -12,6 +12,7 @@ const String MQTTUSER_SETTINGS_FILE = "mqtt.user.conf";
 const String MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf";
 const String MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf";
 const String AUTHTOKEN_SETTINGS_FILE = "authtoken.conf";
+const String FAN_SETTINGS_FILE = "fan.conf";
 const String USEDHCP_SETTINGS_FILE = "dhcp.flag";
 
 struct DefaultLightConfigStorage
@@ -51,6 +52,7 @@ struct NetConfigStorage
 	String mqtt_pass;
 	bool enabledhcp=true;
 	uint32_t mqtt_port=1883;  //8883 for ssl
+	uint32_t fan_threshold=2500;
 	String authtoken;
 
 	void load()
@@ -73,6 +75,9 @@ struct NetConfigStorage
 			mqtt_pass = fileGetContent(MQTTPASS_SETTINGS_FILE);
 			authtoken = fileGetContent(AUTHTOKEN_SETTINGS_FILE);
 			enabledhcp = fileExist(USEDHCP_SETTINGS_FILE);
+			f = fileOpen(FAN_SETTINGS_FILE, eFO_ReadOnly);
+			fileRead(f, (void*) &fan_threshold, sizeof(uint32_t));
+			fileClose(f);
 		}
 	}
 
@@ -93,6 +98,9 @@ struct NetConfigStorage
 			fileSetContent(USEDHCP_SETTINGS_FILE, "true");
 		else
 			fileDelete(USEDHCP_SETTINGS_FILE);
+		f = fileOpen(FAN_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
+		fileWrite(f, (void*) &fan_threshold, sizeof(uint32_t));
+		fileClose(f);
 	}
 
 	bool exist() { return fileExist(NET_SETTINGS_FILE); }
