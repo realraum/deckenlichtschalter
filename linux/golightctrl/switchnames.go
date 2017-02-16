@@ -7,7 +7,6 @@ import (
 
 	"github.com/btittelbach/pubsub"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/realraum/door_and_sensors/r3events"
 )
 
 const (
@@ -21,28 +20,6 @@ const (
 	POST_RF433_MQTT_DELAY = 600 * time.Millisecond
 	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
-
-var intMinus1 int64 = -1
-var int0 int64 = 0
-var int1 int64 = 1
-var int3 int64 = 3
-var int4 int64 = 4
-var int5 int64 = 5
-var int08 int64 = 8
-var int10 int64 = 10
-var int20 int64 = 20
-var int30 int64 = 30
-var int42 int64 = 42
-var int50 int64 = 50
-var int70 int64 = 70
-var int60 int64 = 60
-var int80 int64 = 80
-var int100 int64 = 100
-var int150 int64 = 150
-var int180 int64 = 180
-var int190 int64 = 190
-var int205 int64 = 205
-var int230 int64 = 230
 
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	//RF Power Outlets
@@ -93,39 +70,12 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ymhp5":        ActionNameHandler{codedefault: []byte("ymhp5"), handler: IRCmd2MQTT},
 
 	//LED Pipe
-	"piperainbow10":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "rainbow", Arg: &int5, Brightness: &int10, Speed: &int150}, handler: LEDPattern2MQTT},
-	"piperainbow30":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "rainbow", Arg: &int5, Brightness: &int30, Speed: &int150}, handler: LEDPattern2MQTT},
-	"piperainbow50":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "rainbow", Arg: &int5, Brightness: &int50, Speed: &int150}, handler: LEDPattern2MQTT},
-	"piperainbow80":    ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "rainbow", Arg: &int3, Brightness: &int80, Speed: &int150}, handler: LEDPattern2MQTT},
-	"pipeplasma":       ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "plasma", Speed: &int150}, handler: LEDPattern2MQTT},
-	"pipecircles":      ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "circles"}, handler: LEDPattern2MQTT},
-	"pipeuspolice":     ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "uspol"}, handler: LEDPattern2MQTT},
-	"pipemovingspots1": ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "movingspots", Arg: &int1}, handler: LEDPattern2MQTT},
-	"pipemovingspots3": ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "movingspots", Arg: &int3}, handler: LEDPattern2MQTT},
-	"pipemovingspots5": ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "movingspots", Arg: &int4}, handler: LEDPattern2MQTT},
-	"white50":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "white", Brightness: &int50}, handler: LEDPattern2MQTT},
-	"white100":         ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "white", Brightness: &int100}, handler: LEDPattern2MQTT},
-	"red50":            ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "hue", Hue: &int0, Brightness: &int50, Speed: &int150}, handler: LEDPattern2MQTT},
-	"green50":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "hue", Hue: &int60, Brightness: &int50, Speed: &int150}, handler: LEDPattern2MQTT},
-	"blue50":           ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "hue", Hue: &int180, Brightness: &int50, Speed: &int150}, handler: LEDPattern2MQTT},
-	"purple50":         ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "hue", Hue: &int205, Brightness: &int50, Speed: &int150}, handler: LEDPattern2MQTT},
-	"orange50":         ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "hue", Hue: &int20, Brightness: &int50, Speed: &int150}, handler: LEDPattern2MQTT},
-	"huefadeSS30":      ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "huefade", Speed: &int20, Brightness: &int30}, handler: LEDPattern2MQTT},
-	"huefadeSS70":      ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "huefade", Speed: &int20, Brightness: &int70}, handler: LEDPattern2MQTT},
-	"huefadeS30":       ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "huefade", Speed: &int150, Brightness: &int30}, handler: LEDPattern2MQTT},
-	"huefadeS70":       ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "huefade", Speed: &int150, Brightness: &int70}, handler: LEDPattern2MQTT},
-	"huefadeF30":       ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "huefade", Speed: &int230, Brightness: &int30}, handler: LEDPattern2MQTT},
-	"huefadeF70":       ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "huefade", Speed: &int230, Brightness: &int70}, handler: LEDPattern2MQTT},
-	"rstrobo":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "rstrobo"}, handler: LEDPattern2MQTT},
-	"pipeoff":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "off"}, handler: LEDPattern2MQTT},
-	"twinkle":          ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "twinkle", Speed: &int150, Hue: &intMinus1, Arg: &int08}, handler: LEDPattern2MQTT},
-	"hypersparkle":     ActionNameHandler{pipepattern: &r3events.SetPipeLEDsPattern{Pattern: "hypersparkle", Speed: &int150, Hue: &int190, Brightness: &int10, EffectBrightness: &int100, Arg: &int10}, handler: LEDPattern2MQTT},
-	"ceiling1":         ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
-	"ceiling2":         ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: CeilingLightByteState},
-	"ceiling3":         ActionNameHandler{codeon: []byte{2, 1}, codeoff: []byte{2, 0}, handler: CeilingLightByteState},
-	"ceiling4":         ActionNameHandler{codeon: []byte{3, 1}, codeoff: []byte{3, 0}, handler: CeilingLightByteState},
-	"ceiling5":         ActionNameHandler{codeon: []byte{4, 1}, codeoff: []byte{4, 0}, handler: CeilingLightByteState},
-	"ceiling6":         ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
+	"ceiling1": ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
+	"ceiling2": ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: CeilingLightByteState},
+	"ceiling3": ActionNameHandler{codeon: []byte{2, 1}, codeoff: []byte{2, 0}, handler: CeilingLightByteState},
+	"ceiling4": ActionNameHandler{codeon: []byte{3, 1}, codeoff: []byte{3, 0}, handler: CeilingLightByteState},
+	"ceiling5": ActionNameHandler{codeon: []byte{4, 1}, codeoff: []byte{4, 0}, handler: CeilingLightByteState},
+	"ceiling6": ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
 
 	//Meta Events
 	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
