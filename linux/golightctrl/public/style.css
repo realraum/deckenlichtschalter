@@ -207,3 +207,65 @@ div.pipeslider {
 div.pipeslider input {
     width:85%;
 }
+
+button.leftalignroundedbutton {
+   padding: 4.5px 9px;
+   letter-spacing:.1em;
+   font-variant:small-caps;
+   /*give the corners a small curve*/
+   -webkit-border-radius: 0 15px 15px 0;
+   -moz-border-radius: 0 15px 15px 0;
+   border-radius: 0 15px 15px 0;
+   text-align:left;
+   vertical-align: middle;
+}
+
+
+.onoffswitch {
+    position: relative; width: 85px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+    margin:1px;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid ; border-radius: 11px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; padding: 4.5px 9px;
+    letter-spacing:.1em;
+    font-variant:small-caps;
+    font-size: 105%; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "ON";
+    padding-left: 15px;
+    background-color: #34CC29; color: #FFFFFF;
+}
+.onoffswitch-inner:after {
+    content: "OFF";
+    padding-right: 15px;
+    background-color: #EEEEEE; color: #999999;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 21px; margin: 4px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 50px;
+    border: 2px solid ; border-radius: 11px;
+    transition: all 0.3s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px; 
+}

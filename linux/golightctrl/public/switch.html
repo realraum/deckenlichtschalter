@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="style.css" />
     <script type="text/javascript" src="https://realraum.at/js/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="colorandtemppicker.js"></script>
-    <link rel="stylesheet" type="text/css" href="colorandtemppicker.css">    
+    <link rel="stylesheet" type="text/css" href="colorandtemppicker.css">
   </head>
   <body>
     <nav>
@@ -59,16 +59,41 @@
     <div class="content">
 
 <div style="float:left;">
+
+      <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
+      <h3>Personal Presets</h3>
+      - Save RoomState as Preset in browser localstore<br/>
+      - Preset 1<br/>
+      - Preset 2<br/>
+      - etc<br/>
+      - Rename Preset<br/>
+      </div>
+
         <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
         <div class="switchbox">
         <span class="alignbuttonsleft">
-        <button class="fancylightpresetbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="color:white; background-color:black;">Off</button>
-        <button class="fancylightpresetbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="1000" style="color:black; background-color:yellow;">WarmWhite</button>
-        <button class="fancylightpresetbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="color:black; background-color:lightblue;">ColdWhite</button>
-        <button class="fancylightpresetbutton" name="ceiling2" ledr="1000" ledg="0" ledb="0" ledcw="0" ledww="0" style="color:black; background-color:red;">Red</button>
-        <button class="fancylightpresetbutton" name="ceiling2" ledr="0" ledg="0" ledb="1000" ledcw="0" ledww="0" style="color:black; background-color:blue;">Blue</button>
-        <button class="fancylightpresetbutton" name="ceiling2" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="color:black; background-color:green;">Green</button>
-        <button class="fancylightcolourtempselectorbutton" name="ceiling2">Pick</button>
+        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0"><span style="color:black">█
+</span>Off</button>
+        </span></br>
+        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="1000"><span style="color:lightyellow">█
+</span>WarmWhite</button>
+        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0"><span style="color:lightblue">█
+</span>ColdWhite</button>
+        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="1000" ledg="0" ledb="0" ledcw="0" ledww="0"><span style="color:red">█
+</span>Red</button>
+        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="1000" ledcw="0" ledww="0"><span style="color:blue">█
+</span>Blue</button>
+        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0"><span style="color:green">█
+</span>Green</button>
+        <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="ceiling2">Pick</button>
+        <span class="alignbuttonsleft">
+        <div class="onoffswitch">
+            <input type="checkbox" name="ceiling2ctonoff" class="onoffswitch-checkbox" id="ceiling2ctonoff" checked>
+            <label class="onoffswitch-label" for="ceiling2ctonoff">
+                <span class="onoffswitch-inner"></span>
+                <span class="onoffswitch-switch"></span>
+            </label>
+        </div>Colortemp follows daylight
         </span>
         <div class="switchnameright">Decke Durchgang (O)</div></div>
         <br>
@@ -299,7 +324,7 @@
       <canvas id="pickcolourtemp" width="181" height="181" style="width:181px; height:181px; transform: translate(21%,21%) rotate(45deg);"></canvas>
     </div>
     <div class="colorvalue" id="WhiteTemp">Colour Temperature Balance<br/><input type="range" min="0" max="1000" step="1" disabled></div>
-  <div class="colorvalue" id="WhiteBrightness">Brightness<br/><input type="range" min="0" max="1000" step="1" disabled></div>
+  <div class="colorvalue" id="WhiteBrightness">Intensity<br/><input type="range" min="0" max="1000" step="1" disabled></div>
   <div class="colorvalue" id="CW">CW <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(71,171,255);" class="colorlevel"></div></div></div>
   <div class="colorvalue" id="WW">WW <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,250,202);" class="colorlevel"></div></div></div>
   </div>
@@ -307,6 +332,7 @@
   <div style="width:256px; display:inline-block;">
   <div id="pickcolourcontainer" style="width:256px; height:256px;">
   <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
+  HSL with S=100%
   <canvas id="pickcolour" width="256" height="256"></canvas>
   </div>
   <div class="colorvalue" id="R">R: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,0,0);" class="colorlevel"></div></div></div>
@@ -319,7 +345,7 @@
       <div id="cwwwcolor"></div>
       <div id="rgbcolor"></div>
       <div id="cwwwoverrgbcolor"></div>
-    </div>  
+    </div>
     <button id="fancycolorpicker_apply_button">Apply</button>
     <button id="fancycolorpicker_close_button">Close</button>
   </div>
