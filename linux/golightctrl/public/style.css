@@ -200,3 +200,10 @@ span.alignbuttonsleft {
     font-variant: small-caps;
     border-style: inset;
 }
+
+div.pipeslider {
+    text-align:left;
+}
+div.pipeslider input {
+    width:85%;
+}

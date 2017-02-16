@@ -83,6 +83,31 @@ func SanityCheckWSFancyLight(data *wsMsgFancyLight) error {
 	return nil
 }
 
+func SanityCheckPipeLedPattern(data *r3events.SetPipeLEDsPattern) error {
+	if len(data.Pattern) > 42 {
+		return fmt.Errorf("pattern name too long")
+	}
+	if data.Hue != nil && (*data.Hue < -1 || *data.Hue > 0xff) {
+		return fmt.Errorf("Hue value -0x01..0xFF")
+	}
+	if data.EffectHue != nil && (*data.EffectHue < -1 || *data.EffectHue > 0xff) {
+		return fmt.Errorf("EffectHue value -0x01..0xFF")
+	}
+	if data.Speed != nil && (*data.Speed < 0 || *data.Speed > 0xff) {
+		return fmt.Errorf("Speed value 0x00..0xFF")
+	}
+	if data.Brightness != nil && (*data.Brightness < 0 || *data.Brightness > 100) {
+		return fmt.Errorf("Brightness value 0..100")
+	}
+	if data.EffectBrightness != nil && (*data.EffectBrightness < 0 || *data.EffectBrightness > 100) {
+		return fmt.Errorf("EffectBrightness value 0..100")
+	}
+	if (data.Arg != nil && *data.Arg>>32 != 0) || data.Arg1 != nil && *data.Arg1>>32 != 0 {
+		return fmt.Errorf("Args are at most 32bit values")
+	}
+	return nil
+}
+
 // handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
 // returns json formated state of Ceiling Lights
 func webHandleCGIFancyLight(w http.ResponseWriter, r *http.Request) {
@@ -110,6 +135,32 @@ func webHandleCGIFancyLight(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	MQTT_fancylight_chan_ <- &data
+	w.Write([]byte("ok"))
+	return
+}
+
+// handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
+// returns json formated state of Ceiling Lights
+func webHandleCGILedPipe(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if x := recover(); x != nil {
+			LogWS_.Println("webHandleCGILedPipe", x)
+		}
+	}()
+	if err := r.ParseForm(); err != nil {
+		LogWS_.Print(err)
+		return
+	}
+	var data r3events.SetPipeLEDsPattern
+	if err := json.Unmarshal([]byte(r.FormValue("data")), &data); err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if err := SanityCheckPipeLedPattern(&data); err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+	MQTT_ledpattern_chan_ <- &data
 	w.Write([]byte("ok"))
 	return
 }
@@ -325,6 +376,18 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 				continue
 			}
 			MQTT_fancylight_chan_ <- &data
+		case ws_ctx_ledpattern:
+			var data r3events.SetPipeLEDsPattern
+			err = mapstructure.Decode(v.Data, &data)
+			if err != nil {
+				LogWS_.Printf("%s Data decode error: %s", v.Ctx, err)
+				continue
+			}
+			if err := SanityCheckPipeLedPattern(&data); err != nil {
+				LogWS_.Printf("%s Error during SanityCheckPipeLedPattern: %s", v.Ctx, err)
+				continue
+			}
+			MQTT_ledpattern_chan_ <- &data
 		}
 	}
 }
@@ -355,5 +418,6 @@ func goRunMartini() {
 	m.Get("/cgi-bin/switch.cgi", webRedirectToSwitchHTML)
 	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToSwitchHTML)
 	m.Get("/cgi-bin/fancylight.cgi", webHandleCGIFancyLight)
+	m.Get("/cgi-bin/ledpipe.cgi", webHandleCGILedPipe)
 	m.RunOnAddr(EnvironOrDefault("GOLIGHTCTRL_HTTP_INTERFACE", DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE))
 }

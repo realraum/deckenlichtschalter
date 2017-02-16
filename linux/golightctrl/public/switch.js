@@ -42,6 +42,11 @@ function updateButtons(uri) {
   req.send(null);
 }
 
+function sendMultiButton( str ) {
+  url = "/cgi-bin/mswitch.cgi?"+str;
+  updateButtons(url);
+}
+
 function sendYmhButton( btn ) {
   //alert(btn);
   document.getElementById('indicator').style.backgroundColor="red";
@@ -107,6 +112,8 @@ var cgiUrl = '/cgi-bin/mswitch.cgi';
 
 var webSocketSupport = null;
 
+setLedPipePattern = function(){};
+
 function openWebSocket(webSocketUrl) {
   ws.registerContext("ceilinglights",renderCeilingButtonUpdate);
   ws.registerContext("wbp",renderRFIRButtonUpdate);
@@ -125,6 +132,7 @@ function openWebSocket(webSocketUrl) {
   var onbtns = document.getElementsByClassName('onbutton');
   var offbtns = document.getElementsByClassName('offbutton');
   var fancypresetbtns = document.getElementsByClassName('fancylightpresetbutton');
+  var ledpipepresetbtns = document.getElementsByClassName('ledpipepresetbutton');
   for (var i = 0; i < onbtns.length; i++) {
     onbtns[i].addEventListener('click', function() {
       var id = this.getAttribute('id');
@@ -205,7 +213,48 @@ function openWebSocket(webSocketUrl) {
   });
   //draw color picker canvases
   init_colour_temp_picker();
-
+  //define setLedPipePattern(objdata)
+  if (webSocketSupport) {
+      setLedPipePattern=function(objdata) {
+        ws.send("SetPipeLEDsPattern",objdata);
+      }
+  } else {
+      setLedPipePattern=function(objdata) {
+        var req = new XMLHttpRequest;
+        req.overrideMimeType("application/json");
+        req.open("GET", "/cgi-bin/ledpipe.cgi?data="+JSON.stringify(objdata), true);
+        req.onload  = function() {
+          if (req.status != 200) {
+            return;
+          }
+        };
+        req.setRequestHeader("googlechromefix","");
+        req.send(null);
+      }
+  }
+for (var i = 0; i < ledpipepresetbtns.length; i++) {
+    ledpipepresetbtns[i].addEventListener('click', function() {
+      var pipepattern = this.getAttribute("pipepattern");
+      if (!pipepattern) { return;  }
+      var hue = parseInt(this.getAttribute("pipehue")) || undefined;
+      var brightness = parseInt(this.getAttribute("pipebrightness")) || undefined;
+      var speed = parseInt(this.getAttribute("pipespeed")) || undefined;
+      var arg = parseInt(this.getAttribute("pipearg")) || undefined;
+      var arg1 = parseInt(this.getAttribute("pipearg1")) || undefined;
+      var data = {pattern:pipepattern, hue:hue, brightness:brightness, speed:speed, arg:arg, arg1:arg1};
+      setLedPipePattern(data);
+      if (brightness) {
+        document.getElementById("pipebrightness").value=brightness;
+      }
+      if (hue) {
+        document.getElementById("pipehue").value=hue;
+      }
+      if (speed) {
+        console.log(speed)
+        document.getElementById("pipespeed").value=speed;
+      }      
+    });
+  }
 
   //TODO: support yamahabuttons and rf433 buttons via websocket
 

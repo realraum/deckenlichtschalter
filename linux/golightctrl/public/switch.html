@@ -256,33 +256,32 @@
       <div style="float:left;">
         <div class="switchbox" style="width:15em;">
           <div style="width:100%; font-weight: bold; color:white; background-color: black;">Pipe LEDs</div>
-          <button class="textsendbutton" onclick="sendMultiButton('pipeoff=1');">OFF</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('piperainbow10=1');">Rainbow10%</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('piperainbow30=1');">Rainbow30%</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('piperainbow50=1');">Rainbow50%</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('piperainbow80=1');">Rainbow80%</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('pipeplasma=1');">Plasma</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('pipecircles=1');">Circles</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('pipeuspolice=1');">USPol</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('pipemovingspots1=1');">1 Spot</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('pipemovingspots3=1');">3 Spots</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('pipemovingspots5=1');">5 Spots</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('white50=1');">White50%</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('white100=1');">White100%</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('red50=1');">Red</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('purple50=1');">Purple</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('green50=1');">Green</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('blue50=1');">Blue</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('orange50=1');">Orange</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('rstrobo=1');">RandomStrobo</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('huefadeSS30=1');">HueFadeSuperSlow30</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('huefadeSS70=1');">HueFadeSuperSlow70</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('huefadeS30=1');">HueFadeSlow30</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('huefadeS70=1');">HueFadeSlow70</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('huefadeF30=1');">HueFadeFast30</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('huefadeF70=1');">HueFadeFast70</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('twinkle=1');">Twinkle</button><br/>
-          <button class="textsendbutton" onclick="sendMultiButton('hypersparkle=1');">HyperSparkle</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="off">OFF</button><br/>
+          <button class="textsendbutton" onclick="setLedPipePattern({pattern:'rainbow',brightness:10,speed:150,arg:5});">Rainbow10%</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="rainbow" pipebrightness="30" pipespeed="150" pipearg="5">Rainbow30%</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="rainbow" pipebrightness="50" pipespeed="150" pipearg="5">Rainbow50%</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="plasma" pipespeed="150">Plasma</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="circles" pipespeed="150">Circles</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="uspol" pipespeed="150">USPolice</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="1">1 Spot</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="3">3 Spots</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="5">5 Spots</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="8">8 Spots</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="rstrobo">Strobo</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="huefade" pipespeed="150">Hue Fade</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="white" pipebrightness="80" pipespeed="1" >White</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="hue" pipehue="205" pipespeed="1">Fixed Hue</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="twinkle" pipespeed="150" pipehue="-1"pipearg="8">Twinkle</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="hypersparkle" pipehue="190" pipearg="10" pipebrightness="10">HyperSparkle</button><br/>
+          <div class="pipeslider">Brightness:
+            <input id="pipebrightness" type="range" min="0" max="100" step="1" value="30" onchange="setLedPipePattern({brightness:parseInt(this.value)});" />
+          </div>
+          <div class="pipeslider">Hue:
+            <input id="pipehue" type="range" min="0" max="255" step="1" value="207" onchange="setLedPipePattern({hue:parseInt(this.value)});" />
+          </div>
+         <div class="pipeslider">Speed:
+            <input id="pipespeed" type="range" min="0" max="255" step="1" value="150" onchange="setLedPipePattern({speed:parseInt(this.value)});" />
+          </div>
         </div>
       </div>
 
