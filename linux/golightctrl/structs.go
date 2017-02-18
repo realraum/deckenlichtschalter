@@ -13,9 +13,23 @@ type wsMessageOut struct {
 	Data interface{} `json:"data"`
 }
 
+type HSV struct {
+	H float64
+	S float64
+	V float64
+}
+
+type AdvFancyLightSettings struct {
+	FollowDawnDusk *bool  `json:"followdawndusk"`
+	WIntensity     *int64 `json:"wintensity"`
+	WBalance       *int64 `json:"wbalance"`
+	HSV            *HSV   `json:"hsv"`
+}
+
 type wsMsgFancyLight struct {
-	Name    string              `json:"name"`
-	Setting r3events.FancyLight `json:"setting"`
+	Name       string                 `json:"name"`
+	Setting    *r3events.FancyLight   `json:"setting,omitempty"`
+	AdvSetting *AdvFancyLightSettings `json:"advsetting,omitempty"`
 }
 
 type jsonButtonUsed struct {

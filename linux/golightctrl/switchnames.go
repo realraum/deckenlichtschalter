@@ -12,7 +12,7 @@ import (
 const (
 	IRCmd2MQTT            = "IRCmd2MQTT"
 	RFCode2TTY            = "RFCode2TTY"
-	RFCode2BOTH           = "RFCode2BOTH"
+	RFCode2BOTH           = "qRFCode2BOTH"
 	RFCode2MQTT           = "RFCode2MQTT"
 	LEDPattern2MQTT       = "LEDPattern2MQTT"
 	CeilingLightByteState = "CeilingLightByteState"

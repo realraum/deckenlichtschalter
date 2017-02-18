@@ -70,15 +70,30 @@ func SanityCheckWSFancyLight(data *wsMsgFancyLight) error {
 	if strings.ContainsAny(data.Name, "/+#!?") {
 		return fmt.Errorf("Invalid character in name")
 	}
-	if (data.Setting.R != nil && *data.Setting.R > 1000) ||
-		(data.Setting.G != nil && *data.Setting.G > 1000) ||
-		(data.Setting.B != nil && *data.Setting.B > 1000) ||
-		(data.Setting.WW != nil && *data.Setting.WW > 1000) ||
-		(data.Setting.CW != nil && *data.Setting.CW > 1000) {
-		return fmt.Errorf("Luminosity not in valid range [0..1000]")
+	if data.Setting != nil {
+		if (data.Setting.R != nil && *data.Setting.R > 1000) ||
+			(data.Setting.G != nil && *data.Setting.G > 1000) ||
+			(data.Setting.B != nil && *data.Setting.B > 1000) ||
+			(data.Setting.WW != nil && *data.Setting.WW > 1000) ||
+			(data.Setting.CW != nil && *data.Setting.CW > 1000) {
+			return fmt.Errorf("Luminosity not in valid range [0..1000]")
+		}
+		if (data.Setting.Flash != nil && len(data.Setting.Flash.Cc) > 7) || (data.Setting.Fade != nil && len(data.Setting.Fade.Cc) > 7) {
+			return fmt.Errorf("Cc too long")
+		}
 	}
-	if (data.Setting.Flash != nil && len(data.Setting.Flash.Cc) > 7) || (data.Setting.Fade != nil && len(data.Setting.Fade.Cc) > 7) {
-		return fmt.Errorf("Cc too long")
+	if data.AdvSetting != nil {
+		if data.AdvSetting.WIntensity != nil && (*data.AdvSetting.WIntensity > 1000 || *data.AdvSetting.WIntensity < 0) {
+			return fmt.Errorf("WIntensity not in valid range [0..1000]")
+		}
+		if data.AdvSetting.WBalance != nil && (*data.AdvSetting.WBalance > 500 || *data.AdvSetting.WBalance < -500) {
+			return fmt.Errorf("WBalance not in valid range [-500..500]")
+		}
+		if data.AdvSetting.HSV != nil {
+			if data.AdvSetting.HSV.H > 1.0 || data.AdvSetting.HSV.H < 0.0 || data.AdvSetting.HSV.S > 1.0 || data.AdvSetting.HSV.S < 0.0 || data.AdvSetting.HSV.V > 1.0 || data.AdvSetting.HSV.V < 0.0 {
+				return fmt.Errorf("HSV must be in range [0..1.0]")
+			}
+		}
 	}
 	return nil
 }
@@ -126,15 +141,23 @@ func webHandleCGIFancyLight(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("err"))
 		return
 	}
-	if err := json.Unmarshal([]byte(r.FormValue("setting")), &data.Setting); err != nil {
-		w.Write([]byte(err.Error()))
-		return
-	}
 	if err := SanityCheckWSFancyLight(&data); err != nil {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	MQTT_fancylight_chan_ <- &data
+	if data.Setting != nil {
+		if err := json.Unmarshal([]byte(r.FormValue("setting")), &data.Setting); err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		MQTT_fancylight_chan_ <- &data
+	} else if data.AdvSetting != nil {
+		if err := json.Unmarshal([]byte(r.FormValue("advsetting")), &data.AdvSetting); err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		AdvFancyLight_chan_ <- &data
+	}
 	w.Write([]byte("ok"))
 	return
 }
@@ -375,7 +398,11 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 				LogWS_.Printf("%s Error during SanityCheckWSFancyLight: %s", v.Ctx, err)
 				continue
 			}
-			MQTT_fancylight_chan_ <- &data
+			if data.Setting != nil {
+				MQTT_fancylight_chan_ <- &data
+			} else if data.AdvSetting != nil {
+				AdvFancyLight_chan_ <- &data
+			}
 		case ws_ctx_ledpattern:
 			var data r3events.SetPipeLEDsPattern
 			err = mapstructure.Decode(v.Data, &data)
