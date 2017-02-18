@@ -11,6 +11,76 @@ function toHex(n) {
   return "0123456789ABCDEF".charAt((n-n%16)/16)  + "0123456789ABCDEF".charAt(n%16);
 }
 
+function rgb2hsv (r,g,b) {
+	var computedH = 0;
+	var computedS = 0;
+	var computedV = 0;
+
+	//remove spaces from input RGB values, convert to int
+	var r = parseInt( (''+r).replace(/\s/g,''),10 ); 
+	var g = parseInt( (''+g).replace(/\s/g,''),10 ); 
+	var b = parseInt( (''+b).replace(/\s/g,''),10 ); 
+
+	if ( r==null || g==null || b==null ||
+	 isNaN(r) || isNaN(g)|| isNaN(b) ) {
+	alert ('Please enter numeric RGB values!');
+	return;
+	}
+	if (r<0 || g<0 || b<0 || r>255 || g>255 || b>255) {
+	alert ('RGB values must be in the range 0 to 255.');
+	return;
+	}
+	r=r/255; g=g/255; b=b/255;
+	var minRGB = Math.min(r,Math.min(g,b));
+	var maxRGB = Math.max(r,Math.max(g,b));
+
+	// Black-gray-white
+	if (minRGB==maxRGB) {
+	computedV = minRGB;
+	return [0,0,computedV];
+	}
+
+	// Colors other than black-gray-white:
+	var d = (r==minRGB) ? g-b : ((b==minRGB) ? r-g : b-r);
+	var h = (r==minRGB) ? 3 : ((b==minRGB) ? 1 : 5);
+	computedH = 60*(h - d/(maxRGB - minRGB));
+	computedS = (maxRGB - minRGB)/maxRGB;
+	computedV = maxRGB;
+	return [computedH,computedS,computedV];
+}
+
+function hsv2rgb(h,s,v) {
+	var range=0;
+	var f=0.0;
+	//let's use the same, slighlty adjusted ranges, as for the canvas drawing
+	if (h > 0.835) {range=5; f=(h-0.835)/(1-0.835)}
+	else if (h > 0.665) {range=4;f=(h-0.665)/(0.835-0.665)}
+	else if (h > 0.470) {range=3;f=(h-0.470)/(0.665-0.470)}
+	else if (h > 0.333) {range=2;f=(h-0.333)/(0.470-0.333)}
+	else if (h > 0.166) {range=1;f=(h-0.166)/(0.333-0.166)}
+	else {range = 0; f=h/0.166}
+
+	var v = v * 255.0;
+	var p = v * (1 - s);
+	var q = v * (1 - f * s);
+	var t = v * (1 - (1 - f) * s);
+	console.log(range, h, f);
+	switch (range)
+	{
+	    case 0:
+	        return [v, t, p];
+	    case 1:
+	        return [q, v, p];
+	    case 2:
+	        return [p, v, t];
+	    case 3:
+	        return [p, q, v];
+	    case 4:
+	        return [t, p, v];
+	}
+	return [v, p, q];
+}
+
 function drawcolourtemppicker(elemid) {
     var canvas = document.getElementById(elemid);
     var canvas2d = canvas.getContext('2d');
@@ -23,7 +93,7 @@ function drawcolourtemppicker(elemid) {
       bottomRight: [0, 0, 0, 1]
     });
 
-	var pickcolour = function(event){
+	var pickcolour = function(event) {
 	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  // getting user coordinates
 	  //var untransY = event.pageY - this.offsetTop;
@@ -56,12 +126,13 @@ function drawcolourtemppicker(elemid) {
 
 }
 
+var lower_black_percent = 0.95;
 
 function drawcolourpicker(elemid) {
 	var canvas = document.getElementById(elemid);
 	var canvas2d = canvas.getContext('2d');
 
-	rainbowWhiteBlackGradient(canvas, canvas2d);
+	rainbowHSLpicker(canvas, canvas2d);
 	var pickcolour = function(event){
 	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  // getting user coordinates
@@ -70,11 +141,23 @@ function drawcolourpicker(elemid) {
 	  // getting image data and RGB values
 	  //var img_data = canvas2d.getImageData(0,0, this.width,this.height);
 	  //var pxoffset = (y*img_data.width+x)*4;
-	  var img_data = canvas2d.getImageData(x, y, 1, 1);
-	  var pxoffset=0;
-	  var R = img_data.data[pxoffset+0];
-	  var G = img_data.data[pxoffset+1];
-	  var B = img_data.data[pxoffset+2];
+	  //let's  cheat a bit... make upper bit H(S)L picker and lower part how we think HS(V) picker should work
+	  if (y <= this.height/2 || y > this.height*lower_black_percent) { //get HSL from image
+		  var img_data = canvas2d.getImageData(x, y, 1, 1);
+		  var pxoffset=0;
+		  var R = img_data.data[pxoffset+0];
+		  var G = img_data.data[pxoffset+1];
+		  var B = img_data.data[pxoffset+2];
+	  } else { //calc HSV from coordiantes
+	  	heightminusblack = Math.trunc(this.height*lower_black_percent);
+	  	var h = x / this.width;
+	  	var s = 1.0;
+	  	var v = (heightminusblack - y) / heightminusblack * 2.15;
+	  	var rgb = hsv2rgb(h,s,v);
+	  	var R = rgb[0];
+	  	var G = rgb[1];
+	  	var B = rgb[2];
+	  }
 	  var r1k = Math.trunc(Math.max(0,Math.min(1000,R*1000/255)));
 	  var g1k = Math.trunc(Math.max(0,Math.min(1000,G*1000/255)));
 	  var b1k = Math.trunc(Math.max(0,Math.min(1000,B*1000/255)));
@@ -121,27 +204,27 @@ function init_colour_temp_picker() {
 	$('#CW div.colorlevelcontainer').click(changetextfromlevel);
 }
 
-function rainbowWhiteBlackGradient(canvas,ctx) { 
+function rainbowHSLpicker(canvas,ctx) { 
     var w = canvas.width;
     var h = canvas.height;
     var gradient;
   
   	gradient = ctx.createLinearGradient(0,0,w,0);
   	gradient.addColorStop(0,"rgba(255, 0, 0, 1)");
-  	gradient.addColorStop(0.15,"rgba(255, 255, 0, 1)");
-  	gradient.addColorStop(0.30,"rgba(0, 255, 0, 1)");
-  	gradient.addColorStop(0.50,"rgba(0, 255, 255, 1)");
-  	gradient.addColorStop(0.65,"rgba(0, 0, 255, 1)");
-  	gradient.addColorStop(0.80,"rgba(255, 0, 255, 1)");
+  	gradient.addColorStop(0.166,"rgba(255, 255, 0, 1)");
+  	gradient.addColorStop(0.333,"rgba(0, 255, 0, 1)");
+  	gradient.addColorStop(0.47,"rgba(0, 255, 255, 1)");
+  	gradient.addColorStop(0.665,"rgba(0, 0, 255, 1)");
+  	gradient.addColorStop(0.835,"rgba(255, 0, 255, 1)");
   	gradient.addColorStop(1.00,"rgba(255, 0, 0, 1)");
   	ctx.fillStyle = gradient;
     ctx.fillRect(0,0,w,h);
   	gradient = ctx.createLinearGradient(0,0,0,h);
   	gradient.addColorStop(0,"rgba(255, 255, 255, 1)");
   	gradient.addColorStop(0.05,"rgba(255, 255, 255, 1)");
-  	gradient.addColorStop(0.40,"rgba(255, 255, 255, 0)");
-  	gradient.addColorStop(0.60,"rgba(255,255,255, 0)");
-  	gradient.addColorStop(0.95,"rgba(0, 0, 0, 1)");
+  	gradient.addColorStop(0.35,"rgba(255, 255, 255, 0)");
+  	gradient.addColorStop(0.65,"rgba(255,255,255, 0)");
+  	gradient.addColorStop(lower_black_percent,"rgba(0, 0, 0, 1)");
   	gradient.addColorStop(1.0,"rgba(0, 0, 0, 1)");
   	ctx.fillStyle = gradient;
     ctx.fillRect(0,0,w,h);  	
