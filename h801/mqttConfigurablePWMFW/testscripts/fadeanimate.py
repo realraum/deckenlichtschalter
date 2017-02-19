@@ -5,6 +5,7 @@ import json
 import paho.mqtt.client as mqtt
 import traceback
 import random
+import sys
 
 myclientid_ = "ceilinganimator"
 mytopic_ = "action/"+myclientid_+"/continue"
@@ -26,8 +27,10 @@ def decodeR3Payload(payload):
 def animateSixLightsOnce(client):
     targets = list(["action/%s/light" % cid for cid in ceiling_clientids_])
     random.shuffle(targets)
-    targets.append(targets)
-    msg = {"r":random.randint(0,1000),"g":random.randint(0,1000),"b":random.randint(0,1000),"cw":0, "ww":random.randint(0,5),"fade":{"duration":randint(5,15)*1000, "cc":targets[1:]}}
+    targets.append(mytopic_)
+    duration=random.randint(5,15)*1000
+    duration=1000
+    msg = {"r":random.randint(0,1000),"g":random.randint(0,1000),"b":random.randint(0,1000),"cw":0, "ww":random.randint(0,5),"fade":{"duration":duration, "cc":targets[1:]}}
     sendR3Message(client, targets[0],msg)
 
 
