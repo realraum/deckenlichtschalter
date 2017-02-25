@@ -21,7 +21,7 @@
 ##
 
 NAME := basicctrl
-BOARD_TYPE := arduinoProMicro
+BOARD_TYPE := teensy2
 OBJ := $(NAME).o relay.o keypad.o fancy.o
 LIBS := util lufa-descriptor-usbserial usbio
 EXTERNAL_LIBS := lufa

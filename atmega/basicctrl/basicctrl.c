@@ -43,6 +43,7 @@ int main(void)
 {
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
+  jtag_disable();
 
   cpu_init();
   relay_init();

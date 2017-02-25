@@ -34,32 +34,26 @@ uint16_t keypad_cnt[KEYPAD_NUM];
 static uint8_t keypad_get_raw(uint8_t num)
 {
   switch(num) {
-  case 0: return (PIND & 1<<PD1) ? 1 : 0;
-  case 1: return (PIND & 1<<PD0) ? 1 : 0;
-  case 2: return (PIND & 1<<PD4) ? 1 : 0;
-  case 3: return (PINC & 1<<PC6) ? 1 : 0;
-  case 4: return (PIND & 1<<PD7) ? 1 : 0;
-  case 5: return (PINE & 1<<PE6) ? 1 : 0;
-  case 6: return (PINB & 1<<PB4) ? 1 : 0;
-  case 7: return (PINB & 1<<PB5) ? 1 : 0;
+  case 0: return (PINF & 1<<PF0) ? 1 : 0;
+  case 1: return (PINF & 1<<PF1) ? 1 : 0;
+  case 2: return (PINF & 1<<PF4) ? 1 : 0;
+  case 3: return (PINF & 1<<PF5) ? 1 : 0;
+  case 4: return (PINF & 1<<PF6) ? 1 : 0;
+  case 5: return (PINF & 1<<PF7) ? 1 : 0;
+  case 6: return (PINB & 1<<PB5) ? 1 : 0;
+  case 7: return (PINB & 1<<PB4) ? 1 : 0;
   }
   return 0;
 }
 
 void keypad_init(void)
 {
-      //         #6         #7
+      //         #0         #1         #2         #3         #4         #5
+  DDRF &= ~( (1<<PF0) | (1<<PF1) | (1<<PF4) | (1<<PF5) | (1<<PF6) | (1<<PF7) );
+  PORTF |= (1<<PF0) | (1<<PF1) | (1<<PF4) | (1<<PF5) | (1<<PF6) | (1<<PF7);
+      //         #7         #6
   DDRB &= ~( (1<<PB4) | (1<<PB5) );
   PORTB |= (1<<PB4) | (1<<PB5);
-      //       #3
-  DDRC &= ~(1<<PC6);
-  PORTC |= 1<<PC6;
-      //         #1         #0         #2         #4
-  DDRD &= ~( (1<<PD0) | (1<<PD1) | (1<<PD4) | (1<<PD7) );
-  PORTD |= (1<<PD0) | (1<<PD1) | (1<<PD4) | (1<<PD7);
-      //       #5
-  DDRE &= ~(1<<PE6);
-  PORTE |= 1<<PE6;
 
   memset(keypad_cnt, 0, sizeof(keypad_cnt));
   for(uint8_t i = 0; i < KEYPAD_NUM; i++) {

@@ -26,67 +26,70 @@
 
 void relay_init(void)
 {
-      //       #4         #6         #5         #7
-  DDRB  |= (1<<PB1) | (1<<PB2) | (1<<PB3) | (1<<PB6);
-  PORTB &= ~( (1<<PB1) | (1<<PB2) | (1<<PB3) | (1<<PB6) );
       //       #0         #1         #2         #3
-  DDRF  |= (1<<PF4) | (1<<PF5) | (1<<PF6) | (1<<PF7);
-  PORTF &= ~( (1<<PF4) | (1<<PF5) | (1<<PF6) | (1<<PF7) );
+  DDRB  |= (1<<PB0) | (1<<PB1) | (1<<PB2) | (1<<PB3);
+  PORTB &= ~( (1<<PB0) | (1<<PB1) | (1<<PB2) | (1<<PB3) );
+      //       #6         #7
+  DDRC  |= (1<<PC6) | (1<<PC7);
+  PORTC &= ~( (1<<PC6) | (1<<PC7) );
+      //       #4         #5
+  DDRD  |= (1<<PD0) | (1<<PD1);
+  PORTD &= ~( (1<<PD0) | (1<<PD1) );
 }
 
 void relay_off(uint8_t num)
 {
   switch(num) {
-  case 0: PORTF &= ~(1<<PF4); return;
-  case 1: PORTF &= ~(1<<PF5); return;
-  case 2: PORTF &= ~(1<<PF6); return;
-  case 3: PORTF &= ~(1<<PF7); return;
-  case 4: PORTB &= ~(1<<PB1); return;
-  case 5: PORTB &= ~(1<<PB3); return;
-  case 6: PORTB &= ~(1<<PB2); return;
-  case 7: PORTB &= ~(1<<PB6); return;
+  case 0: PORTB &= ~(1<<PB0); return;
+  case 1: PORTB &= ~(1<<PB1); return;
+  case 2: PORTB &= ~(1<<PB2); return;
+  case 3: PORTB &= ~(1<<PB3); return;
+  case 4: PORTD &= ~(1<<PD0); return;
+  case 5: PORTD &= ~(1<<PD1); return;
+  case 6: PORTC &= ~(1<<PC6); return;
+  case 7: PORTC &= ~(1<<PC7); return;
   }
 }
 
 void relay_on(uint8_t num)
 {
   switch(num) {
-  case 0: PORTF |= 1<<PF4; return;
-  case 1: PORTF |= 1<<PF5; return;
-  case 2: PORTF |= 1<<PF6; return;
-  case 3: PORTF |= 1<<PF7; return;
-  case 4: PORTB |= 1<<PB1; return;
-  case 5: PORTB |= 1<<PB3; return;
-  case 6: PORTB |= 1<<PB2; return;
-  case 7: PORTB |= 1<<PB6; return;
+  case 0: PORTB |= 1<<PB0; return;
+  case 1: PORTB |= 1<<PB1; return;
+  case 2: PORTB |= 1<<PB2; return;
+  case 3: PORTB |= 1<<PB3; return;
+  case 4: PORTD |= 1<<PD0; return;
+  case 5: PORTD |= 1<<PD1; return;
+  case 6: PORTC |= 1<<PC6; return;
+  case 7: PORTC |= 1<<PC7; return;
   }
 }
 
 void relay_toggle(uint8_t num)
 {
   switch(num) {
-  case 0: PORTF ^= 1<<PF4; return;
-  case 1: PORTF ^= 1<<PF5; return;
-  case 2: PORTF ^= 1<<PF6; return;
-  case 3: PORTF ^= 1<<PF7; return;
-  case 4: PORTB ^= 1<<PB1; return;
-  case 5: PORTB ^= 1<<PB3; return;
-  case 6: PORTB ^= 1<<PB2; return;
-  case 7: PORTB ^= 1<<PB6; return;
+  case 0: PORTB ^= 1<<PB0; return;
+  case 1: PORTB ^= 1<<PB1; return;
+  case 2: PORTB ^= 1<<PB2; return;
+  case 3: PORTB ^= 1<<PB3; return;
+  case 4: PORTD ^= 1<<PD0; return;
+  case 5: PORTD ^= 1<<PD1; return;
+  case 6: PORTC ^= 1<<PC6; return;
+  case 7: PORTC ^= 1<<PC7; return;
   }
 }
 
 uint8_t relay_get(uint8_t num)
 {
   switch(num) {
-  case 0: return (PINF & 1<<PF4) ? RELAY_ON : RELAY_OFF;
-  case 1: return (PINF & 1<<PF5) ? RELAY_ON : RELAY_OFF;
-  case 2: return (PINF & 1<<PF6) ? RELAY_ON : RELAY_OFF;
-  case 3: return (PINF & 1<<PF7) ? RELAY_ON : RELAY_OFF;
-  case 4: return (PINB & 1<<PB1) ? RELAY_ON : RELAY_OFF;
-  case 5: return (PINB & 1<<PB3) ? RELAY_ON : RELAY_OFF;
-  case 6: return (PINB & 1<<PB2) ? RELAY_ON : RELAY_OFF;
-  case 7: return (PINB & 1<<PB6) ? RELAY_ON : RELAY_OFF;
+  case 0: return (PORTB & 1<<PB0) ? RELAY_ON : RELAY_OFF;
+  case 1: return (PORTB & 1<<PB1) ? RELAY_ON : RELAY_OFF;
+  case 2: return (PORTB & 1<<PB2) ? RELAY_ON : RELAY_OFF;
+  case 3: return (PORTB & 1<<PB3) ? RELAY_ON : RELAY_OFF;
+  case 4: return (PORTD & 1<<PD0) ? RELAY_ON : RELAY_OFF;
+  case 5: return (PORTD & 1<<PD1) ? RELAY_ON : RELAY_OFF;
+  case 6: return (PORTC & 1<<PC6) ? RELAY_ON : RELAY_OFF;
+  case 7: return (PORTC & 1<<PC7) ? RELAY_ON : RELAY_OFF;
   }
   return 0;
 }
