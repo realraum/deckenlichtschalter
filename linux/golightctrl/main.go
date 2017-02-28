@@ -72,6 +72,15 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 					switch_name_chan_ <- aon
 				}
 			})
+			SubscribeAndAttachCallback(mqttc, r3events.ACT_PIPELEDS_PATTERN, func(c mqtt.Client, msg mqtt.Message) {
+				var lp r3events.SetPipeLEDsPattern
+				if msg.Retained() {
+					return
+				}
+				if err := json.Unmarshal(msg.Payload(), &lp); err != nil {
+					//TODO: retain lates state somewhere and broadcast it to all websocket clients
+				}
+			})
 			receive_fancylight_state_updates := func(clientid string, c mqtt.Client, msg mqtt.Message) {
 				var fancy wsMsgFancyLight
 				fancy.Name = clientid
