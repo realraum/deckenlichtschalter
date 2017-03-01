@@ -13,6 +13,22 @@ Usage
 * or an empty or invalid string-value to deactivate the running script.
 
 
+### EXAMPLES
+
+```
+mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"colorfade","value":0.5}'
+
+mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"colorfade","value":0.2}'
+
+mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":""}'
+
+mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"ceilingsinus"}'
+
+mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"ceilingsinus","b":{"amplitude":200,"offset":400}}'
+
+```
+
+
 Scripts currently in ScriptCtrl
 ===============================
 
@@ -112,26 +128,86 @@ send to topic ```action/ceilingscripts/activatescript```
 
 
 
+Adding New Scripts
+==================
+
+* put new python script in folder ```./scripts```
+* the file name will became the scriptname used to activate the script
+* see ```./scripts/example.py```
+
+
+Contents of your script
+-----------------------
+
+Each of your functions get passed an object of the ```ScriptClass``` which you can use 
+to register callbacks or set the lights.
+
+Your script **must** contain the ```init(scr)``` function, which is called on startup and which you should use to register your callbacks.
+
+### ```def init(scr):```
+
+define this function in your script and use it to register your callback funtions.
+
+### Trigger yourself
+
+The prefered method is to start a fade or flash animation on a ceiling light and have that light trigger you when the animation has finished.
+
+To do this,
+1. choose one or several triggernames
+2. register them with your ScriptObject.
+3. include your triggername in the list ```trigger_on_complete``` when calling ```setLight```
+
+
+### or Loop
+
+Alternatively you can register a callback function with ```registerLoop(callback)``` to be called in a loop.
+
+* Avoid using time.sleep too much and make sure your function returns in a timely fashion.
+* Avoid updating the ceiling lights on each loop as this will most assuredly overload the MQTT broker
+
+
+Interface of ```ScriptClass```
+------------------------------
+
+### ```scr.registerActivate(callback)```
+
+register a function ```def mycallback(scr, newsettings):```  to be called when the script is being activated
+
+Note that this callback gets an additional argument ```newsettings``` which is the dict object of the
+JSON object sent to ```action/ceilingscripts/activatescript```. Use this to customize each activation of your script
+with different settings.
+
+### ```scr.registerDeactivate(callback)```
+
+register a function ```def mycallback(scr):``` to be called when the script is being deactivated. E.g. to fade to black.
+
+### ```scr.registerLoop(callback)```
+
+register a function ```def mycallback(scr):``` to be called in fast loop
+
+### ```scr.registerTrigger(triggername, callback)```
+
+register a function ```def mycallback(scr):``` to be called when a ceiling light animation is finished that was started with that trigger included in the ```trigger_on_complete``` list
+
+### ```scr.setLight(light,r,g,b,ww,cw,fade_duration,flash_repetitions,cc,triger_on_complete)```
+
+set a ceiling light or start a ceiling light animation
+
+* ```light```: which light to set. (int [1..6] || string "All")
+* ```r```: value of red (int [0...1000])
+* ```g```: value of green (int [0...1000])
+* ```b```: value of blue (int [0...1000])
+* ```cw```: value of cold-white (int [0...1000])
+* ```ww```: value of warm-white (int [0...1000])
+* ```fade_duration```: fade to this colorvalues within this duration of milliseconds (int [100..60000])
+* ```flash_repetitions```: flash this color in 600ms intervals for this many repetitions (int [1..10])
+* ```cc```: when light is set, forward setting to next ceiling light in list (list of values valid for ```light```)
+* ```trigger_on_complete```: when light is set, last light on cc list, will raise this script trigger (list of strings)
+
 
 TODO
 ====
 
-* howto add new scripts
 * write systemd.service
 
 
-EXAMPLES
-========
-
-```
-mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"colorfade","value":0.5}'
-
-mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"colorfade","value":0.2}'
-
-mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":""}'
-
-mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"ceilingsinus"}'
-
-mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"ceilingsinus","b":{"amplitude":200,"offset":400}}'
-
-```
