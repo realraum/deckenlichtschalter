@@ -26,6 +26,10 @@ mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"
 
 mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"ceilingsinus","b":{"amplitude":200,"offset":400}}'
 
+mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"ceilingsinus","r":{"amplitude":0,"offset":0,"phase":0},"b":{"amplitude":0,"offset":0,"phase":0},"ww":{"amplitude":200,"offset":300,"phase":0},"cw":{"amplitude":200,"offset":300,"phase":3},"fadeduration":15000}'
+
+mosquitto_pub -h mqtt.realraum.at -t action/ceilingscripts/activatescript -m '{"script":"ceilingsinus","r":{"amplitude":500,"offset":500,"phase":0},"g":{"amplitude":400,"offset":400,"phase":2},"b":{"amplitude":300,"offset":300,"phase":4},"ww":{"amplitude":0,"offset":0,"phase":0},"cw":{"amplitude":0,"offset":0,"phase":0},"fadeduration":8000}'
+
 ```
 
 
