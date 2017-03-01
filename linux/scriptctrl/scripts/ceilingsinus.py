@@ -9,27 +9,27 @@ triggername_ = "continue"
 
 phase_=0
 cs_default_={
-    "r":{"offset":680,"amplitude":200,"lst":[]},
-    "g":{"offset":0,"amplitude":0,"lst":[]},
-    "b":{"offset":0,"amplitude":0,"lst":[]},
-    "ww":{"offset":270,"amplitude":90,"lst":[]},
-    "cc":{"offset":0,"amplitude":0,"lst":[]},
+    "r":{"offset":680,"amplitude":200,"phase":0,"lst":[]},
+    "g":{"offset":0,"amplitude":0,"phase":0,"lst":[]},
+    "b":{"offset":0,"amplitude":0,"phase":0,"lst":[]},
+    "ww":{"offset":270,"amplitude":90,"phase":3,"lst":[]},
+    "cw":{"offset":0,"amplitude":0,"phase":0,"lst":[]},
 }
 cs_=copy.deepcopy(cs_default_)
 fade_duration_=20000
 
 def updateList(scr):
     global cs_
-    o=0
     for k in cs_.values():
-        k["lst"] = list([k["offset"] + int(k["amplitude"]*math.sin(2*math.pi/scr.light_num*(i+o)%scr.light_num)) for i in range(0,scr.light_num)])
-        o+=1
+        k["lst"] = list([k["offset"] + int(k["amplitude"]*math.sin(2*math.pi/scr.light_num*(i+k["phase"])%scr.light_num)) for i in range(0,scr.light_num)])
 
 def activate(scr, newsettings):
     global cs_, fade_duration_
     cs_=copy.deepcopy(cs_default_)
     if "fadeduration" in newsettings and isinstance(newsettings["fadeduration"], int):
-        fade_duration_= newsettings["fadeduration"]
+        fade_duration_= min(60000,max(100,newsettings["fadeduration"]))
+    elif "speed" in newsettings and isinstance(newsettings["speed"], int):
+        fade_duration_ = 60000 - int(59.9*min(1000,max(0,newsettings["speed"])))
     else:
         fade_duration_ = 20000
     for k,v in cs_.items():

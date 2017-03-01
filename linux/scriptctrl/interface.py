@@ -102,7 +102,8 @@ class CeilingScriptClass():
         for k,v in list(msg.items()):
             if not isinstance(v,int):
                 del msg[k]
-            msg[k] = max(min(v,1000),0)
+            else:
+                msg[k] = max(min(v,1000),0)
         if isinstance(cc, list) and len(cc) < 9:
             cc = filter(lambda ccitem: ccitem == "All" or (ccitem >= 1 and ccitem <= 9), cc)
             cc = map(str, cc)
@@ -195,6 +196,7 @@ class CeilingClass():
             self.client.loop()
             if self._active_script:
                 self._scripts[self._active_script].loop()
+        self.deactivateCurrentScript()
 
     def subscribe(self, topic):
         self._subscribed_topics[topic] = True

@@ -70,7 +70,7 @@ send to topic ```action/ceilingscripts/activatescript```
             "maximum": 1000,
           }
           "phase":{
-            "description": "TODO: phase shift to other colors"
+            "description": "phase shift between colours"
             "minimum": 0,
             "maximum": NumCeilingLights,
           }
