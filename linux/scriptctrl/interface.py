@@ -100,8 +100,9 @@ class CeilingScriptClass():
         msg = {"r":r, "g":g, "b":b, "cw":cw, "ww": ww}
         ## sanity check
         for k,v in list(msg.items()):
-            if v is None or v < 0 or v > 1000:
+            if not isinstance(v,int):
                 del msg[k]
+            msg[k] = max(min(v,1000),0)
         if isinstance(cc, list) and len(cc) < 9:
             cc = filter(lambda ccitem: ccitem == "All" or (ccitem >= 1 and ccitem <= 9), cc)
             cc = map(str, cc)
