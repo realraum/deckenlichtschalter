@@ -1,7 +1,9 @@
 TODO
 ====
 
-* write this readme
+* write this readme, with json schemas
+* howto add new scripts
+* write systemd.service
 
 
 EXAMPLES
