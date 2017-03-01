@@ -8,3 +8,10 @@ atmega/*/*.hex
 atmega/*/*.elf
 basic-light box/*.stl
 basic-light box/*.fcstd1
+.cproject
+.project
+h801/mqttConfigurablePWMFW/makeconfig*.py
+*.sublime-workspace
+*.sublime-project
+*.orig
+h801/mqttConfigurablePWMFW/out/
