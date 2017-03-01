@@ -226,28 +226,21 @@ Telnet-Port is 2323
 Changing Settings
 -----------------
 
-  * ```load```  
+* ```load``` command  
   reads SPIFF files and provides their contents via NetConfig structs. Largely useless except to undo mistakes with ```set```.
-
-  * ```cat``` and ```ls```  
+* ```cat``` and ```ls``` commands  
   provide a peek into what would be loaded
-
-  * ```show```  
+* ```show``` command  
   lists the current settings and some status. Actual stuff are currently applied settings, the rest is the content of the NetConfig struct.
-
-  * ```set```  
+* ```set``` command  
   can be used to change the settings in the NetConfig structs.
-
-  * ```save```  
+* ```save``` command  
   writes NetConfig struct data to SPIFF, making changes permanent. Call ```restart``` to use new settings.
-
-  * ```restart```  
+* ```restart``` command  
   restart's the H801. Afterwards new settings from SPIFF will be used.
-
-  * ```auth```  
+* ```auth``` command  
   prevents accidential mistakes
-
-  * ```update```  
+* ```update``` command  
   can update the firmware over-the-air. See next section.
 
 
