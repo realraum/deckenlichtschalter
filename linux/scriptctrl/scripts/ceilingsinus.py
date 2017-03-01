@@ -39,7 +39,7 @@ def activate(scr, newsettings):
                     if isinstance(newsettings[k][kk],int) and newsettings[k][kk] >= 0 and newsettings[k][kk] <= 1000:
                         v[kk] = newsettings[k][kk]
     updateList(scr)
-    animateAllLights(scr)
+    animateAllLights(scr,initial=True)
 
 def deactivate(scr):
     pass
@@ -50,11 +50,14 @@ def loop(scr):
 def triggerMeToContinue(scr):
     animateAllLights(scr)
 
-def animateAllLights(scr):
+def animateAllLights(scr, initial=False):
     global phase_
     for i in reversed(range(0, scr.light_num)):
         kwargs = {}
-        kwargs["fade_duration"]=fade_duration_
+        if initial:
+            kwargs["fade_duration"]=300
+        else:
+            kwargs["fade_duration"]=fade_duration_
         if i == 0:
             kwargs["trigger_on_complete"]=[triggername_]
         idx = (i+phase_)%scr.light_num
@@ -62,7 +65,7 @@ def animateAllLights(scr):
             kwargs[k] = cs_[k]["lst"][idx]
         scr.setLight(i+1, **kwargs)
     phase_+=1
-	
+
 def init(scr):
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
