@@ -115,7 +115,7 @@ class CeilingScriptClass():
             trigger_on_complete = list([self.mybasetopic+ccitem for ccitem in trigger_on_complete])
             cc += trigger_on_complete
             msg["sq"] = self.trigger_seq_num
-            self.trigger_seq_num += 1
+            self.trigger_seq_num = (self.trigger_seq_num + 1) % (1<<30) # ensure seq number fits in signed int32
         if light == "All":
             cc=None  # we don't want to be triggerd by x lights at once
         if fade_duration != None and fade_duration >= 100 and fade_duration <= 60000:
