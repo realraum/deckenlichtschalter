@@ -170,7 +170,7 @@ void onMessageReceived(String topic, String message)
 		} else
 		{
 			//apply Values right now
-			stopAndRestoreValues(); //disable any Effects
+			stopAndRestoreValues(true); //disable any Effects
 			applyValues(effect_target_values_); //apply light
 		}
 	} else if (topic.endsWith(JSON_TOPIC3_DEFAULTLIGHT))

@@ -105,13 +105,13 @@ void applyValues(uint32_t values[PWM_CHANNELS])
 	checkFanNeeded();
 }
 
-void stopAndRestoreValues()
+void stopAndRestoreValues(bool abort)
 {
 	flashTimer.stop();
 	steps_left_ = 0;
 	applyValues(apply_last_values_);
 	effect_ = EFF_NO;
-	if (0 != mqtt && mqtt_forward_to_.length() > 0)
+	if (false == abort && 0 != mqtt && mqtt_forward_to_.length() > 0)
 		mqtt->publish(mqtt_forward_to_, mqtt_payload_, false);
 	mqtt_forward_to_="";
 	mqtt_payload_="";
@@ -171,7 +171,7 @@ void startFlash(uint8_t repetitions=DEFAULT_EFFECT_REPETITIONS, FLASHFLAGS inter
 	if (repetitions > MAX_ALLOWED_EFFECT_REPETITIONS)
 		return;
 	if (effect_ != EFF_NO)
-		stopAndRestoreValues();
+		stopAndRestoreValues(true);
 	saveCurrentValues();
 	memcpy(active_values_, effect_target_values_, PWM_CHANNELS*sizeof(uint32_t));
 	switch (intermed)
@@ -194,7 +194,7 @@ void flashSingleChannel(uint8_t repetitions, uint8_t channel)
 	if (channel >= PWM_CHANNELS || repetitions > MAX_ALLOWED_EFFECT_REPETITIONS || repetitions == 0)
 		return;
 	if (effect_ != EFF_NO)
-		stopAndRestoreValues();
+		stopAndRestoreValues(true);
 	saveCurrentValues();
 	memcpy(effect_target_values_, apply_last_values_, PWM_CHANNELS*sizeof(uint32_t));
 	memcpy(effect_intermid_values_, apply_last_values_, PWM_CHANNELS*sizeof(uint32_t));
@@ -208,7 +208,7 @@ void startFade(uint32_t duration_ms=DEFAULT_EFFECT_DURATION)
 	if (duration_ms > MAX_ALLOWED_EFFECT_DURATION || duration_ms < MIN_ALLOWED_EFFECT_DURATION)
 		return;
 	if (effect_ != EFF_NO)
-		stopAndRestoreValues();
+		stopAndRestoreValues(true);
 	saveCurrentValues();
 
 	steps_left_ = duration_ms / FADE_PERIOD_ + ((duration_ms % FADE_PERIOD_)? 1 : 0);
