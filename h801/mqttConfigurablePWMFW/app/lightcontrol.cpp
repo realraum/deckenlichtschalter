@@ -77,7 +77,6 @@ void checkFanNeeded()
 
 const int8_t FADE_CALC_BASE2_EXPONENT_ = 15;
 const uint32_t FADE_PERIOD_ = 40; //ms == 25fps
-const uint32_t FLASH_PERIOD_ = 800; //ms
 
 void saveCurrentValues()
 {
@@ -166,9 +165,12 @@ void timerFuncShowEffect()
 	}
 }
 
-void startFlash(uint8_t repetitions=DEFAULT_EFFECT_REPETITIONS, FLASHFLAGS intermed=FLASH_INTERMED_USERSET)
+
+void startFlash(uint8_t repetitions=DEFAULT_EFFECT_REPETITIONS, FLASHFLAGS intermed=FLASH_INTERMED_USERSET, uint32_t flash_period=DEFAULT_FLASH_PERIOD_)
 {
 	if (repetitions > MAX_ALLOWED_EFFECT_REPETITIONS)
+		return;
+	if (flash_period < MIN_ALLOWED_EFFECT_PERIOD || flash_period > MAX_ALLOWED_EFFECT_PERIOD)
 		return;
 	if (effect_ != EFF_NO)
 		stopAndRestoreValues(true);
@@ -186,7 +188,7 @@ void startFlash(uint8_t repetitions=DEFAULT_EFFECT_REPETITIONS, FLASHFLAGS inter
 	applyValues(effect_intermid_values_);
 	steps_left_ = repetitions * 2;
 	effect_ = EFF_FLASH;
-	flashTimer.initializeMs(FLASH_PERIOD_, timerFuncShowFlashEffect).start();
+	flashTimer.initializeMs(flash_period, timerFuncShowFlashEffect).start();
 }
 
 void flashSingleChannel(uint8_t repetitions, uint8_t channel)

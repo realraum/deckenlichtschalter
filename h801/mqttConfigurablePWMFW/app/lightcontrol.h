@@ -4,9 +4,12 @@
 #define MAX_ALLOWED_EFFECT_DURATION 60000
 #define MIN_ALLOWED_EFFECT_DURATION 100
 #define MAX_ALLOWED_EFFECT_REPETITIONS 10
+#define MIN_ALLOWED_EFFECT_PERIOD   50
+#define MAX_ALLOWED_EFFECT_PERIOD 1000
 
 #define DEFAULT_EFFECT_REPETITIONS 1
 #define DEFAULT_EFFECT_DURATION 3200
+const uint32_t DEFAULT_FLASH_PERIOD_ = 800; //ms
 
 enum FLASHFLAGS {FLASH_INTERMED_USERSET, FLASH_INTERMED_DARK, FLASH_INTERMED_ORIG};
 
@@ -20,7 +23,7 @@ extern String mqtt_payload_;
 void enableFan(bool en);
 void checkFanNeeded();
 void applyValues(uint32_t values[PWM_CHANNELS]);
-void startFlash(uint8_t repetitions, FLASHFLAGS intermed);
+void startFlash(uint8_t repetitions, FLASHFLAGS intermed, uint32_t flash_period);
 void flashSingleChannel(uint8_t repetitions, uint8_t channel);
 void startFade(uint32_t duration_ms);
 void stopAndRestoreValues(bool abort=false);

@@ -156,8 +156,11 @@ void onMessageReceived(String topic, String message)
 			uint32_t repetitions = DEFAULT_EFFECT_REPETITIONS;
 			if (effectobj.containsKey(JSONKEY_REPETITIONS))
 				repetitions = effectobj[JSONKEY_REPETITIONS];
+			uint32_t period = DEFAULT_FLASH_PERIOD_;
+			if (effectobj.containsKey(JSONKEY_PERIOD))
+				period = effectobj[JSONKEY_PERIOD];
 			checkForwardInJsonAndSetCC(root, effectobj);
-			startFlash(repetitions, FLASH_INTERMED_ORIG);
+			startFlash(repetitions, FLASH_INTERMED_ORIG, period);
 		}
 		else if (root.containsKey(JSONKEY_FADE))
 		{

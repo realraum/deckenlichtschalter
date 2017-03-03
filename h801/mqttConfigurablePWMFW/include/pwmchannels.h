@@ -21,6 +21,7 @@
 #define JSONKEY_FADE "fade"
 #define JSONKEY_REPETITIONS "repetitions"
 #define JSONKEY_DURATION "duration"
+#define JSONKEY_PERIOD "period"
 #define JSONKEY_FORWARD "cc"
 
 const String JSON_TOPIC1 = "action/";
