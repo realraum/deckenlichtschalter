@@ -52,13 +52,14 @@ func webHandleCGISwitch(w http.ResponseWriter, r *http.Request, retained_lightst
 	}
 	ourfuture := make(chan OurFutures, 2)
 	retained_lightstate_chan <- JsonFuture{future: ourfuture, what: []RetainRecallID{recall_basiclight_cgi}}
-	for name, _ := range actionname_map_ {
-		v := r.FormValue(name)
-		if len(v) == 0 {
-			continue
-		}
-		switch_name_chan_ <- r3events.LightCtrlActionOnName{name, v}
-	}
+	///// FIXME: we don't know names anymore, send on any name=<num> pair
+	// for name, _ := range actionname_map_ {
+	// 	v := r.FormValue(name)
+	// 	if len(v) == 0 {
+	// 		continue
+	// 	}
+	// 	switch_name_chan_ <- r3events.LightCtrlActionOnName{name, v}
+	// }
 	futures := <-ourfuture
 	for _, f := range futures {
 		w.Write(f)
@@ -204,8 +205,8 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 	var cached_websocketreply_json []byte
 	var cached_ledpipe_json []byte
 	var cached_fancylight_json map[string][]byte //one json []byte for each clientID.. fancy1, fancy2, etc
-	var err error
-	updateCache := func(lsm CeilingLightStateMap) {
+	//////FIXME: get state of ceiling lights from MQTT or other
+	/*	updateCache := func(lsm CeilingLightStateMap) {
 		cached_switchcgireply_json, err = json.Marshal(lsm)
 		if err != nil {
 			LogWS_.Print(err)
@@ -216,23 +217,25 @@ func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture)
 			LogWS_.Print(err)
 			cached_switchcgireply_json = []byte("{}")
 		}
-	}
+	}*/
 	for {
 		select {
 		case <-shutdown_chan:
 			return
-		case lc := <-lights_changed_chan:
-			//prepare and retain json for webHandleCGISwitch()
-			updateCache(lc.(CeilingLightStateMap))
-			//also send update to all Websocket Clients
-			ps_.PubNonBlocking(cached_websocketreply_json, PS_WEBSOCK_ALL_JSON)
+		//case lc := <-lights_changed_chan:
+		////prepare and retain json for webHandleCGISwitch()
+		//////FIXME: get state of ceiling lights from MQTT or other
+		//updateCache(lc.(CeilingLightStateMap))
+		////also send update to all Websocket Clients
+		//ps_.PubNonBlocking(cached_websocketreply_json, PS_WEBSOCK_ALL_JSON)
 		case f := <-retained_lightstate_chan:
 			if f.future == nil {
 				continue
 			}
 			//maybe last broadcast was shit or never happened.. get info ourselves
 			if cached_switchcgireply_json == nil || len(cached_switchcgireply_json) == 0 || cached_websocketreply_json == nil || len(cached_websocketreply_json) == 0 {
-				updateCache(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
+				//FIXME .. get ceiling light status from mqtt somehow .. maybe have them be retained and one topic per light or name
+				//updateCache(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
 
 			}
 			var reply = make(OurFutures, len(f.what))

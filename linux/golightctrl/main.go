@@ -39,10 +39,9 @@ func init() {
 
 //Connect and keep trying to connect to MQTT Broker
 //And while we cannot, still provide as much functionality as possible
-func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan SerialLine) {
+func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 	//Start Channel Gobblers and Functionality that works without mqtt
 	//These shut down once we send PS_SHUTDOWN_CONSUMER
-	go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, nil)
 	//consume MQTT_ledpattern_chan_ and MQTT_ir_chan_
 	go func() {
 		shutdown_c := ps_.SubOnce(PS_SHUTDOWN_CONSUMER)
@@ -63,15 +62,6 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
-			SubscribeAndAttachCallback(mqttc, r3events.ACT_LIGHTCTRL_NAME, func(c mqtt.Client, msg mqtt.Message) {
-				var aon r3events.LightCtrlActionOnName
-				if msg.Retained() {
-					return
-				}
-				if err := json.Unmarshal(msg.Payload(), &aon); err != nil {
-					switch_name_chan_ <- aon
-				}
-			})
 			SubscribeAndAttachCallback(mqttc, r3events.ACT_PIPELEDS_PATTERN, func(c mqtt.Client, msg mqtt.Message) {
 				var lp r3events.SetPipeLEDsPattern
 				if msg.Retained() {
@@ -99,7 +89,6 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
 			go goSetLEDPipePatternViaMQTT(mqttc, MQTT_ledpattern_chan_)
 			go goSetFancyLightsViaMQTT(mqttc, MQTT_fancylight_chan_)
-			go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, mqttc)
 			//and LAST but not least:
 			RequestStatusFromAllFancyLightsMQTT(mqttc)
 			return // no need to keep on trying, mqtt-auto-reconnect will do the rest now
@@ -115,38 +104,7 @@ func main() {
 		LogEnable(strings.Split(DebugFlags_, ",")...)
 	}
 
-	if UseFakeGPIO_ {
-		FakeGPIOinit()
-	} else {
-		GPIOinit()
-	}
-
-	var err error
-	var tty_button_chan chan SerialLine
-	var tty_rf433_chan chan SerialLine
-	if UseFakeGPIO_ {
-		tty_rf433_chan = make(chan SerialLine, 10)
-		go func() {
-			for str := range tty_rf433_chan {
-				LogRF433_.Println(str)
-			}
-		}()
-		tty_button_chan = make(chan SerialLine, 1)
-	} else {
-		tty_rf433_chan, _, err = OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_RF433TTYDEV", DEFAULT_GOLIGHTCTRL_RF433TTYDEV), 9600)
-		if err != nil {
-			panic("can't open GOLIGHTCTRL_RF433TTYDEV")
-		}
-
-		_, tty_button_chan, err = OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_BUTTONTTYDEV", DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV), 9600)
-		if err != nil {
-			panic("can't open GOLIGHTCTRL_BUTTONTTYDEV")
-		}
-	}
-
-	go GoSwitchNameAsync()
-	go goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan)
-	go goListenForButtons(tty_button_chan)
+	go goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime()
 	go goRunMartini()
 
 	// wait on Ctrl-C or sigInt or sigKill
