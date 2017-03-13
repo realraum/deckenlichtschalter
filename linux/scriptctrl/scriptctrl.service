@@ -1,0 +1,14 @@
+[Unit]
+Description=Ceiling Light Script Ctrl
+Wants=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5s
+WorkingDirectory=/home/licht/
+ExecStart=/home/licht/scriptctrl/main.py
+SyslogIdentifier=%i
+
+[Install]
+WantedBy=default.target
