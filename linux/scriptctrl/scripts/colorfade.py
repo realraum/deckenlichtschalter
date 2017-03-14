@@ -9,13 +9,18 @@ import time
 
 mytrigger_ = "continue"
 hsvvalue_="random"
+fade_duration_=-1
 
 def activate(scr, newsettings):
-    global hsvvalue_
+    global hsvvalue_, fade_duration_
     if "value" in newsettings and isinstance(newsettings["value"],float) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:
         hsvvalue_ = "random"
+    if "fadeduration" in newsettings and isinstance(newsettings["fadeduration"], int):
+        fade_duration_= min(120000,max(900,newsettings["fadeduration"]))
+    else:
+        fade_duration_ = -1
     animateAllLights(scr)
 
 def deactivate(scr):
@@ -38,7 +43,11 @@ def animateAllLights(scr):
     lst = list(range(scr.light_min, scr.light_max+1))
     random.shuffle(lst)
     lsthalf = int(len(lst)/2)
-    duration=random.randint(6,50)*100
+    duration = 9000
+    if fade_duration_ >= 900 and fade_duration_ <= 120000:
+        duration = fade_duration_
+    else:
+        duration=random.randint(6,50)*100
     animateSomeLightsOnce(scr,lst[:lsthalf],duration)
     animateSomeLightsOnce(scr,lst[lsthalf:],duration,True)
 
