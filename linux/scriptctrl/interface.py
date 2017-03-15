@@ -32,7 +32,6 @@ class CeilingScriptClass():
         self.trigger_expected_seq_num = defaultdict(int)
 
     def callcallback(self, client, trigger, msg):
-        client.publish("action/debug",str(self.trigger_expected_seq_num),0,False)
         if trigger in self.triggers:
             payload={}
             try:
