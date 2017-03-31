@@ -17,29 +17,31 @@ import (
 )
 
 const (
-	DEFAULT_GOLIGHTCTRL_MQTTBROKER     string = "tcp://mqtt.realraum.at:1883"
-	DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE string = ":80"
-	DEFAULT_GOLIGHTCTRL_RF433TTYDEV    string = "/dev/ttyACM0"
-	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV   string = "/dev/ttyACM1"
+	DEFAULT_GOLIGHTCTRL_MQTTBROKER   string = "tcp://mqtt.realraum.at:1883"
+	DEFAULT_GOLIGHTCTRL_RF433TTYDEV  string = "/dev/ttyACM0"
+	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV string = "/dev/ttyACM1"
 )
 
 type SerialLine []byte
 
 var (
-	DebugFlags_ string
-	ps_         *pubsub.PubSub
+	UseFakeGPIO_ bool
+	DebugFlags_  string
+	ps_          *pubsub.PubSub
 )
 
 func init() {
+	flag.BoolVar(&UseFakeGPIO_, "fakegpio", false, "For testing")
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
 	ps_ = pubsub.New(50)
 }
 
 //Connect and keep trying to connect to MQTT Broker
 //And while we cannot, still provide as much functionality as possible
-func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
+func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan SerialLine) {
 	//Start Channel Gobblers and Functionality that works without mqtt
 	//These shut down once we send PS_SHUTDOWN_CONSUMER
+	go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, nil)
 	//consume MQTT_ledpattern_chan_ and MQTT_ir_chan_
 	go func() {
 		shutdown_c := ps_.SubOnce(PS_SHUTDOWN_CONSUMER)
@@ -47,8 +49,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 			select {
 			case <-shutdown_c:
 				return
-			case <-MQTT_sendmsg_chan_:
-				//drop msg
+			case <-MQTT_ir_chan_:
 			}
 		}
 	}()
@@ -56,28 +57,37 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 	//
 	//now try connect to mqtt daemon until it works once
 	for {
-		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
+		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GONAMECTRL_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
-			topic_in_chan := SubscribeMultipleAndForwardToChannel(mqttc, ws_allowed_ctx_startwith)
-			go func(c mqtt.Client, msg_in_chan chan mqtt.Message) {
-				lp := make(map[string]interface{}, 10)
-				// if msg.Retained() {
-				// 	return
-				// }
-				for msg := range msg_in_chan {
-					//Error check, then forward
-					if err := json.Unmarshal(msg.Payload(), &lp); err == nil {
-						webmsg := wsMessageOut{Ctx: msg.Topic(), Data: lp}
-						ps_.Pub(webmsg, PS_WEBSOCK_ALL)
-					}
+			SubscribeAndAttachCallback(mqttc, r3events.ACT_LIGHTCTRL_NAME, func(c mqtt.Client, msg mqtt.Message) {
+				var aon r3events.LightCtrlActionOnName
+				if msg.Retained() {
+					return
 				}
-			}(mqttc, topic_in_chan)
+				if err := json.Unmarshal(msg.Payload(), &aon); err != nil {
+					LogMain_.Printf("Main:LightCtrlMain: Error: %s", err)
+					return
+				}
+				LogMain_.Printf("Main:LightCtrlMain: %+v", aon)
+				switch_name_chan_ <- aon
+			})
+			for name, _ := range actionname_map_ {
+				SubscribeAndAttachCallback(mqttc, r3events.TOPIC_ACTIONS+r3events.CLIENTID_LIGHTCTRL+"/"+name, func(c mqtt.Client, msg mqtt.Message) {
+					var aon r3events.LightCtrlActionOnName
+					if msg.Retained() {
+						return
+					}
+					aon.Name = name
+					aon.Action = string(msg.Payload())
+					LogMain_.Printf("Main:LightCtrlMain with name==%s: %+v", name, aon)
+					switch_name_chan_ <- aon
+				})
+			}
 			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
 			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
-			go goSendMQTTMsgToBroker(mqttc, MQTT_sendmsg_chan_)
-			//and LAST but not least:
-			RequestStatusFromAllFancyLightsMQTT(mqttc)
+			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
+			go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, mqttc)
 			return // no need to keep on trying, mqtt-auto-reconnect will do the rest now
 		} else {
 			time.Sleep(5 * time.Minute)
@@ -91,8 +101,38 @@ func main() {
 		LogEnable(strings.Split(DebugFlags_, ",")...)
 	}
 
-	go goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime()
-	go goRunMartini()
+	if UseFakeGPIO_ {
+		FakeGPIOinit()
+	} else {
+		GPIOinit()
+	}
+
+	var err error
+	var tty_button_chan chan SerialLine
+	var tty_rf433_chan chan SerialLine
+	if UseFakeGPIO_ {
+		tty_rf433_chan = make(chan SerialLine, 10)
+		go func() {
+			for str := range tty_rf433_chan {
+				LogRF433_.Println(str)
+			}
+		}()
+		tty_button_chan = make(chan SerialLine, 1)
+	} else {
+		tty_rf433_chan, _, err = OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_RF433TTYDEV", DEFAULT_GOLIGHTCTRL_RF433TTYDEV), 9600)
+		if err != nil {
+			panic("can't open GOLIGHTCTRL_RF433TTYDEV")
+		}
+
+		_, tty_button_chan, err = OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_BUTTONTTYDEV", DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV), 9600)
+		if err != nil {
+			panic("can't open GOLIGHTCTRL_BUTTONTTYDEV")
+		}
+	}
+
+	go GoSwitchNameAsync()
+	go goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan)
+	go goListenForButtons(tty_button_chan)
 
 	// wait on Ctrl-C or sigInt or sigKill
 	func() {

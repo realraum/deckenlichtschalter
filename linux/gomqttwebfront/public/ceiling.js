@@ -37,14 +37,9 @@ function setButtonStates(data) {
   renderButtonStates();
 }
 
-function switchButton(light, sendState) {
-  var url = cgiUrl;
-  if (typeof light !== 'undefined' && typeof sendState !== 'undefined') {
-    url += '?' + light + '=' + (sendState ? '1' : '0');
-  }
+function sendMQTT_XHTTP(ctx, data) {
   var req = new XMLHttpRequest;
-  req.overrideMimeType("application/json");
-  req.open("GET", url, true);
+  req.open("POST", cgiUrl, true);
   req.onload = function() {
     if (req.status != 200) {
       return;
@@ -52,23 +47,40 @@ function switchButton(light, sendState) {
     var data = JSON.parse(req.responseText);
     setButtonStates(data);
   };
+  var param = "Ctx=" + encodeURIComponent(ctx);
+  params = params + "&Data="+encodeURIComponent(data);
+  params = params.replace(/%20/g, '+');
+  req.overrideMimeType("application/json");
   req.setRequestHeader("googlechromefix","");
-  req.send(null);
+  req.setRequestHeader("Content-length", params.length);
+  req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  req.setRequestHeader("Connection", "close");
+  req.send(params);
 }
 
-function switchButtonWebSocket(light, sendState) {
-  var message = {
-    Name: light,
-    Action: sendState ? '1' : '0'
-  };
-  ws.send("LightCtrlActionOnName",message);
+function sendMQTT(ctx, data) {
+  if (webSocketSupport) {
+    ws.send(ctx,data);
+  } else {
+    sendMQTT_XHTTP(ctx, data);
+  }
 }
 
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
-var cgiUrl = '/cgi-bin/mswitch.cgi';
-//var cgiUrl = 'fake.json';
+var cgiUrl = '/cgi-bin/fallback.cgi';
 
 var webSocketSupport = null;
+
+var topic_fancy_ceiling1 = "action/ceiling1/light"
+var topic_fancy_ceiling2 = "action/ceiling2/light"
+var topic_fancy_ceiling3 = "action/ceiling3/light"
+var topic_fancy_ceiling4 = "action/ceiling4/light"
+var topic_fancy_ceiling5 = "action/ceiling5/light"
+var topic_fancy_ceiling6 = "action/ceiling6/light"
+var topic_fancy_ceiling7 = "action/ceiling7/light"
+var topic_fancy_ceiling8 = "action/ceiling8/light"
+var topic_fancy_ceiling9 = "action/ceiling9/light"
+var topic_namectrl = "action/GoNameCtrl/name"
 
 var buttons = {
   ceiling1: false,

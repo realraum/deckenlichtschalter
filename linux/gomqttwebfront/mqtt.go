@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"sync"
 	"time"
 
@@ -71,26 +72,31 @@ func ConnectMQTTBroker(brocker_addr, clientid string) mqtt.Client {
 	return c
 }
 
-func sendCodeToMQTT(mqttc mqtt.Client, code []byte) {
+func RequestStatusFromAllFancyLightsMQTT(mqttc mqtt.Client) {
 	if mqttc == nil {
 		return
 	}
-	LogMQTT_.Printf("sendCodeToMQTT(%+v)", code)
-	if len(code) == 3 {
-		r3evt := r3events.SendRF433Code{Code: [3]byte{code[0], code[1], code[2]}, Ts: time.Now().Unix()}
-		LogMQTT_.Printf("goSendToMQTT: %+v", r3evt)
-		mqttc.Publish(r3events.ACT_RF433_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evt))
-	}
+	mqttc.Publish(r3events.ACT_ALLFANCYLIGHT_PLEASEREPEAT, MQTT_QOS_NOCONFIRMATION, false, []byte{})
 }
 
-func goSendIRCmdToMQTT(mqttc mqtt.Client, ir_chan chan string) {
+func goSendMQTTMsgToBroker(mqttc mqtt.Client, outmsg_chan chan MQTTOutboundMsg) {
 	if mqttc == nil {
 		return
 	}
-	for cmd := range ir_chan {
-		r3evt := r3events.YamahaIRCmd{Cmd: cmd, Ts: time.Now().Unix()}
-		LogMQTT_.Printf("goSendIRCmdToMQTT: %+v", r3evt)
-		mqttc.Publish(r3events.ACT_YAMAHA_SEND, MQTT_QOS_REQCONFIRMATION, false, r3events.MarshalEvent2ByteOrPanic(r3evt))
+	for outmsg := range outmsg_chan {
+		LogMQTT_.Printf("goSendMQTTMsgToBroker(%+v)", outmsg)
+		switch outpayload := outmsg.msg.(type) {
+		case []byte:
+			mqttc.Publish(outmsg.topic, 0, false, outpayload)
+		case map[string]interface{}:
+			if bytes, err := json.Marshal(outpayload); err == nil {
+				mqttc.Publish(outmsg.topic, 0, false, bytes)
+			}
+		case r3events.YamahaIRCmd, r3events.SetPipeLEDsPattern, r3events.FancyLight, r3events.CeilingScript, r3events.LightCtrlActionOnName:
+			mqttc.Publish(outmsg.topic, 0, false, r3events.MarshalEvent2ByteOrPanic(outpayload))
+		default:
+			//send nothing
+		}
 	}
 }
 
