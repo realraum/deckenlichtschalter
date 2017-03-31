@@ -289,5 +289,5 @@ func goRunMartini() {
 	m.Get("/cgi-bin/mswitch.cgi", webRedirectToFallbackHTML)
 	m.Get("/cgi-bin/fancylight.cgi", webRedirectToFallbackHTML)
 	m.Get("/cgi-bin/ledpipe.cgi", webRedirectToFallbackHTML)
-	m.RunOnAddr(EnvironOrDefault("GOLIGHTCTRL_HTTP_INTERFACE", DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE))
+	m.RunOnAddr(EnvironOrDefault("GOMQTTWEBFRONT_HTTP_INTERFACE", DEFAULT_GOMQTTWEBFRONT_HTTP_INTERFACE))
 }

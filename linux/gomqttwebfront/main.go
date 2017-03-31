@@ -17,10 +17,10 @@ import (
 )
 
 const (
-	DEFAULT_GOLIGHTCTRL_MQTTBROKER     string = "tcp://mqtt.realraum.at:1883"
-	DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE string = ":80"
-	DEFAULT_GOLIGHTCTRL_RF433TTYDEV    string = "/dev/ttyACM0"
-	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV   string = "/dev/ttyACM1"
+	DEFAULT_GOMQTTWEBFRONT_MQTTBROKER     string = "tcp://mqtt.realraum.at:1883"
+	DEFAULT_GOMQTTWEBFRONT_HTTP_INTERFACE string = ":80"
+	DEFAULT_GOMQTTWEBFRONT_RF433TTYDEV    string = "/dev/ttyACM0"
+	DEFAULT_GOMQTTWEBFRONT_BUTTONTTYDEV   string = "/dev/ttyACM1"
 )
 
 type SerialLine []byte
@@ -56,7 +56,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 	//
 	//now try connect to mqtt daemon until it works once
 	for {
-		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
+		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOMQTTWEBFRONT_MQTTBROKER", DEFAULT_GOMQTTWEBFRONT_MQTTBROKER), EnvironOrDefault("GOMQTTWEBFRONT_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
 			topic_in_chan := SubscribeMultipleAndForwardToChannel(mqttc, ws_allowed_ctx_startwith)
