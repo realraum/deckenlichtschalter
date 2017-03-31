@@ -1,0 +1,16 @@
+[Unit]
+Description=Bridge RF433 and Buttons and names to MQTT
+Wants=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3s
+WorkingDirectory=/home/licht/
+EnvironmentFile=/home/licht/.config/golightctrl.env
+ExecStartPre=/bin/sh -c 'for gpio in 4 17 18 21 22 23; do while ! [ -e /sys/class/gpio/gpio$gpio ]; do echo $gpio >| /sys/class/gpio/export; sleep 1; done; done'
+ExecStart=/home/licht/bin/golightctrl
+SyslogIdentifier=%i
+
+[Install]
+WantedBy=default.target
