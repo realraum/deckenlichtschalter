@@ -26,13 +26,11 @@ const (
 type SerialLine []byte
 
 var (
-	UseFakeGPIO_ bool
-	DebugFlags_  string
-	ps_          *pubsub.PubSub
+	DebugFlags_ string
+	ps_         *pubsub.PubSub
 )
 
 func init() {
-	flag.BoolVar(&UseFakeGPIO_, "fakegpio", false, "For testing")
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
 	ps_ = pubsub.New(50)
 }
@@ -49,9 +47,8 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 			select {
 			case <-shutdown_c:
 				return
-			case <-MQTT_ledpattern_chan_:
-			case <-MQTT_ir_chan_:
-			case <-MQTT_fancylight_chan_:
+			case <-MQTT_sendmsg_chan_:
+				//drop msg
 			}
 		}
 	}()
@@ -62,33 +59,23 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
-			SubscribeAndAttachCallback(mqttc, r3events.ACT_PIPELEDS_PATTERN, func(c mqtt.Client, msg mqtt.Message) {
-				var lp r3events.SetPipeLEDsPattern
-				if msg.Retained() {
-					return
+			topic_in_chan := SubscribeMultipleAndForwardToChannel(mqttc, ws_allowed_ctx_startwith)
+			go func(c mqtt.Client, msg_in_chan chan mqtt.Message) {
+				lp := make(map[string]interface{}, 10)
+				// if msg.Retained() {
+				// 	return
+				// }
+				for msg := range msg_in_chan {
+					//Error check, then forward
+					if err := json.Unmarshal(msg.Payload(), &lp); err == nil {
+						webmsg := wsMessageOut{Ctx: msg.Topic(), Data: lp}
+						ps_.Pub(webmsg, PS_WEBSOCK_ALL)
+					}
 				}
-				if err := json.Unmarshal(msg.Payload(), &lp); err != nil {
-					//TODO: retain lates state somewhere and broadcast it to all websocket clients
-				}
-			})
-			receive_fancylight_state_updates := func(clientid string, c mqtt.Client, msg mqtt.Message) {
-				var fancy wsMsgFancyLight
-				fancy.Name = clientid
-				if msg.Retained() {
-					return
-				}
-				if err := json.Unmarshal(msg.Payload(), &fancy.Setting); err != nil {
-					//TODO: retain lates state somewhere and broadcast it to all websocket clients
-				}
-			}
-			for _, cid := range []string{r3events.CLIENTID_CEILING1, r3events.CLIENTID_CEILING2, r3events.CLIENTID_CEILING3, r3events.CLIENTID_CEILING4, r3events.CLIENTID_CEILING5, r3events.CLIENTID_CEILING6, r3events.CLIENTID_CEILING7, r3events.CLIENTID_CEILING8, r3events.CLIENTID_CEILINGALL} {
-				SubscribeAndAttachCallback(mqttc, r3events.TOPIC_ACTIONS+cid+"/"+r3events.TYPE_LIGHT, func(c mqtt.Client, msg mqtt.Message) { receive_fancylight_state_updates(cid, c, msg) })
-			}
+			}(mqttc, topic_in_chan)
 			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
 			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
-			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
-			go goSetLEDPipePatternViaMQTT(mqttc, MQTT_ledpattern_chan_)
-			go goSetFancyLightsViaMQTT(mqttc, MQTT_fancylight_chan_)
+			go goSendMQTTMsgToBroker(mqttc, MQTT_sendmsg_chan_)
 			//and LAST but not least:
 			RequestStatusFromAllFancyLightsMQTT(mqttc)
 			return // no need to keep on trying, mqtt-auto-reconnect will do the rest now

@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,23 +11,23 @@ import (
 
 	"github.com/codegangsta/martini"
 	"github.com/gorilla/websocket"
-	"github.com/mitchellh/mapstructure"
 	"github.com/realraum/door_and_sensors/r3events"
 )
 
-const (
-	ws_ctx_ceilinglights = "ceilinglights"
-	ws_ctx_fancylight    = "FancyLight"
-	ws_ctx_ledpattern    = "SetPipeLEDsPattern"
-	ws_ctx_switch        = "LightCtrlActionOnName"
-	ws_ctx_button_used   = "wbp"
-)
-
-const (
-	recall_basiclight_cgi  RetainRecallID = iota
-	recall_basiclight_ws   RetainRecallID = iota
-	recall_fancyceiling_ws RetainRecallID = iota
-	recall_ledpipe_ws      RetainRecallID = iota
+var (
+	ws_allowed_ctx_startwith = []string{r3events.ACT_PIPELEDS_PATTERN, r3events.ACT_YAMAHA_SEND,
+		"action/GoNameCtrl/",
+		"action/ceilingscripts/activatescript",
+		"action/ceilingAll/light",
+		"action/ceiling1/light",
+		"action/ceiling2/light",
+		"action/ceiling3/light",
+		"action/ceiling4/light",
+		"action/ceiling5/light",
+		"action/ceiling6/light",
+		"action/ceiling7/light",
+		"action/ceiling8/light",
+		"action/ceiling9/light"}
 )
 
 const (
@@ -38,33 +39,84 @@ const (
 
 var wsupgrader = websocket.Upgrader{} // use default options with Origin Check
 
-// handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
-// returns json formated state of Ceiling Lights
-func webHandleCGISwitch(w http.ResponseWriter, r *http.Request, retained_lightstate_chan chan JsonFuture) {
-	defer func() {
-		if x := recover(); x != nil {
-			LogWS_.Println("webHandleCGISwitch", x)
+// glue-code that repackages updates as json
+// It is here so we can rewrite the json output format for the webserver if we want
+// AND so that conversion to JSON is done only once for every connected websocket
+func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFuture) {
+	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
+	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
+	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
+
+	retained_json_map := make(map[string][]byte, len(ws_allowed_ctx_startwith))
+
+	for {
+		select {
+		case <-shutdown_chan:
+			return
+		case webmsg_i := <-msgtoall_chan:
+			if webmsg, castok := webmsg_i.(MQTTOutboundMsg); castok {
+				if webjson, err := json.Marshal(webmsg); err == nil {
+					ps_.PubNonBlocking(webjson, PS_WEBSOCK_ALL_JSON)
+					retained_json_map[webmsg.topic] = webjson
+				} else {
+					LogWS_.Println(err)
+				}
+			}
+
+		case f := <-getretained_chan:
+			if f.future == nil {
+				continue
+			}
+			var reply = make(OurFutures, len(f.what))
+			for idx, rettopic := range f.what {
+				jsonbytes, inmap := retained_json_map[rettopic]
+				if inmap {
+					reply[idx] = jsonbytes
+				} else {
+					reply[idx] = []byte{'{', '}'}
+				}
+			}
+			select {
+			case f.future <- reply:
+				close(f.future)
+			default:
+				close(f.future)
+			}
 		}
-	}()
-	if err := r.ParseForm(); err != nil {
-		LogWS_.Print(err)
-		return
 	}
-	ourfuture := make(chan OurFutures, 2)
-	retained_lightstate_chan <- JsonFuture{future: ourfuture, what: []RetainRecallID{recall_basiclight_cgi}}
-	///// FIXME: we don't know names anymore, send on any name=<num> pair
-	// for name, _ := range actionname_map_ {
-	// 	v := r.FormValue(name)
-	// 	if len(v) == 0 {
-	// 		continue
-	// 	}
-	// 	switch_name_chan_ <- r3events.LightCtrlActionOnName{name, v}
-	// }
-	futures := <-ourfuture
-	for _, f := range futures {
-		w.Write(f)
+}
+
+// goroutine responsible for talking TO a websocket client connected to /sock
+func goWriteToClient(ws *websocket.Conn) {
+	shutdown_c := ps_.SubOnce(PS_SHUTDOWN)
+	udpate_c := ps_.Sub(PS_WEBSOCK_ALL_JSON)
+	ticker := time.NewTicker(ws_ping_period_)
+	defer ps_.Unsub(udpate_c, PS_WEBSOCK_ALL_JSON)
+	for {
+		select {
+		case <-shutdown_c:
+			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
+			ws.WriteMessage(websocket.CloseMessage, []byte{})
+			return
+		case jsonupdate, isopen := <-udpate_c:
+			if !isopen {
+				ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
+				ws.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
+			if err := ws.WriteMessage(websocket.TextMessage, jsonupdate.([]byte)); err != nil {
+				LogWS_.Println("goWriteToClient", ws.RemoteAddr(), "Error", err)
+				ps_.Unsub(shutdown_c, "shutdown")
+				return
+			}
+		case <-ticker.C:
+			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
+			if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				return
+			}
+		}
 	}
-	return
 }
 
 func SanityCheckWSFancyLight(data *wsMsgFancyLight) error {
@@ -124,230 +176,44 @@ func SanityCheckPipeLedPattern(data *r3events.SetPipeLEDsPattern) error {
 	return nil
 }
 
-// handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
-// returns json formated state of Ceiling Lights
-func webHandleCGIFancyLight(w http.ResponseWriter, r *http.Request) {
+// handles requests to /cgi-bin/switch.cgi and accepts GET/POST Fields "Ctx" and "Data"
+// returns json formated state of Everything
+func webHandleCGICtxData(w http.ResponseWriter, r *http.Request, retained_json_chan chan JsonFuture) {
 	defer func() {
 		if x := recover(); x != nil {
-			LogWS_.Println("webHandleCGIFancyLight", x)
+			LogWS_.Println("webHandleCGISwitch", x)
 		}
 	}()
 	if err := r.ParseForm(); err != nil {
 		LogWS_.Print(err)
 		return
 	}
-	var data wsMsgFancyLight
-	data.Name = r.FormValue("name")
-	if len(data.Name) == 0 {
-		w.Write([]byte("err"))
-		return
-	}
-	if err := SanityCheckWSFancyLight(&data); err != nil {
-		w.Write([]byte(err.Error()))
-		return
-	}
-	if data.Setting != nil {
-		if err := json.Unmarshal([]byte(r.FormValue("setting")), &data.Setting); err != nil {
-			w.Write([]byte(err.Error()))
-			return
+
+	ctx_a, ctx_inmap := r.Form["Ctx"]
+	data_a, data_inmap := r.Form["Data"]
+
+	if ctx_inmap && data_inmap && ctx_a != nil && data_a != nil && len(ctx_a) == 1 && len(data_a) == 1 {
+		ctx := ctx_a[0]
+		if stringInSlice(ctx, ws_allowed_ctx_startwith) {
+			//TODO: sanity check json payload that goes from web to MQTT
+			//TODO: then sanity check specific structs
+			MQTT_sendmsg_chan_ <- MQTTOutboundMsg{topic: ctx, msg: data_a[0]}
 		}
-		MQTT_fancylight_chan_ <- &data
-	} else if data.AdvSetting != nil {
-		if err := json.Unmarshal([]byte(r.FormValue("advsetting")), &data.AdvSetting); err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		}
-		AdvFancyLight_chan_ <- &data
 	}
-	w.Write([]byte("ok"))
+
+	ourfuture := make(chan OurFutures, 2)
+	retained_json_chan <- JsonFuture{future: ourfuture, what: ws_allowed_ctx_startwith}
+	futures := <-ourfuture
+	w.Write([]byte{'['})
+	w.Write(bytes.Join(futures, []byte{','}))
+	w.Write([]byte{']'})
 	return
-}
-
-// handles requests to /cgi-bin/switch.cgi?<switch1>=<state>&<switch2>=<state>&...
-// returns json formated state of Ceiling Lights
-func webHandleCGILedPipe(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if x := recover(); x != nil {
-			LogWS_.Println("webHandleCGILedPipe", x)
-		}
-	}()
-	if err := r.ParseForm(); err != nil {
-		LogWS_.Print(err)
-		return
-	}
-	var data r3events.SetPipeLEDsPattern
-	if err := json.Unmarshal([]byte(r.FormValue("data")), &data); err != nil {
-		w.Write([]byte(err.Error()))
-		return
-	}
-	if err := SanityCheckPipeLedPattern(&data); err != nil {
-		w.Write([]byte(err.Error()))
-		return
-	}
-	MQTT_ledpattern_chan_ <- &data
-	w.Write([]byte("ok"))
-	return
-}
-
-// cache Lights Change Update for webHandleCGISwitch()
-func goRetainCeilingLightsJSONForLater(retained_lightstate_chan chan JsonFuture) {
-	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
-	lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
-	defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
-	fancylight_update_chan := ps_.Sub(PS_FANCYLIGHT_CHANGED)
-	defer ps_.Unsub(fancylight_update_chan, PS_FANCYLIGHT_CHANGED)
-	ledpipe_update_chan := ps_.Sub(PS_LEDPIPE_CHANGED)
-	defer ps_.Unsub(ledpipe_update_chan, PS_LEDPIPE_CHANGED)
-
-	//TODO FIX ME
-
-	var cached_switchcgireply_json []byte
-	var cached_websocketreply_json []byte
-	var cached_ledpipe_json []byte
-	var cached_fancylight_json map[string][]byte //one json []byte for each clientID.. fancy1, fancy2, etc
-	//////FIXME: get state of ceiling lights from MQTT or other
-	/*	updateCache := func(lsm CeilingLightStateMap) {
-		cached_switchcgireply_json, err = json.Marshal(lsm)
-		if err != nil {
-			LogWS_.Print(err)
-			cached_switchcgireply_json = []byte("{}")
-		}
-		cached_websocketreply_json, err = json.Marshal(wsMessageOut{Ctx: ws_ctx_ceilinglights, Data: lsm})
-		if err != nil {
-			LogWS_.Print(err)
-			cached_switchcgireply_json = []byte("{}")
-		}
-	}*/
-	for {
-		select {
-		case <-shutdown_chan:
-			return
-		//case lc := <-lights_changed_chan:
-		////prepare and retain json for webHandleCGISwitch()
-		//////FIXME: get state of ceiling lights from MQTT or other
-		//updateCache(lc.(CeilingLightStateMap))
-		////also send update to all Websocket Clients
-		//ps_.PubNonBlocking(cached_websocketreply_json, PS_WEBSOCK_ALL_JSON)
-		case f := <-retained_lightstate_chan:
-			if f.future == nil {
-				continue
-			}
-			//maybe last broadcast was shit or never happened.. get info ourselves
-			if cached_switchcgireply_json == nil || len(cached_switchcgireply_json) == 0 || cached_websocketreply_json == nil || len(cached_websocketreply_json) == 0 {
-				//FIXME .. get ceiling light status from mqtt somehow .. maybe have them be retained and one topic per light or name
-				//updateCache(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1))
-
-			}
-			var reply = make(OurFutures, len(f.what))
-			for idx, retid := range f.what {
-				switch retid {
-				case recall_basiclight_cgi:
-					reply[idx] = cached_switchcgireply_json
-				case recall_basiclight_ws:
-					reply[idx] = cached_websocketreply_json
-				case recall_fancyceiling_ws:
-					reply[idx] = []byte("")
-					reply = append(reply, make([]byte, len(cached_fancylight_json)))
-					iidx := len(reply)
-					for _, fl := range cached_fancylight_json {
-						iidx--
-						reply[iidx] = fl
-					}
-				case recall_ledpipe_ws:
-					reply[idx] = cached_ledpipe_json
-				}
-			}
-			select {
-			case f.future <- reply:
-				close(f.future)
-			default:
-				close(f.future)
-			}
-		}
-	}
-}
-
-// glue-code that repackages updates as json
-// It is here so we can rewrite the json output format for the webserver if we want
-// AND so that conversion to JSON is done only once for every connected websocket
-func goJSONMarshalStuffForWebSockClients() {
-	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
-	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
-	//lights_changed_chan := ps_.Sub(PS_LIGHTS_CHANGED)
-	button_used_chan := ps_.Sub(PS_IRRF433_CHANGED)
-	fancylight_update_chan := ps_.Sub(PS_FANCYLIGHT_CHANGED)
-	ledpipe_update_chan := ps_.Sub(PS_LEDPIPE_CHANGED)
-	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
-	//defer ps_.Unsub(lights_changed_chan, PS_LIGHTS_CHANGED)
-	defer ps_.Unsub(button_used_chan, PS_IRRF433_CHANGED)
-	defer ps_.Unsub(fancylight_update_chan, PS_FANCYLIGHT_CHANGED)
-	defer ps_.Unsub(ledpipe_update_chan, PS_LEDPIPE_CHANGED)
-
-	//TODO FIX ME
-
-	for {
-		msg := wsMessageOut{}
-		select {
-		case <-shutdown_chan:
-			return
-		case lu := <-msgtoall_chan:
-			msg.Data = lu
-			msg.Ctx = "some_other_message_ctx_example"
-			//		case lc := <-lights_changed_chan:
-			//			msg.Ctx = "ceilinglights"
-			//			msg.Data = lc
-		case bu := <-button_used_chan:
-			msg.Ctx = ws_ctx_button_used //web button pressed
-			msg.Data = bu
-		}
-		if len(msg.Ctx) == 0 {
-			continue
-		}
-		if jsonbytes, err := json.Marshal(msg); err == nil {
-			ps_.PubNonBlocking(jsonbytes, PS_WEBSOCK_ALL_JSON)
-		} else {
-			LogWS_.Println(err)
-		}
-	}
-}
-
-// goroutine responsible for talking TO a websocket client connected to /sock
-func goWriteToClientAboutLightStateChanges(ws *websocket.Conn) {
-	shutdown_c := ps_.SubOnce(PS_SHUTDOWN)
-	udpate_c := ps_.Sub(PS_WEBSOCK_ALL_JSON)
-	ticker := time.NewTicker(ws_ping_period_)
-	defer ps_.Unsub(udpate_c, PS_WEBSOCK_ALL_JSON)
-	for {
-		select {
-		case <-shutdown_c:
-			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
-			ws.WriteMessage(websocket.CloseMessage, []byte{})
-			return
-		case jsonupdate, isopen := <-udpate_c:
-			if !isopen {
-				ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
-				ws.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
-			if err := ws.WriteMessage(websocket.TextMessage, jsonupdate.([]byte)); err != nil {
-				LogWS_.Println("goWriteToClientAboutLightStateChanges", ws.RemoteAddr(), "Error", err)
-				ps_.Unsub(shutdown_c, "shutdown")
-				return
-			}
-		case <-ticker.C:
-			ws.SetWriteDeadline(time.Now().Add(ws_write_timeout_))
-			if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				return
-			}
-		}
-	}
 }
 
 // handles requests to /sock WebSocket
 // following ctx are handled:
 // "switch": {name:..., action:...}
-func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightstate_chan chan JsonFuture) {
+func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_json_chan chan JsonFuture) {
 	ws, err := wsupgrader.Upgrade(w, r, nil)
 	if err != nil {
 		LogWS_.Println(err)
@@ -355,16 +221,16 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 	}
 	LogWS_.Println("Client connected", ws.RemoteAddr())
 
-	//send client the inital CeilingLightsState
+	//send client the inital known states
 	ourfuture := make(chan OurFutures, 2)
-	retained_lightstate_chan <- JsonFuture{future: ourfuture, what: []RetainRecallID{recall_basiclight_cgi}}
+	retained_json_chan <- JsonFuture{future: ourfuture, what: ws_allowed_ctx_startwith}
 	for _, f := range <-ourfuture {
 		ws.WriteMessage(websocket.TextMessage, f)
 	}
 	//2nd goroutine per client that handles async push info
 	//e.g. sends updates about CeilingLight states and maybe about RF Send Actions
 	// IMPORTANT: After this function runs, WE (THIS FUNCTION) should no longer use ws.WriteMessage(..)
-	go goWriteToClientAboutLightStateChanges(ws)
+	go goWriteToClient(ws)
 
 	ws.SetReadLimit(ws_max_message_size_)
 	ws.SetReadDeadline(time.Now().Add(ws_read_timeout_))
@@ -381,48 +247,23 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_lightst
 			break
 		}
 
-		switch v.Ctx {
-		case ws_ctx_switch:
-			var data r3events.LightCtrlActionOnName
-			err = mapstructure.Decode(v.Data, &data)
-			if err != nil {
-				LogWS_.Printf("%s Data decode error: %s", v.Ctx, err)
-				continue
-			}
-			switch_name_chan_ <- data
-		case ws_ctx_fancylight:
-			var data wsMsgFancyLight
-			err = mapstructure.Decode(v.Data, &data)
-			if err != nil {
-				LogWS_.Printf("%s Data decode error: %s", v.Ctx, err)
-				continue
-			}
-			if err = SanityCheckWSFancyLight(&data); err != nil {
-				LogWS_.Printf("%s Error during SanityCheckWSFancyLight: %s", v.Ctx, err)
-				continue
-			}
-			if data.Setting != nil {
-				MQTT_fancylight_chan_ <- &data
-			} else if data.AdvSetting != nil {
-				AdvFancyLight_chan_ <- &data
-			}
-		case ws_ctx_ledpattern:
-			var data r3events.SetPipeLEDsPattern
-			err = mapstructure.Decode(v.Data, &data)
-			if err != nil {
-				LogWS_.Printf("%s Data decode error: %s", v.Ctx, err)
-				continue
-			}
-			if err := SanityCheckPipeLedPattern(&data); err != nil {
-				LogWS_.Printf("%s Error during SanityCheckPipeLedPattern: %s", v.Ctx, err)
-				continue
-			}
-			MQTT_ledpattern_chan_ <- &data
+		if stringInSlice(v.Ctx, ws_allowed_ctx_startwith) {
+			//TODO: sanity check json payload that goes from web to MQTT
+			//TODO: then sanity check specific structs
+			// if err = SanityCheckWSFancyLight(&data); err != nil {
+			// 	LogWS_.Printf("%s Error during SanityCheckWSFancyLight: %s", v.Ctx, err)
+			// 	continue
+			// }
+			// if err := SanityCheckPipeLedPattern(&data); err != nil {
+			// 	LogWS_.Printf("%s Error during SanityCheckPipeLedPattern: %s", v.Ctx, err)
+			// 	continue
+			// }
+			MQTT_sendmsg_chan_ <- MQTTOutboundMsg{topic: v.Ctx, msg: v.Data}
 		}
 	}
 }
 
-func webRedirectToSwitchHTML(w http.ResponseWriter, r *http.Request) {
+func webRedirectToFallbackHTML(w http.ResponseWriter, r *http.Request) {
 	LogWS_.Printf("%+v", r)
 	urlStr := "//" + r.Host + "/switch.html"
 	w.Header().Set("Location", urlStr)
@@ -439,15 +280,14 @@ func goRunMartini() {
 	/*	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) {
 		goTalkWithClient(w, r, ps)
 	})*/
-	retained_lightstate_chan := make(chan JsonFuture, 20)
-	go goRetainCeilingLightsJSONForLater(retained_lightstate_chan)
-	go goJSONMarshalStuffForWebSockClients()
+	retained_json_chan := make(chan JsonFuture, 20)
+	go goJSONMarshalStuffForWebSockClientsAndRetain(retained_json_chan)
 
-	m.Get("/cgi-bin/mswitch.cgi", func(w http.ResponseWriter, r *http.Request) { webHandleCGISwitch(w, r, retained_lightstate_chan) })
-	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) { webHandleWebSocket(w, r, retained_lightstate_chan) })
-	m.Get("/cgi-bin/switch.cgi", webRedirectToSwitchHTML)
-	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToSwitchHTML)
-	m.Get("/cgi-bin/fancylight.cgi", webHandleCGIFancyLight)
-	m.Get("/cgi-bin/ledpipe.cgi", webHandleCGILedPipe)
+	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) { webHandleWebSocket(w, r, retained_json_chan) })
+	m.Get("/cgi-bin/fallback.cgi", webHandleCGICtxData)
+	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToFallbackHTML)
+	m.Get("/cgi-bin/mswitch.cgi", webRedirectToFallbackHTML)
+	m.Get("/cgi-bin/fancylight.cgi", webRedirectToFallbackHTML)
+	m.Get("/cgi-bin/ledpipe.cgi", webRedirectToFallbackHTML)
 	m.RunOnAddr(EnvironOrDefault("GOLIGHTCTRL_HTTP_INTERFACE", DEFAULT_GOLIGHTCTRL_HTTP_INTERFACE))
 }

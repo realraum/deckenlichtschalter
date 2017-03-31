@@ -36,13 +36,11 @@ type jsonButtonUsed struct {
 	Name string `json:"name"`
 }
 
-type RetainRecallID uint32
-
 type OurFutures [][]byte
 
 type JsonFuture struct {
 	future chan OurFutures
-	what   []RetainRecallID
+	what   []string
 }
 
 type ActionNameHandler struct {
@@ -57,4 +55,9 @@ type ActionNameHandler struct {
 type RFCmdToSend struct {
 	handler string
 	code    []byte
+}
+
+type MQTTOutboundMsg struct {
+	topic string
+	msg   interface{}
 }
