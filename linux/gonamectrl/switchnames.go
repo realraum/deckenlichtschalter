@@ -88,9 +88,9 @@ FORLOOP:
 	for snc := range switch_name_chan_ {
 		var onoff bool
 		switch snc.Action {
-		case "1", "on", "send":
+		case "1", "on", "send", "{\"Action\":1}", "{\"Action\":\"on\"}", "{\"Action\":\"send\"}":
 			onoff = true
-		case "0", "off":
+		case "0", "off", "{\"Action\":0}", "{\"Action\":\"off\"}":
 			onoff = false
 		case "toggle":
 			//TODO

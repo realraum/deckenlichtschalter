@@ -71,13 +71,6 @@ func ConnectMQTTBroker(brocker_addr, clientid string) mqtt.Client {
 	return c
 }
 
-func RequestStatusFromAllFancyLightsMQTT(mqttc mqtt.Client) {
-	if mqttc == nil {
-		return
-	}
-	mqttc.Publish(r3events.ACT_ALLFANCYLIGHT_PLEASEREPEAT, MQTT_QOS_NOCONFIRMATION, false, []byte{})
-}
-
 func sendCodeToMQTT(mqttc mqtt.Client, code []byte) {
 	if mqttc == nil {
 		return

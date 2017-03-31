@@ -72,12 +72,22 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 				LogMain_.Printf("Main:LightCtrlMain: %+v", aon)
 				switch_name_chan_ <- aon
 			})
+			for name, _ := range actionname_map_ {
+				SubscribeAndAttachCallback(mqttc, r3events.TOPIC_ACTIONS+r3events.CLIENTID_LIGHTCTRL+"/"+name, func(c mqtt.Client, msg mqtt.Message) {
+					var aon r3events.LightCtrlActionOnName
+					if msg.Retained() {
+						return
+					}
+					aon.Name = name
+					aon.Action = string(msg.Payload())
+					LogMain_.Printf("Main:LightCtrlMain with name==%s: %+v", name, aon)
+					switch_name_chan_ <- aon
+				})
+			}
 			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
 			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
 			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
 			go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, mqttc)
-			//and LAST but not least:
-			RequestStatusFromAllFancyLightsMQTT(mqttc)
 			return // no need to keep on trying, mqtt-auto-reconnect will do the rest now
 		} else {
 			time.Sleep(5 * time.Minute)
