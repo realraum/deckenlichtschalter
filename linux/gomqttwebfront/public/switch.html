@@ -109,168 +109,14 @@
       </div>
 
       <div style="float:left;">
-        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button id="onbtn_ceiling1" class="onbutton enableborder">On</button>
-        <button id="offbtn_ceiling1" class="offbutton">Off</button>
-        </span>
-        <div class="switchnameright">Decke E-Labor (SSW)</div></div>
-        <br>
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button id="onbtn_ceiling2" class="onbutton">On</button>
-        <button id="offbtn_ceiling2" class="offbutton enableborder">Off</button>
-        </span>
-        <div class="switchnameright">Decke Leinwand (S)</div></div>
-        <br>
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button id="onbtn_ceiling3" class="onbutton">On</button>
-        <button id="offbtn_ceiling3" class="offbutton enableborder">Off</button>
-        </span>
-        <div class="switchnameright">Decke Eingang (W)</div></div>
-        <br>
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button id="onbtn_ceiling4" class="onbutton enableborder">On</button>
-        <button id="offbtn_ceiling4" class="offbutton">Off</button>
-        </span>
-        <div class="switchnameright">Decke Durchgang (O)</div></div>
-        <br>
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button id="onbtn_ceiling5" class="onbutton enableborder">On</button>
-        <button id="offbtn_ceiling5" class="offbutton">Off</button>
-        </span>
-        <div class="switchnameright">Decke Lasercutter (N)</div></div>
-        <br>
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button id="onbtn_ceiling6" class="onbutton">On</button>
-        <button id="offbtn_ceiling6" class="offbutton enableborder">Off</button>
-        </span>
-        <div class="switchnameright">Decke Küche (NNO)</div></div>
-        <br>
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('ceiling1=1&amp;ceiling2=1&amp;ceiling3=1&amp;ceiling4=1&amp;ceiling5=1&amp;ceiling6=1&amp;');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('ceiling1=0&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=0&amp;ceiling6=0&amp;');">Off</button>
-        </span>
-        <div class="switchnameright">Alle</div></div>
-        <br>
-        <div class="switchbox">
-        <button class="sendbutton" onclick="sendMultiButton('ceiling1=0&amp;ceiling2=0&amp;ceiling3=1&amp;ceiling4=1&amp;ceiling5=0&amp;ceiling6=0');">[&nbsp;|&nbsp;]</button> <button class="sendbutton" onclick="sendMultiButton('ceiling1=1&amp;ceiling2=1&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=1&amp;ceiling6=1');">[|&nbsp;|]</button> <button class="sendbutton" onclick="sendMultiButton('ceiling1=1&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=1&amp;ceiling6=1');">[|&nbsp;.]</button> <button class="sendbutton" onclick="sendMultiButton('ceiling1=0&amp;ceiling2=1&amp;ceiling3=0&amp;ceiling4=1&amp;ceiling5=0&amp;ceiling6=1');">[***]</button> <button class="sendbutton" onclick="sendMultiButton('ceiling1=1&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=0&amp;ceiling6=1');">[*&nbsp;.]</button> <button class="sendbutton" onclick="sendMultiButton('ceiling1=0&amp;ceiling2=0&amp;ceiling3=0&amp;ceiling4=0&amp;ceiling5=1&amp;ceiling6=1');">[|&nbsp;&nbsp;]</button></div>
-        <br>
+        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divbasiclightwitchboxes">
+        <!-- JS populatedivrfswitchboxes adds Buttons -->
         </div>
       </div>
 
       <div style="float:left;">
-        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
-        <div class="switchbox" id="regalleinwand">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('regalleinwand=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('regalleinwand=0');">Off</button>
-        </span>
-        <div class="switchnameright">LEDs Regal Leinwand</div>
-        </div>
-        <br>
-        <div class="switchbox" id="labortisch">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('labortisch=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('labortisch=0');">Off</button>
-        </span>
-        <div class="switchnameright">TESLA Labortisch</div>
-        </div>
-        <br>
-        <div class="switchbox" id="floodtesla">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('floodtesla=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('floodtesla=0');">Off</button>
-        </span>
-        <div class="switchnameright">TESLA Deckenfluter</div>
-        </div>
-        <br>
-        <div class="switchbox" id="bluebar">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('bluebar=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('bluebar=0');">Off</button>
-        </span>
-        <div class="switchnameright">Blaue LEDs Bar</div>
-        </div>
-        <br>
-        <div class="switchbox" id="abwasch">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('abwasch=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('abwasch=0');">Off</button>
-        </span>
-        <div class="switchnameright">Licht Waschbecken</div>
-        </div>
-        <br>
-        <div class="switchbox" id="couchred">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('couchred=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('couchred=0');">Off</button>
-        </span>
-        <div class="switchnameright">LEDs Couch Red</div>
-        </div>
-        <br>
-        <div class="switchbox" id="couchwhite">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('couchwhite=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('couchwhite=0');">Off</button>
-        </span>
-        <div class="switchnameright">LEDS Couch White</div>
-        </div>
-        <br>
-        <div class="switchbox" id="cxleds">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('cxleds=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('cxleds=0');">Off</button>
-        </span>
-        <div class="switchnameright">CX Gang LEDs</div>
-        </div>
-        <br>
-        <div class="switchbox" id="mashadecke">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('mashadecke=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('mashadecke=0');">Off</button>
-        </span>
-        <div class="switchnameright">MaSha Werkstatt Decke</div>
-        </div>
-        <br>
-        <div class="switchbox" id="allrf">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('allrf=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('allrf=0');">Off</button>
-        </span>
-        <div class="switchnameright">Alle Funksteckdosen</div>
-        </div>
-        <br>
-        <div class="switchbox" id="ambientlights">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('ambientlights=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('ambientlights=0');">Off</button>
-        </span>
-        <div class="switchnameright">Ambient Lichter</div>
-        </div>
-        <br>
-        <div class="switchbox" id="boiler">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('boiler=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('boiler=0');">Off</button>
-        </span>
-        <div class="switchnameright">Warmwasser Küche</div>
-        </div>
-        <br>
-        <div class="switchbox" id="boilerolga">
-        <span class="alignbuttonsleft">
-        <button class="onbutton" onclick="sendMultiButton('boilerolga=1');">On</button>
-        <button class="offbutton" onclick="sendMultiButton('boilerolga=0');">Off</button>
-        </span>
-        <div class="switchnameright">Warmwasser OLGA</div>
-        </div>
-        <br>
+        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divrfswitchboxes">
+        <!-- JS populatedivrfswitchboxes adds Buttons -->
         </div>
       </div>
 
@@ -286,7 +132,6 @@
         <div class="switchbox" style="width:15em;">
           <div style="width:100%; font-weight: bold; color:white; background-color: black;">Pipe LEDs</div>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="off">OFF</button><br/>
-          <button class="textsendbutton" onclick="setLedPipePattern({pattern:'rainbow',brightness:10,speed:150,arg:5});">Rainbow10%</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="rainbow" pipebrightness="30" pipespeed="150" pipearg="5">Rainbow30%</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="rainbow" pipebrightness="50" pipespeed="150" pipearg="5">Rainbow50%</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="plasma" pipespeed="150">Plasma</button><br/>

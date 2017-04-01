@@ -1,57 +1,49 @@
-function renderCeilingButtonUpdate(data) {
-  for (var keyid in data) {
-    on_btn = document.getElementById("onbtn_"+keyid);
-    off_btn = document.getElementById("offbtn_"+keyid);
-    if (on_btn && off_btn)
-    {
-      on_btn.className = "onbutton";
-      off_btn.className = "offbutton";
-      if (data[keyid])
-      { on_btn.className += " enableborder"; }
-      else
-      { off_btn.className += " enableborder"; }
-    }
-  }
-}
+// function renderCeilingButtonUpdate(data) {
+//   for (var keyid in data) {
+//     on_btn = document.getElementById("onbtn_"+keyid);
+//     off_btn = document.getElementById("offbtn_"+keyid);
+//     if (on_btn && off_btn)
+//     {
+//       on_btn.className = "onbutton";
+//       off_btn.className = "offbutton";
+//       if (data[keyid])
+//       { on_btn.className += " enableborder"; }
+//       else
+//       { off_btn.className += " enableborder"; }
+//     }
+//   }
+// }
 
-function renderRFIRButtonUpdate(data) {
-  var snd_btn = document.getElementById(data.name);
+function renderRFIRButtonUpdate(snd_btn) {
   if (snd_btn)
   {
     var origclass = snd_btn.className;
     snd_btn.className += " activatedbtn";
 
     setTimeout(function(){
-      snd_btn.className = origclass;
-    },900);
+      $(".activatedbtn").removeClass("activatedbtn");
+    },700);
   }
 }
 
-function updateButtons(uri) {
-  var req = new XMLHttpRequest;
-  req.overrideMimeType("application/json");
-  req.open("GET", uri, true);
-  req.onload  = function() {
-    if (req.status != 200) {
-      return;
-    }
-    var data = JSON.parse(req.responseText);
-    renderCeilingButtonUpdate(data);
-  };
-  req.setRequestHeader("googlechromefix","");
-  req.send(null);
-}
-
-function sendMultiButton( str ) {
-  url = "/cgi-bin/mswitch.cgi?"+str;
-  updateButtons(url);
+function populatedivrfswitchboxes(elem, names) {
+  $.each(names, function(lightname, desc) {
+    $(elem).append('\
+      <div class="switchbox">\
+          <span class="alignbuttonsleft">\
+          <button class="onbutton" lightname="'+lightname+'" action="on">On</button>\
+          <button class="offbutton" lightname="'+lightname+'" action="off">Off</button>\
+          </span>\
+          <div class="switchnameright">'+desc+'</div>\
+      </div>\
+      <br>');
+  });
 }
 
 function sendYmhButton( btn ) {
-  //alert(btn);
   document.getElementById('indicator').style.backgroundColor="red";
   document.getElementById('commandlabel').innerHTML=btn;
-  sendMultiButton(btn+"=1");
+  sendMQTT("action/GoLightCtrl/"+btn,{Action:"send"});
   document.getElementById('indicator').style.backgroundColor="white";
   document.getElementById('commandlabel').innerHTML='&nbsp;';
 }
@@ -106,61 +98,116 @@ function popupFancyColorPicker(event) {
 }
 
 
+
+function sendMQTT_XHTTP(ctx, data) {
+  var req = new XMLHttpRequest;
+  req.open("POST", cgiUrl, true);
+  req.onload = function() {
+    if (req.status != 200) {
+      return;
+    }
+    var data = JSON.parse(req.responseText);
+    setButtonStates(data);
+  };
+  var param = "Ctx=" + encodeURIComponent(ctx);
+  params = params + "&Data="+encodeURIComponent(data);
+  params = params.replace(/%20/g, '+');
+  req.overrideMimeType("application/json");
+  req.setRequestHeader("googlechromefix","");
+  req.setRequestHeader("Content-length", params.length);
+  req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  req.setRequestHeader("Connection", "close");
+  req.send(params);
+}
+
+function sendMQTT(ctx, data) {
+  if (webSocketSupport) {
+    ws.send(ctx,data);
+  } else {
+    sendMQTT_XHTTP(ctx, data);
+  }
+}
+
+function setLedPipePattern(data) {
+  sendMQTT("action/PipeLEDs/pattern",data);
+}
+
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
 var cgiUrl = '/cgi-bin/mswitch.cgi';
 //var cgiUrl = 'fake.json';
 
 var webSocketSupport = null;
 
-setLedPipePattern = function(){};
+populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
+  "regalleinwand":"LEDs Regal Leinwand",
+  "labortisch":"TESLA Labortisch",
+  "floodtesla":"TESLA Deckenfluter",
+  "bluebar":"Blaue LEDs Bar",
+  "abwasch":"Licht Waschbecken",
+  "couchred":"LEDs Couch Red",
+  "couchwhite":"LEDS Couch White",
+  "cxleds":"CX Gang LEDs",
+  "mashadecke":"MaSha Werkstatt Decke",
+  "allrf":"Alle Funksteckdosen",
+  "ambientlights":"Ambient Lichter",
+  "boiler":"Warmwasser Küche",
+  "boilerolga":"Warmwasser OLGA"
+});
 
-function openWebSocket(webSocketUrl) {
-  ws.registerContext("ceilinglights",renderCeilingButtonUpdate);
-  ws.registerContext("wbp",renderRFIRButtonUpdate);
-  ws.open(webSocketUrl);
-}
+populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
+"ceiling1":"Decke Leinwand",
+"ceiling2":"Decke Durchgang",
+"ceiling3":"Decke Kücke",
+"ceiling4":"Decke Lasercutter",
+"ceiling5":"Decke Eingang",
+"ceiling6":"Decke Tesla",
+"ceilingAll":"Alle BasicLights",
+});
 
 (function() {
   webSocketSupport = hasWebSocketSupport();
   if (webSocketSupport) {
-    openWebSocket(webSocketUrl);
+    ws.open(webSocketUrl);
   } else {
     updateButtons("/cgi-bin/mswitch.cgi");
     setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);
   }
 
-  var onbtns = document.getElementsByClassName('onbutton');
-  var offbtns = document.getElementsByClassName('offbutton');
+  var topics_to_subscribe = {};
+
+  var onbtns = [].slice.call(document.getElementsByClassName('onbutton'));
+  var offbtns = [].slice.call(document.getElementsByClassName('offbutton'));
+  var onoffbtn = Array.concat(onbtns,offbtns);
   var fancypresetbtns = document.getElementsByClassName('fancylightpresetbutton');
   var ledpipepresetbtns = document.getElementsByClassName('ledpipepresetbutton');
-  for (var i = 0; i < onbtns.length; i++) {
-    onbtns[i].addEventListener('click', function() {
-      var id = this.getAttribute('id');
-      if (!id) {
-        return;
-      }
-      var name = id.substr(id.indexOf("_")+1);
-      if (webSocketSupport) {
-        ws.send("LightCtrlActionOnName",{Name:name, Action:'1'});
-      } else {
-        sendMultiButton(name+"=1");
-      }
+  for (var i = 0; i < onoffbtn.length; i++) {
+    var lightname = onoffbtn[i].getAttribute("lightname");
+    var action = onoffbtn[i].getAttribute("action");
+    if (lightname) {
+      var topic = "action/GoLightCtrl/"+lightname;
+      onoffbtn[i].addEventListener('click', function(topic, action) {
+        return function() {  sendMQTT(topic,{Action:action});  };
+      }(topic, action));
+      topics_to_subscribe[topic] = lightname;
+    }
+  }
+  if (webSocketSupport) {
+    $.each(topics_to_subscribe, function(topic, lightname) {
+      ws.registerContext(topic, function(topic) {
+        var btns = $("button[lightname="+lightname+"]");
+        return function(data) {
+          btns.each(function(idx,elem) {
+            if (elem.getAttribute("action") == data.Action) 
+            {
+              renderRFIRButtonUpdate(elem);
+            }
+          });
+        };
+      }(topic));
     });
   }
-  for (var i = 0; i < offbtns.length; i++) {
-    offbtns[i].addEventListener('click', function() {
-      var id = this.getAttribute('id');
-      if (!id) {
-        return;
-      }
-      var name = id.substr(id.indexOf("_")+1);
-      if (webSocketSupport) {
-        ws.send("LightCtrlActionOnName",{Name:name, Action:'0'});
-      } else {
-        sendMultiButton(name+"=0");
-      }
-    });
-  }
+
+
   for (var i = 0; i < fancypresetbtns.length; i++) {
     fancypresetbtns[i].addEventListener('click', function() {
       var name = this.getAttribute("name");
@@ -214,24 +261,7 @@ function openWebSocket(webSocketUrl) {
   //draw color picker canvases
   init_colour_temp_picker();
   //define setLedPipePattern(objdata)
-  if (webSocketSupport) {
-      setLedPipePattern=function(objdata) {
-        ws.send("SetPipeLEDsPattern",objdata);
-      }
-  } else {
-      setLedPipePattern=function(objdata) {
-        var req = new XMLHttpRequest;
-        req.overrideMimeType("application/json");
-        req.open("GET", "/cgi-bin/ledpipe.cgi?data="+JSON.stringify(objdata), true);
-        req.onload  = function() {
-          if (req.status != 200) {
-            return;
-          }
-        };
-        req.setRequestHeader("googlechromefix","");
-        req.send(null);
-      }
-  }
+
 for (var i = 0; i < ledpipepresetbtns.length; i++) {
     ledpipepresetbtns[i].addEventListener('click', function() {
       var pipepattern = this.getAttribute("pipepattern");
@@ -250,7 +280,6 @@ for (var i = 0; i < ledpipepresetbtns.length; i++) {
         document.getElementById("pipehue").value=hue;
       }
       if (speed) {
-        console.log(speed)
         document.getElementById("pipespeed").value=speed;
       }      
     });
