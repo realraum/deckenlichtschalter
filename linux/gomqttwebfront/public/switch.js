@@ -218,20 +218,7 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
       var CW = parseInt(this.getAttribute("ledcw")) || 0;
       var WW = parseInt(this.getAttribute("ledww")) || 0;
       var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
-      if (webSocketSupport) {
-        ws.send("FancyLight",{name:name, setting:settings});
-      } else {
-        var req = new XMLHttpRequest;
-        req.overrideMimeType("application/json");
-        req.open("GET", "/cgi-bin/fancylight.cgi?name="+name+"&setting="+JSON.stringify(settings), true);
-        req.onload  = function() {
-          if (req.status != 200) {
-            return;
-          }
-        };
-        req.setRequestHeader("googlechromefix","");
-        req.send(null);
-      }
+      sendMQTT("action/"+name+"/light",settings);
     });
   }
   $(".fancylightcolourtempselectorbutton").click(popupFancyColorPicker);
@@ -243,20 +230,7 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
       var CW = parseInt($('#CW input').val()) || 0;
       var WW = parseInt($('#WW input').val()) || 0;
       var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
-      if (webSocketSupport) {
-        ws.send("FancyLight",{name:fancycolorpicker_apply_name, setting:settings});
-      } else {
-        var req = new XMLHttpRequest;
-        req.overrideMimeType("application/json");
-        req.open("GET", "/cgi-bin/fancylight.cgi?name="+fancycolorpicker_apply_name+"&setting="+JSON.stringify(settings), true);
-        req.onload  = function() {
-          if (req.status != 200) {
-            return;
-          }
-        };
-        req.setRequestHeader("googlechromefix","");
-        req.send(null);
-      }
+      sendMQTT("action/"+fancycolorpicker_apply_name+"/light",settings);
   });
   //draw color picker canvases
   init_colour_temp_picker();
