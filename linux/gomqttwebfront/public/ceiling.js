@@ -80,7 +80,7 @@ var topic_fancy_ceiling6 = "action/ceiling6/light"
 var topic_fancy_ceiling7 = "action/ceiling7/light"
 var topic_fancy_ceiling8 = "action/ceiling8/light"
 var topic_fancy_ceiling9 = "action/ceiling9/light"
-var topic_namectrl = "action/GoNameCtrl/name"
+var topic_namectrl = "action/GoLightCtrl/"
 
 var buttons = {
   ceiling1: false,
@@ -91,73 +91,77 @@ var buttons = {
   ceiling6: false
 };
 
-function renderCeilingButtonUpdate(data) {
-  for (var keyid in data) {
-    btn = document.getElementById(keyid);
-    if ($(btn).hasClass("rfir"))
-    {
-      var origclass = snd_btn.className;
-      snd_btn.className += " activatedbtn";
-
-      setTimeout(function(){
-        snd_btn.className = origclass;
-      },900);
-    }
-  }
-}
-
-function openWebSocket(webSocketUrl) {
-  ws.registerContext("ceilinglights",setButtonStates);
-  ws.registerContext("FancyLight",setFancyLightStates);
-  ws.registerContext("wbp",renderCeilingButtonUpdate);
-  ws.open(webSocketUrl);
-}
-
 (function() {
   $(window).on('resize orientationchange', resizeRoomImg);
   resizeRoomImg();
 
   webSocketSupport = hasWebSocketSupport();
-  if (webSocketSupport) {
-    openWebSocket(webSocketUrl);
-  } else {
-    switchButton();
-  }
 
   var ceilings = document.getElementsByClassName('ceiling');
   for (var i = 0; i < ceilings.length; i++) {
+
     ceilings[i].addEventListener('click', function() {
       var id = this.getAttribute('id');
+      var topic = topic_namectrl + id;
       if (!buttons.hasOwnProperty(id)) {
         return;
       }
-      if (webSocketSupport) {
-        switchButtonWebSocket(id, !buttons[id]);
+      if (buttons[id]) {
+        sendMQTT(topic, {Action:"off"});
       } else {
-        switchButton(id, !buttons[id]);
+        sendMQTT(topic, {Action:"on"});
       }
     });
+
+    if (webSocketSupport) {
+      var keyid = ceilings[i].getAttribute('id');
+      var topic = topic_namectrl + keyid;
+      ws.registerContext(topic, (function(topic,keyid) {
+        return function(data) {
+          console.log(topic, data);
+          if (data.Action == "1" || data.Action == "on" || data.Action == "send") {
+            buttons[keyid] = true;
+          } else {
+            buttons[keyid] = false;
+          }
+          renderButtonStates();
+        };
+      }(topic, keyid)));
+    }
   }
 
   var rfirs = document.getElementsByClassName('rfir');
   for (var i = 0; i < rfirs.length; i++) {
     rfirs[i].addEventListener('click', function(event) {
       var id = this.getAttribute('id');
+      var topic = topic_namectrl + id;
       var offset = $(this).offset();
       var relX = (event.pageX - offset.left) / $(this).width();
       var relY = (event.pageY - offset.top) / $(this).height();
       var sendState = relX + relY < 1;
-      if (webSocketSupport) {
-        switchButtonWebSocket(id, sendState);
+      if (sendState) {
+        sendMQTT(topic, {Action:"on"});
       } else {
-        switchButton(id, sendState);
+        sendMQTT(topic, {Action:"off"});
       }
     });
   }
 
-  if (!webSocketSupport) {
+  if (webSocketSupport) {
+    ws.registerContext(topic_fancy_ceiling1, function(data){console.log(topic_fancy_ceiling1,data);});
+    ws.registerContext(topic_fancy_ceiling2, function(data){console.log(topic_fancy_ceiling2,data);});
+    ws.registerContext(topic_fancy_ceiling3, function(data){console.log(topic_fancy_ceiling3,data);});
+    ws.registerContext(topic_fancy_ceiling4, function(data){console.log(topic_fancy_ceiling4,data);});
+    ws.registerContext(topic_fancy_ceiling5, function(data){console.log(topic_fancy_ceiling5,data);});
+    ws.registerContext(topic_fancy_ceiling6, function(data){console.log(topic_fancy_ceiling6,data);});
+    ws.registerContext(topic_fancy_ceiling7, function(data){console.log(topic_fancy_ceiling7,data);});
+    ws.registerContext(topic_fancy_ceiling8, function(data){console.log(topic_fancy_ceiling8,data);});
+    ws.registerContext(topic_fancy_ceiling9, function(data){console.log(topic_fancy_ceiling9,data);});  
+    ws.open(webSocketUrl);
+  } else {
+    sendMQTT_XHTTP("","");
     setInterval(function() {
-      switchButton();
+      sendMQTT_XHTTP("","");
     }, 30*1000);
   }
 })();

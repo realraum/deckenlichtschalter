@@ -56,7 +56,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 	//
 	//now try connect to mqtt daemon until it works once
 	for {
-		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOMQTTWEBFRONT_MQTTBROKER", DEFAULT_GOMQTTWEBFRONT_MQTTBROKER), EnvironOrDefault("GOMQTTWEBFRONT_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
+		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOMQTTWEBFRONT_MQTTBROKER", DEFAULT_GOMQTTWEBFRONT_MQTTBROKER), EnvironOrDefault("GOMQTTWEBFRONT_CLIENTID", r3events.CLIENTID_WEBFRONT))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
 			topic_in_chan := SubscribeMultipleAndForwardToChannel(mqttc, ws_allowed_ctx_startwith)

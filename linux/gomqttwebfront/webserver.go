@@ -16,7 +16,29 @@ import (
 
 var (
 	ws_allowed_ctx_startwith = []string{r3events.ACT_PIPELEDS_PATTERN, r3events.ACT_YAMAHA_SEND,
-		"action/GoNameCtrl/",
+		"action/GoLightCtrl/all",
+		"action/GoLightCtrl/allrf",
+		"action/GoLightCtrl/ceiling1",
+		"action/GoLightCtrl/ceiling2",
+		"action/GoLightCtrl/ceiling3",
+		"action/GoLightCtrl/ceiling4",
+		"action/GoLightCtrl/ceiling5",
+		"action/GoLightCtrl/ceiling6",
+		"action/GoLightCtrl/ymhpoweroff",
+		"action/GoLightCtrl/ymhpower",
+		"action/GoLightCtrl/bluebar",
+		"action/GoLightCtrl/couchwhite",
+		"action/GoLightCtrl/couchred",
+		"action/GoLightCtrl/abwasch",
+		"action/GoLightCtrl/cxleds",
+		"action/GoLightCtrl/mashadecke",
+		"action/GoLightCtrl/ambientlights",
+		"action/GoLightCtrl/spots",
+		"action/GoLightCtrl/regalleinwand",
+		"action/GoLightCtrl/labortisch",
+		"action/GoLightCtrl/floodtesla",
+		"action/GoLightCtrl/boilerolga",
+		"action/GoLightCtrl/boiler",
 		"action/ceilingscripts/activatescript",
 		"action/ceilingAll/light",
 		"action/ceiling1/light",
@@ -54,10 +76,10 @@ func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFutu
 		case <-shutdown_chan:
 			return
 		case webmsg_i := <-msgtoall_chan:
-			if webmsg, castok := webmsg_i.(MQTTOutboundMsg); castok {
+			if webmsg, castok := webmsg_i.(wsMessageOut); castok {
 				if webjson, err := json.Marshal(webmsg); err == nil {
 					ps_.PubNonBlocking(webjson, PS_WEBSOCK_ALL_JSON)
-					retained_json_map[webmsg.topic] = webjson
+					retained_json_map[webmsg.Ctx] = webjson
 				} else {
 					LogWS_.Println(err)
 				}
@@ -241,12 +263,16 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_json_ch
 		var v wsMessage
 		err := ws.ReadJSON(&v)
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-				LogWS_.Printf("webHandleWebSocket Error: %v", err)
+			if _, iswserr := err.(*websocket.CloseError); iswserr {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+					LogWS_.Printf("webHandleWebSocket Error: %v", err)
+				}
+				break
+			} else {
+				LogWS_.Printf("webHandleWebSocket nonfatal Error: %v", err)
 			}
-			break
 		}
-
+		LogWS_.Printf("webHandleWebSocket Gotmsg: %+v", v)
 		if stringInSlice(v.Ctx, ws_allowed_ctx_startwith) {
 			//TODO: sanity check json payload that goes from web to MQTT
 			//TODO: then sanity check specific structs
@@ -261,6 +287,7 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_json_ch
 			MQTT_sendmsg_chan_ <- MQTTOutboundMsg{topic: v.Ctx, msg: v.Data}
 		}
 	}
+	LogWS_.Println("webHandleWebSocket terminating", ws.RemoteAddr())
 }
 
 func webRedirectToFallbackHTML(w http.ResponseWriter, r *http.Request) {
