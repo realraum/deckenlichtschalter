@@ -72,15 +72,16 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 				LogMain_.Printf("Main:LightCtrlMain: %+v", aon)
 				switch_name_chan_ <- aon
 			})
+			topic_lightctrl_pre := r3events.TOPIC_ACTIONS + r3events.CLIENTID_LIGHTCTRL + "/"
 			for name, _ := range actionname_map_ {
-				SubscribeAndAttachCallback(mqttc, r3events.TOPIC_ACTIONS+r3events.CLIENTID_LIGHTCTRL+"/"+name, func(c mqtt.Client, msg mqtt.Message) {
+				SubscribeAndAttachCallback(mqttc, topic_lightctrl_pre+name, func(c mqtt.Client, msg mqtt.Message) {
 					var aon r3events.LightCtrlActionOnName
 					if msg.Retained() {
 						return
 					}
-					aon.Name = name
+					aon.Name = msg.Topic()[len(topic_lightctrl_pre):]
 					aon.Action = string(msg.Payload())
-					LogMain_.Printf("Main:LightCtrlMain with name==%s: %+v", name, aon)
+					LogMain_.Printf("Main:LightCtrlMain: %+v", aon)
 					switch_name_chan_ <- aon
 				})
 			}
