@@ -157,7 +157,7 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
 "ceiling1":"Decke Leinwand",
 "ceiling2":"Decke Durchgang",
-"ceiling3":"Decke Kücke",
+"ceiling3":"Decke Küche",
 "ceiling4":"Decke Lasercutter",
 "ceiling5":"Decke Eingang",
 "ceiling6":"Decke Tesla",
@@ -177,7 +177,7 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
 
   var onbtns = [].slice.call(document.getElementsByClassName('onbutton'));
   var offbtns = [].slice.call(document.getElementsByClassName('offbutton'));
-  var onoffbtn = Array.concat(onbtns,offbtns);
+  var onoffbtn = Array.prototype.concat(onbtns,offbtns);
   var fancypresetbtns = document.getElementsByClassName('fancylightpresetbutton');
   var ledpipepresetbtns = document.getElementsByClassName('ledpipepresetbutton');
   for (var i = 0; i < onoffbtn.length; i++) {

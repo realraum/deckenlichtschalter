@@ -211,6 +211,7 @@ div.pipeslider input {
 
 button.leftalignroundedbutton {
    padding: 4.5px 9px;
+   font-size:80%;
    letter-spacing:.1em;
    font-variant:small-caps;
    /*give the corners a small curve*/
@@ -223,6 +224,7 @@ button.leftalignroundedbutton {
 
 
 .onoffswitch {
+    font-size:80%;
     position: relative; width: 85px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
     margin:1px;
