@@ -7,14 +7,32 @@ type jsonButtonUsed struct {
 	Name string `json:"name"`
 }
 
-type ActionNameHandler struct {
-	handler     string
-	codeon      []byte
-	codeoff     []byte
-	codedefault []byte
-	metaaction  []string
-	pipepattern *r3events.SetPipeLEDsPattern
+type ActionRFCode struct {
+	codeon  []byte
+	codeoff []byte
+	handler string
 }
+
+type ActionPipePattern *r3events.SetPipeLEDsPattern
+
+type ActionMQTTMsg struct {
+	topic   string
+	payload []byte
+}
+
+type ActionMeta struct {
+	metaaction []string
+}
+
+type ActionIRCmdMQTT struct {
+	ircmd string
+}
+
+type ActionBasicLight struct {
+	light int
+}
+
+type ActionNameHandler interface{}
 
 type RFCmdToSend struct {
 	handler string

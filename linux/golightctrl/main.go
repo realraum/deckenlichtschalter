@@ -50,6 +50,9 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 			case <-shutdown_c:
 				return
 			case <-MQTT_ir_chan_:
+				//drop
+			case <-MQTT_chan_:
+				//drop
 			}
 		}
 	}()
@@ -88,6 +91,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 			ps_.Pub(true, PS_SHUTDOWN_CONSUMER) //shutdown all chan consumers for mqttc == nil
 			time.Sleep(5 * time.Second)         //avoid goLinearizeRFSender that we start below to shutdown right away
 			go goSendIRCmdToMQTT(mqttc, MQTT_ir_chan_)
+			go goSendMQTTMsg(mqttc, MQTT_chan_)
 			go goLinearizeRFSenders(ps_, RF433_linearize_chan_, tty_rf433_chan, mqttc)
 			return // no need to keep on trying, mqtt-auto-reconnect will do the rest now
 		} else {

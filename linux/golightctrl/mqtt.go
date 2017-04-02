@@ -71,6 +71,15 @@ func ConnectMQTTBroker(brocker_addr, clientid string) mqtt.Client {
 	return c
 }
 
+func goSendMQTTMsg(mqttc mqtt.Client, mqtt_msg_chan chan ActionMQTTMsg) {
+	if mqttc == nil {
+		return
+	}
+	for msg := range mqtt_msg_chan {
+		mqttc.Publish(msg.topic, MQTT_QOS_REQCONFIRMATION, false, msg.payload)
+	}
+}
+
 func sendCodeToMQTT(mqttc mqtt.Client, code []byte) {
 	if mqttc == nil {
 		return

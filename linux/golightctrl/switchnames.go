@@ -7,6 +7,7 @@ import (
 
 	"github.com/btittelbach/pubsub"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/realraum/door_and_sensors/r3events"
 )
 
 const (
@@ -21,66 +22,122 @@ const (
 	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
 
+var payload_fancyoff []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
+var payload_fancyww1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":200}")
+var payload_fancyww2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":500}")
+var payload_fancycw1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":500,\"ww\":0}")
+var payload_fancyww3 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":1000}")
+var payload_fancywwcw []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":1000,\"ww\":1000}")
+var payload_fancyww4 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":200,\"ww\":1000}")
+var payload_fancyc1 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
+var payload_fancyc2 []byte = []byte("{\"r\":400,\"g\":0,\"b\":40,\"cw\":0,\"ww\":0}")
+var payload_fancyc3 []byte = []byte("{\"r\":0,\"g\":500,\"b\":0,\"cw\":0,\"ww\":0}")
+var payload_fancyc4 []byte = []byte("{\"r\":0,\"g\":0,\"b\":300,\"cw\":0,\"ww\":0}")
+
+func fancytopic(light int) string {
+	return r3events.TOPIC_ACTIONS + fmt.Sprintf("ceiling%d/", light) + r3events.TYPE_LIGHT
+}
+
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	//RF Power Outlets
-	"regalleinwand": ActionNameHandler{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote B 1
-	"bluebar":       ActionNameHandler{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote C 1
-	"labortisch":    ActionNameHandler{codeon: []byte{0xa2, 0xa2, 0x8a}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH}, //polling 01000 a
-	"boilerolga":    ActionNameHandler{codeon: []byte{0xa2, 0x8a, 0x8a}, codeoff: []byte{0xa2, 0x8a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 b
+	"regalleinwand": ActionRFCode{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote B 1
+	"bluebar":       ActionRFCode{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote C 1
+	"labortisch":    ActionRFCode{codeon: []byte{0xa2, 0xa2, 0x8a}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH}, //polling 01000 a
+	"boilerolga":    ActionRFCode{codeon: []byte{0xa2, 0x8a, 0x8a}, codeoff: []byte{0xa2, 0x8a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 b
 	// "??":            ActionNameHandler{codeon: []byte{0xa2, 0x2a, 0x8a}, codeoff: []byte{0xa2, 0x2a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 c
-	"floodtesla": ActionNameHandler{codeon: []byte{0xa2, 0xaa, 0x88}, codeoff: []byte{0xa2, 0xaa, 0x28}, handler: RFCode2BOTH}, //polling 01000 b
-	"couchred":   ActionNameHandler{codeon: []byte{0x8a, 0xa0, 0x8a}, codeoff: []byte{0x8a, 0xa0, 0x2a}, handler: RFCode2TTY},  //pollin 00101 a
-	"cxleds":     ActionNameHandler{codeon: []byte{0x8a, 0x88, 0x8a}, codeoff: []byte{0x8a, 0x88, 0x2a}, handler: RFCode2TTY},  //pollin 00101 b
-	"couchwhite": ActionNameHandler{codeon: []byte{0x8a, 0xa8, 0x88}, codeoff: []byte{0x8a, 0xa8, 0x28}, handler: RFCode2TTY},  //pollin 00101 d
-	"mashadecke": ActionNameHandler{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2BOTH}, //pollin 00101 c
-	"boiler":     ActionNameHandler{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
-	"spots":      ActionNameHandler{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
-	"abwasch":    ActionNameHandler{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2MQTT}, //alte jk16 decke vorne
+	"floodtesla": ActionRFCode{codeon: []byte{0xa2, 0xaa, 0x88}, codeoff: []byte{0xa2, 0xaa, 0x28}, handler: RFCode2BOTH}, //polling 01000 b
+	"couchred":   ActionRFCode{codeon: []byte{0x8a, 0xa0, 0x8a}, codeoff: []byte{0x8a, 0xa0, 0x2a}, handler: RFCode2TTY},  //pollin 00101 a
+	"cxleds":     ActionRFCode{codeon: []byte{0x8a, 0x88, 0x8a}, codeoff: []byte{0x8a, 0x88, 0x2a}, handler: RFCode2TTY},  //pollin 00101 b
+	"couchwhite": ActionRFCode{codeon: []byte{0x8a, 0xa8, 0x88}, codeoff: []byte{0x8a, 0xa8, 0x28}, handler: RFCode2TTY},  //pollin 00101 d
+	"mashadecke": ActionRFCode{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2BOTH}, //pollin 00101 c
+	"boiler":     ActionRFCode{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
+	"spots":      ActionRFCode{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
+	"abwasch":    ActionRFCode{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2MQTT}, //alte jk16 decke vorne
 	//rf not to be included in any, just for resetting POEarduino
-	"olgatemp": ActionNameHandler{codeon: []byte{0x00, 0xa2, 0x8a}, codeoff: []byte{0x00, 0xa2, 0x2a}, handler: RFCode2TTY}, // Funksteckdose an welcher olgafreezer.realraum.at hängt
+	"olgatemp": ActionRFCode{codeon: []byte{0x00, 0xa2, 0x8a}, codeoff: []byte{0x00, 0xa2, 0x2a}, handler: RFCode2TTY}, // Funksteckdose an welcher olgafreezer.realraum.at hängt
 
 	//Yamaha IR codes
-	"ymhpoweroff":  ActionNameHandler{codedefault: []byte("ymhpoweroff"), handler: IRCmd2MQTT},
-	"ymhpower":     ActionNameHandler{codedefault: []byte("ymhpower"), codeoff: []byte("ymhpoweroff"), handler: IRCmd2MQTT},
-	"ymhpoweron":   ActionNameHandler{codedefault: []byte("ymhpoweron"), handler: IRCmd2MQTT},
-	"ymhcd":        ActionNameHandler{codedefault: []byte("ymhcd"), handler: IRCmd2MQTT},
-	"ymhtuner":     ActionNameHandler{codedefault: []byte("ymhtuner"), handler: IRCmd2MQTT},
-	"ymhtape":      ActionNameHandler{codedefault: []byte("ymhtape"), handler: IRCmd2MQTT},
-	"ymhwdtv":      ActionNameHandler{codedefault: []byte("ymhwdtv"), handler: IRCmd2MQTT},
-	"ymhsattv":     ActionNameHandler{codedefault: []byte("ymhsattv"), handler: IRCmd2MQTT},
-	"ymhvcr":       ActionNameHandler{codedefault: []byte("ymhvcr"), handler: IRCmd2MQTT},
-	"ymh7":         ActionNameHandler{codedefault: []byte("ymh7"), handler: IRCmd2MQTT},
-	"ymhaux":       ActionNameHandler{codedefault: []byte("ymhaux"), handler: IRCmd2MQTT},
-	"ymhextdec":    ActionNameHandler{codedefault: []byte("ymhextdec"), handler: IRCmd2MQTT},
-	"ymhtest":      ActionNameHandler{codedefault: []byte("ymhtest"), handler: IRCmd2MQTT},
-	"ymhtunabcde":  ActionNameHandler{codedefault: []byte("ymhtunabcde"), handler: IRCmd2MQTT},
-	"ymheffect":    ActionNameHandler{codedefault: []byte("ymheffect"), handler: IRCmd2MQTT},
-	"ymhtunplus":   ActionNameHandler{codedefault: []byte("ymhtunplus"), handler: IRCmd2MQTT},
-	"ymhtunminus":  ActionNameHandler{codedefault: []byte("ymhtunminus"), handler: IRCmd2MQTT},
-	"ymhvolup":     ActionNameHandler{codedefault: []byte("ymhvolup"), handler: IRCmd2MQTT},
-	"ymhvoldown":   ActionNameHandler{codedefault: []byte("ymhvoldown"), handler: IRCmd2MQTT},
-	"ymhvolmute":   ActionNameHandler{codedefault: []byte("ymhvolmute"), handler: IRCmd2MQTT},
-	"ymhmenu":      ActionNameHandler{codedefault: []byte("ymhmenu"), handler: IRCmd2MQTT},
-	"ymhplus":      ActionNameHandler{codedefault: []byte("ymhplus"), handler: IRCmd2MQTT},
-	"ymhminus":     ActionNameHandler{codedefault: []byte("ymhminus"), handler: IRCmd2MQTT},
-	"ymhtimelevel": ActionNameHandler{codedefault: []byte("ymhtimelevel"), handler: IRCmd2MQTT},
-	"ymhprgdown":   ActionNameHandler{codedefault: []byte("ymhprgdown"), handler: IRCmd2MQTT},
-	"ymhprgup":     ActionNameHandler{codedefault: []byte("ymhprgup"), handler: IRCmd2MQTT},
-	"ymhsleep":     ActionNameHandler{codedefault: []byte("ymhsleep"), handler: IRCmd2MQTT},
-	"ymhp5":        ActionNameHandler{codedefault: []byte("ymhp5"), handler: IRCmd2MQTT},
+	"ymhpoweroff":  ActionIRCmdMQTT{ircmd: "ymhpoweroff"},
+	"ymhpower":     ActionIRCmdMQTT{ircmd: "ymhpower"},
+	"ymhpoweron":   ActionIRCmdMQTT{ircmd: "ymhpoweron"},
+	"ymhcd":        ActionIRCmdMQTT{ircmd: "ymhcd"},
+	"ymhtuner":     ActionIRCmdMQTT{ircmd: "ymhtuner"},
+	"ymhtape":      ActionIRCmdMQTT{ircmd: "ymhtape"},
+	"ymhwdtv":      ActionIRCmdMQTT{ircmd: "ymhwdtv"},
+	"ymhsattv":     ActionIRCmdMQTT{ircmd: "ymhsattv"},
+	"ymhvcr":       ActionIRCmdMQTT{ircmd: "ymhvcr"},
+	"ymh7":         ActionIRCmdMQTT{ircmd: "ymh7"},
+	"ymhaux":       ActionIRCmdMQTT{ircmd: "ymhaux"},
+	"ymhextdec":    ActionIRCmdMQTT{ircmd: "ymhextdec"},
+	"ymhtest":      ActionIRCmdMQTT{ircmd: "ymhtest"},
+	"ymhtunabcde":  ActionIRCmdMQTT{ircmd: "ymhtunabcde"},
+	"ymheffect":    ActionIRCmdMQTT{ircmd: "ymheffect"},
+	"ymhtunplus":   ActionIRCmdMQTT{ircmd: "ymhtunplus"},
+	"ymhtunminus":  ActionIRCmdMQTT{ircmd: "ymhtunminus"},
+	"ymhvolup":     ActionIRCmdMQTT{ircmd: "ymhvolup"},
+	"ymhvoldown":   ActionIRCmdMQTT{ircmd: "ymhvoldown"},
+	"ymhvolmute":   ActionIRCmdMQTT{ircmd: "ymhvolmute"},
+	"ymhmenu":      ActionIRCmdMQTT{ircmd: "ymhmenu"},
+	"ymhplus":      ActionIRCmdMQTT{ircmd: "ymhplus"},
+	"ymhminus":     ActionIRCmdMQTT{ircmd: "ymhminus"},
+	"ymhtimelevel": ActionIRCmdMQTT{ircmd: "ymhtimelevel"},
+	"ymhprgdown":   ActionIRCmdMQTT{ircmd: "ymhprgdown"},
+	"ymhprgup":     ActionIRCmdMQTT{ircmd: "ymhprgup"},
+	"ymhsleep":     ActionIRCmdMQTT{ircmd: "ymhsleep"},
+	"ymhp5":        ActionIRCmdMQTT{ircmd: "ymhp5"},
 
-	"ceiling1": ActionNameHandler{codeon: []byte{0, 1}, codeoff: []byte{0, 0}, handler: CeilingLightByteState},
-	"ceiling2": ActionNameHandler{codeon: []byte{1, 1}, codeoff: []byte{1, 0}, handler: CeilingLightByteState},
-	"ceiling3": ActionNameHandler{codeon: []byte{2, 1}, codeoff: []byte{2, 0}, handler: CeilingLightByteState},
-	"ceiling4": ActionNameHandler{codeon: []byte{3, 1}, codeoff: []byte{3, 0}, handler: CeilingLightByteState},
-	"ceiling5": ActionNameHandler{codeon: []byte{4, 1}, codeoff: []byte{4, 0}, handler: CeilingLightByteState},
-	"ceiling6": ActionNameHandler{codeon: []byte{5, 1}, codeoff: []byte{5, 0}, handler: CeilingLightByteState},
+	//Basic Light
+	"ceiling1": ActionBasicLight{0},
+	"ceiling2": ActionBasicLight{1},
+	"ceiling3": ActionBasicLight{2},
+	"ceiling4": ActionBasicLight{3},
+	"ceiling5": ActionBasicLight{4},
+	"ceiling6": ActionBasicLight{5},
+
+	//Fancy Light
+	"fancyalloff": ActionMQTTMsg{r3events.TOPIC_ACTIONS + r3events.CLIENTID_CEILINGALL + "/" + r3events.TYPE_LIGHT, payload_fancyoff},
+	"fancy1off":   ActionMQTTMsg{fancytopic(1), payload_fancyoff},
+	"fancy2off":   ActionMQTTMsg{fancytopic(2), payload_fancyoff},
+	"fancy3off":   ActionMQTTMsg{fancytopic(3), payload_fancyoff},
+	"fancy4off":   ActionMQTTMsg{fancytopic(4), payload_fancyoff},
+	"fancy5off":   ActionMQTTMsg{fancytopic(5), payload_fancyoff},
+	"fancy6off":   ActionMQTTMsg{fancytopic(6), payload_fancyoff},
+	"fancy7off":   ActionMQTTMsg{fancytopic(7), payload_fancyoff},
+	"fancy8off":   ActionMQTTMsg{fancytopic(8), payload_fancyoff},
+	"fancy9off":   ActionMQTTMsg{fancytopic(9), payload_fancyoff},
+	"fancy1ww1":   ActionMQTTMsg{fancytopic(1), payload_fancyww1},
+	"fancy2ww1":   ActionMQTTMsg{fancytopic(2), payload_fancyww1},
+	"fancy3ww1":   ActionMQTTMsg{fancytopic(3), payload_fancyww1},
+	"fancy4ww1":   ActionMQTTMsg{fancytopic(4), payload_fancyww1},
+	"fancy5ww1":   ActionMQTTMsg{fancytopic(5), payload_fancyww1},
+	"fancy6ww1":   ActionMQTTMsg{fancytopic(6), payload_fancyww1},
+	"fancy7ww1":   ActionMQTTMsg{fancytopic(7), payload_fancyww1},
+	"fancy8ww1":   ActionMQTTMsg{fancytopic(8), payload_fancyww1},
+	"fancy9ww1":   ActionMQTTMsg{fancytopic(9), payload_fancyww1},
+	"fancy1ww2":   ActionMQTTMsg{fancytopic(1), payload_fancyww2},
+	"fancy2ww2":   ActionMQTTMsg{fancytopic(2), payload_fancyww2},
+	"fancy3ww2":   ActionMQTTMsg{fancytopic(3), payload_fancyww2},
+	"fancy4ww2":   ActionMQTTMsg{fancytopic(4), payload_fancyww2},
+	"fancy5ww2":   ActionMQTTMsg{fancytopic(5), payload_fancyww2},
+	"fancy6ww2":   ActionMQTTMsg{fancytopic(6), payload_fancyww2},
+	"fancy7ww2":   ActionMQTTMsg{fancytopic(7), payload_fancyww2},
+	"fancy8ww2":   ActionMQTTMsg{fancytopic(8), payload_fancyww2},
+	"fancy9ww2":   ActionMQTTMsg{fancytopic(9), payload_fancyww2},
+	"fancy1ww4":   ActionMQTTMsg{fancytopic(1), payload_fancyww4},
+	"fancy2ww4":   ActionMQTTMsg{fancytopic(2), payload_fancyww4},
+	"fancy3ww4":   ActionMQTTMsg{fancytopic(3), payload_fancyww4},
+	"fancy4ww4":   ActionMQTTMsg{fancytopic(4), payload_fancyww4},
+	"fancy5ww4":   ActionMQTTMsg{fancytopic(5), payload_fancyww4},
+	"fancy6ww4":   ActionMQTTMsg{fancytopic(6), payload_fancyww4},
+	"fancy7ww4":   ActionMQTTMsg{fancytopic(7), payload_fancyww4},
+	"fancy8ww4":   ActionMQTTMsg{fancytopic(8), payload_fancyww4},
+	"fancy9ww4":   ActionMQTTMsg{fancytopic(9), payload_fancyww4},
 
 	//Meta Events
-	"ambientlights": ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
-	"ceilingAll":    ActionNameHandler{handler: MetaAction, metaaction: []string{"ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
-	"allrf":         ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla"}},
-	"all":           ActionNameHandler{handler: MetaAction, metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"ambientlights": ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
+	"ceilingAll":    ActionMeta{metaaction: []string{"ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"allrf":         ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla"}},
+	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
 func GoSwitchNameAsync() {
@@ -104,46 +161,42 @@ FORLOOP:
 }
 
 func SwitchName(name string, onoff bool) (err error) {
-	nm, inmap := actionname_map_[name]
+	nmi, inmap := actionname_map_[name]
 	if !inmap {
 		LogRF433_.Printf("Name %s does not exist in actionname_map_", name)
 		return fmt.Errorf("Name does not exist")
 	}
 	LogRF433_.Printf("SwitchName(%s,%t)", name, onoff)
-	var code []byte
-	if onoff && nm.codeon != nil {
-		code = nm.codeon
-	} else if onoff == false && nm.codeoff != nil {
-		code = nm.codeoff
-	} else if nm.codedefault != nil {
-		code = nm.codedefault
-	}
 
-	switch nm.handler {
-	case MetaAction:
+	switch nm := nmi.(type) {
+	case ActionRFCode:
+		var code []byte
+		if onoff && nm.codeon != nil {
+			code = nm.codeon
+		} else if onoff == false && nm.codeoff != nil {
+			code = nm.codeoff
+		}
+		if code == nil || len(code) != 3 {
+			return fmt.Errorf("No valid code for action (%s,%t)", name, onoff)
+		}
+		RF433_linearize_chan_ <- RFCmdToSend{handler: nm.handler, code: code}
+
+	case ActionMQTTMsg:
+		MQTT_chan_ <- nm
+
+	case ActionBasicLight:
+		SetCeilingLightsState(nm.light, onoff)
+
+	case ActionMeta:
 		if len(nm.metaaction) == 0 {
 			return fmt.Errorf("Could not do anything, no metaaction defined")
 		}
 		for _, metaname := range nm.metaaction {
 			err = SwitchName(metaname, onoff)
 		}
-	case IRCmd2MQTT:
-		if code == nil {
-			return fmt.Errorf("No code for IR defined in ActionNameHandler")
-		}
-		err = sendIRCmd2MQTT(code)
-	case RFCode2TTY, RFCode2BOTH, RFCode2MQTT:
-		if code == nil {
-			return fmt.Errorf("No code for RF433 defined in ActionNameHandler")
-		}
-		RF433_linearize_chan_ <- RFCmdToSend{handler: nm.handler, code: code}
-	case CeilingLightByteState:
-		if code == nil {
-			return fmt.Errorf("No code for Ceiling defined in ActionNameHandler")
-		}
-		err = setCeilingLightByteState(code)
-	default:
-		return fmt.Errorf("Unknown handler %s", nm.handler)
+
+	case ActionIRCmdMQTT:
+		MQTT_ir_chan_ <- nm.ircmd
 	}
 
 	if err != nil {
@@ -151,29 +204,14 @@ func SwitchName(name string, onoff bool) (err error) {
 	}
 
 	//notify Everyone
-	switch nm.handler {
-	case MetaAction, IRCmd2MQTT, RFCode2TTY, RFCode2BOTH, RFCode2MQTT:
+	switch nmi.(type) {
+	case ActionMeta, ActionIRCmdMQTT, ActionRFCode:
 		ps_.PubNonBlocking(jsonButtonUsed{name}, PS_IRRF433_CHANGED)
-	case CeilingLightByteState:
+	case ActionBasicLight:
 		ps_.PubNonBlocking(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1), PS_LIGHTS_CHANGED)
 	}
 
 	return
-}
-
-func sendIRCmd2MQTT(code []byte) error {
-	LogRF433_.Printf("IRCmd2MQTT(%s)", string(code))
-	MQTT_ir_chan_ <- string(code)
-	return nil
-}
-
-func setCeilingLightByteState(code []byte) error {
-	if len(code) != 2 {
-		LogRF433_.Printf("Invalid Code %s for setCeilingLightByteState", code)
-		return fmt.Errorf("Invalid Code for setCeilingLightByteState")
-	}
-	SetCeilingLightsState(int(code[0]), code[1] == 1)
-	return nil
 }
 
 func goLinearizeRFSenders(ps *pubsub.PubSub, rfchan <-chan RFCmdToSend, rf433_tty_chan_ chan SerialLine, mqttc mqtt.Client) {
