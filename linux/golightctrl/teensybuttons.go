@@ -105,7 +105,7 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 	[]ButtonAction{
 		ButtonAction{NameAction{"ceilingAll", true}, NameAction{"fancyalloff", true}},
 		ButtonAction{NameAction{"ceiling1", false}, NameAction{"ceiling2", false}, NameAction{"ceiling3", true}, NameAction{"ceiling4", false}, NameAction{"ceiling5", false}, NameAction{"ceiling6", true}, NameAction{"fancyalloff", true}, NameAction{"fancy4c2", true}, NameAction{"fancy2c2", true}},
-		ButtonAction{NameAction{"ceilingAll", false}, NameAction{"fancy1off", true}, NameAction{"fancy6off", true}, NameAction{"fancy2cw1", true}, NameAction{"fancy5cw1", true}, NameAction{"fancy3cw2", true}, NameAction{"fancy4cw2", true}},
+		ButtonAction{NameAction{"ceilingAll", false}, NameAction{"fancyvortrag", true}},
 	},
 }
 

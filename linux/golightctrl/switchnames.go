@@ -200,6 +200,7 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	//Meta Events
 	"ambientlights": ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
 	"ceilingAll":    ActionMeta{metaaction: []string{"ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"fancyvortrag":  ActionMeta{metaaction: []string{"fancy1off", "fancy6off", "fancy2cw1", "fancy5cw1", "fancy3cw2", "fancy4cw2"}},
 	"allrf":         ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla"}},
 	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
