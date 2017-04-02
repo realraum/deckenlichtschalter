@@ -89,6 +89,22 @@ function remoteKeyboard( e ) {
 
 document.onkeydown = remoteKeyboard;
 
+function enableRedShift() {
+  var participating = Array();
+  $(".scriptctrl_redshift_checkbox").each(function(elem){
+    if ($(elem).checked) {
+      participating.append(parseInt(elem.getAttribute("target")))
+    }
+  });
+  if (participating.length > 0) {
+    sendMQTT("action/ceilingscripts/activatescript",{"script":"redshift","participating":participating})
+  } else {
+    //TODO FIXME: propably not what we want.
+    //this will switch off all ceiling lights, even if some were not script controlled
+    sendMQTT("action/ceilingscripts/activatescript",{script:"off"})
+  }
+}
+
 var fancycolorpicker_apply_name="ceiling1";
 function popupFancyColorPicker(event) {
   var x = event.pageX;
@@ -96,7 +112,6 @@ function popupFancyColorPicker(event) {
   $("#fancycolorpicker").css("left",x).css("top",y).css("visibility","visible").animate(1000);
   fancycolorpicker_apply_name = this.getAttribute("name");
 }
-
 
 
 function sendMQTT_XHTTP(ctx, data) {
@@ -110,7 +125,7 @@ function sendMQTT_XHTTP(ctx, data) {
     setButtonStates(data);
   };
   var param = "Ctx=" + encodeURIComponent(ctx);
-  params = params + "&Data="+encodeURIComponent(data);
+  params = params + "&Data="+encodeURIComponent(JSON.stringify(data));
   params = params.replace(/%20/g, '+');
   req.overrideMimeType("application/json");
   req.setRequestHeader("googlechromefix","");
@@ -180,6 +195,7 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
   var onoffbtn = Array.prototype.concat(onbtns,offbtns);
   var fancypresetbtns = document.getElementsByClassName('fancylightpresetbutton');
   var ledpipepresetbtns = document.getElementsByClassName('ledpipepresetbutton');
+  var redshiftcheckbox = document.getElementsByClassName('scriptctrl_redshift_checkbox');
   for (var i = 0; i < onoffbtn.length; i++) {
     var lightname = onoffbtn[i].getAttribute("lightname");
     var action = onoffbtn[i].getAttribute("action");
@@ -220,6 +236,9 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
       var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
       sendMQTT("action/"+name+"/light",settings);
     });
+  }
+  for (var i = 0; i < redshiftcheckbox.length; i++) {
+    redshiftcheckbox[i].addEventListener('click', enableRedShift);
   }
   $(".fancylightcolourtempselectorbutton").click(popupFancyColorPicker);
   $("#fancycolorpicker_close_button").click(function(event){$("#fancycolorpicker").css("visibility","hidden")});

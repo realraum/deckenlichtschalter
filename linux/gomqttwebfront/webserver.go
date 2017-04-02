@@ -65,6 +65,7 @@ var (
 		"action/GoLightCtrl/floodtesla",
 		"action/GoLightCtrl/boilerolga",
 		"action/GoLightCtrl/boiler",
+		"action/GoLightCtrl/fancyvortrag",
 		"action/ceilingscripts/activatescript",
 		"action/ceilingAll/light",
 		"action/ceiling1/light",
