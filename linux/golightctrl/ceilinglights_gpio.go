@@ -18,10 +18,10 @@ func FakeGPIOinit() {
 	bbhw.FakeGPIODefaultLogTarget_ = LogGPIO_
 	gpios_ceiling_lights_ = []bbhw.GPIOControllablePin{
 		bbhw.NewFakeGPIO(23, bbhw.OUT),
-		bbhw.NewFakeGPIO(22, bbhw.OUT),
-		bbhw.NewFakeGPIO(21, bbhw.OUT),
-		bbhw.NewFakeGPIO(18, bbhw.OUT),
 		bbhw.NewFakeGPIO(17, bbhw.OUT),
+		bbhw.NewFakeGPIO(21, bbhw.OUT),
+		bbhw.NewFakeGPIO(22, bbhw.OUT),
+		bbhw.NewFakeGPIO(18, bbhw.OUT),
 		bbhw.NewFakeGPIO(4, bbhw.OUT),
 	}
 	for _, gpio := range gpios_ceiling_lights_ {
@@ -34,10 +34,10 @@ func GPIOinit() {
 	LogMain_.Print("GPIO/PWM init start")
 	gpios_ceiling_lights_ = []bbhw.GPIOControllablePin{
 		bbhw.NewSysfsGPIOOrPanic(23, bbhw.OUT),
-		bbhw.NewSysfsGPIOOrPanic(22, bbhw.OUT),
-		bbhw.NewSysfsGPIOOrPanic(21, bbhw.OUT),
-		bbhw.NewSysfsGPIOOrPanic(18, bbhw.OUT),
 		bbhw.NewSysfsGPIOOrPanic(17, bbhw.OUT),
+		bbhw.NewSysfsGPIOOrPanic(21, bbhw.OUT),
+		bbhw.NewSysfsGPIOOrPanic(22, bbhw.OUT),
+		bbhw.NewSysfsGPIOOrPanic(18, bbhw.OUT),
 		bbhw.NewSysfsGPIOOrPanic(4, bbhw.OUT),
 	}
 	for _, gpio := range gpios_ceiling_lights_ {
