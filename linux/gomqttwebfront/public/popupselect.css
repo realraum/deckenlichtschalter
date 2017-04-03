@@ -1,0 +1,23 @@
+div.popupselect_overlay {
+	position:absolute;
+	background-color:white;
+	border:5px solid black;
+	visibility:hidden;
+	padding:2px;
+}
+
+button.popupselect_trigger {
+	width:2em;
+	height:2em;
+}
+
+button.popupselect_option {
+	width:2em;
+	height:2em;	
+}
+
+button.popupselect_option:hover {
+	width:2em;
+	height:2em;	
+	background-color:#fcf3cf;
+}
