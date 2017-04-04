@@ -272,3 +272,30 @@ button.leftalignroundedbutton {
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
     right: 0px; 
 }
+
+div.popupselect_overlay {
+    position:absolute;
+    background-color:white;
+    border:5px solid black;
+    visibility:hidden;
+    padding:2px;
+}
+
+button.popupselect_trigger {
+    width:2.5em;
+    height:2.5em;
+    padding:2px;
+}
+
+button.popupselect_option {
+    width:2.5em;
+    height:2.5em;
+    padding:2px;
+    margin:0.15em;
+}
+
+button.popupselect_option:hover {
+    width:2.8em;
+    height:2.8em;
+    margin:0em;
+}

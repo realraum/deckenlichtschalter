@@ -10,6 +10,7 @@
     <script type="text/javascript" src="https://realraum.at/js/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="colorandtemppicker.js"></script>
     <link rel="stylesheet" type="text/css" href="colorandtemppicker.css">
+    <script type="text/javascript" src="popupselect.js"></script>
   </head>
   <body>
     <nav>
@@ -69,49 +70,43 @@
       - Rename Preset<br/>
       </div>
 
-        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
+      <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
         <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0"><span style="color:black">█
-</span>Off</button>
-        </br>
-        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="1000"><span style="color:lightyellow">█
-</span>WarmWhite</button>
-        </br>
-        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0"><span style="color:lightblue">█
-</span>ColdWhite</button>
-        </br>
-        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="1000" ledg="0" ledb="0" ledcw="0" ledww="0"><span style="color:red">█
-</span>Red</button>
-        </br>
-        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="0" ledb="1000" ledcw="0" ledww="0"><span style="color:blue">█
-</span>Blue</button>
-        </br>
-        <button class="fancylightpresetbutton leftalignroundedbutton" name="ceiling2" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0"><span style="color:green">█
-</span>Green</button>
-        </br>
-        <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="ceiling2">Pick</button>
-        </span>
-        <span class="alignbuttonsleft">
-        <div class="onoffswitch">
-            <input type="checkbox" name="ceiling2ctonoff" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="2" id="ceiling2ctonoff" checked>
-            <label class="onoffswitch-label" for="ceiling2ctonoff">
-                <span class="onoffswitch-inner"></span>
-                <span class="onoffswitch-switch"></span>
-            </label>
-        </div>Colortemp follows daylight
-        </span>
-        <div class="switchnameright">Decke Durchgang (O)</div></div>
-        <br>
-        <div class="switchbox">
-        <span class="alignbuttonsleft">
-        <button class="fancylightpresetbutton" name="ceilingAll" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="color:white; background-color:black;">Off</button>
-        <button class="fancylightpresetbutton" name="ceilingAll" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="1000" style="color:black; background-color:yellow;">WarmWhite</button>
-        <button class="fancylightcolourtempselectorbutton" name="ceiling2">Pick</button>
-        </span>
-        <div class="switchnameright">Alle</div></div>
-        <br>
+          <span class="alignbuttonsleft">
+          <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" style="background-color:black;"></button>
+          <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="ceiling1">PickColor</button>
+          </span>
+          <span class="alignbuttonsleft">
+            <div class="onoffswitch">
+                <input type="checkbox" name="ceiling1ctonoff" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="1" id="ceiling1ctonoff" checked>
+                <label class="onoffswitch-label" for="ceiling1ctonoff">
+                    <span class="onoffswitch-inner"></span>
+                    <span class="onoffswitch-switch"></span>
+                </label>
+            </div>Colortemp follows daylight
+          </span>
+          <div class="switchnameright">Leinwand</div>
         </div>
+        <br/>
+
+        <div class="switchbox">
+          <span class="alignbuttonsleft">
+          <button class="popupselect_trigger" optionsid="fancycolorquickoptions2" style="background-color:black;"></button>
+          <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="ceiling2">PickColor</button>
+          </span>
+          <span class="alignbuttonsleft">
+            <div class="onoffswitch">
+                <input type="checkbox" name="ceiling2ctonoff" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="2" id="ceiling2ctonoff" checked>
+                <label class="onoffswitch-label" for="ceiling2ctonoff">
+                    <span class="onoffswitch-inner"></span>
+                    <span class="onoffswitch-switch"></span>
+                </label>
+            </div>Colortemp follows daylight
+          </span>
+          <div class="switchnameright">Durchgang</div>
+        </div>
+        <br/>
+
       </div>
 
       <div style="float:left;">
@@ -216,6 +211,87 @@
     </ul>
   </div>
 </div>
+
+<div id="fancycolorquickoptions1" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceiling1" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling1" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling1" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling1" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling1" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling1" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
+<div id="fancycolorquickoptions2" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling2" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling2" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling2" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling2" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
+<div id="fancycolorquickoptions3" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceiling3" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling3" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling3" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling3" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling3" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling3" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
+<div id="fancycolorquickoptions4" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceiling4" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling4" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling4" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling4" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling4" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling4" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
+<div id="fancycolorquickoptions5" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceiling5" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling5" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling5" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling5" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling5" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling5" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
+<div id="fancycolorquickoptions6" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceiling6" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling6" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling6" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling6" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling6" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling6" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
+<div id="fancycolorquickoptions8" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceiling8" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling8" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling8" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling8" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling8" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceiling8" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
+<div id="fancycolorquickoptionsAll" class="popupselect_overlay">
+<button class="fancylightpresetbutton popupselect_option" name="ceilingAll" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceilingAll" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceilingAll" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+<br/>
+<button class="fancylightpresetbutton popupselect_option" name="ceilingAll" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceilingAll" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+<button class="fancylightpresetbutton popupselect_option" name="ceilingAll" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+</div>
+
     <script type="text/javascript" src="websocket.js"></script>
     <script type="text/javascript" src="switch.js"></script>
   </body>

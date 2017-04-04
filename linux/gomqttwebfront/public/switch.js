@@ -223,20 +223,21 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
     });
   }
 
-
-  for (var i = 0; i < fancypresetbtns.length; i++) {
-    fancypresetbtns[i].addEventListener('click', function() {
-      var name = this.getAttribute("name");
+  popupselect.init();
+  var fancypresenhandle = function(event) {
+      var name = event.target.getAttribute("name");
       if (!name) { return;  }
-      var R = parseInt(this.getAttribute("ledr")) || 0;
-      var G = parseInt(this.getAttribute("ledg")) || 0;
-      var B = parseInt(this.getAttribute("ledb")) || 0;
-      var CW = parseInt(this.getAttribute("ledcw")) || 0;
-      var WW = parseInt(this.getAttribute("ledww")) || 0;
+      var R = parseInt(event.target.getAttribute("ledr")) || 0;
+      var G = parseInt(event.target.getAttribute("ledg")) || 0;
+      var B = parseInt(event.target.getAttribute("ledb")) || 0;
+      var CW = parseInt(event.target.getAttribute("ledcw")) || 0;
+      var WW = parseInt(event.target.getAttribute("ledww")) || 0;
       var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
       sendMQTT("action/"+name+"/light",settings);
-    });
-  }
+    };
+  $(".fancylightpresetbutton").click(fancypresenhandle);
+  popupselect.addSelectHandlerToAll(fancypresenhandle);
+  
   for (var i = 0; i < redshiftcheckbox.length; i++) {
     redshiftcheckbox[i].addEventListener('click', enableRedShift);
   }
@@ -277,7 +278,5 @@ for (var i = 0; i < ledpipepresetbtns.length; i++) {
       }      
     });
   }
-
-  //TODO: support yamahabuttons and rf433 buttons via websocket
 
 })();
