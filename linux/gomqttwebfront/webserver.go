@@ -15,7 +15,19 @@ import (
 )
 
 var (
-	ws_allowed_ctx_startwith = []string{r3events.ACT_PIPELEDS_PATTERN, r3events.ACT_YAMAHA_SEND,
+	topic_fancy_ceiling_all = "action/ceilingAll/light"
+	topics_fancy_ceiling    = []string{
+		"action/ceiling1/light",
+		"action/ceiling2/light",
+		"action/ceiling3/light",
+		"action/ceiling4/light",
+		"action/ceiling5/light",
+		"action/ceiling6/light",
+		"action/ceiling7/light",
+		"action/ceiling8/light",
+		"action/ceiling9/light"}
+
+	ws_allowed_ctx_startwith = append([]string{r3events.ACT_PIPELEDS_PATTERN, r3events.ACT_YAMAHA_SEND,
 		"action/GoLightCtrl/all",
 		"action/GoLightCtrl/allrf",
 		"action/GoLightCtrl/ambientlights",
@@ -67,16 +79,7 @@ var (
 		"action/GoLightCtrl/boiler",
 		"action/GoLightCtrl/fancyvortrag",
 		"action/ceilingscripts/activatescript",
-		"action/ceilingAll/light",
-		"action/ceiling1/light",
-		"action/ceiling2/light",
-		"action/ceiling3/light",
-		"action/ceiling4/light",
-		"action/ceiling5/light",
-		"action/ceiling6/light",
-		"action/ceiling7/light",
-		"action/ceiling8/light",
-		"action/ceiling9/light"}
+		topic_fancy_ceiling_all}, topics_fancy_ceiling...)
 )
 
 const (
@@ -98,15 +101,25 @@ func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFutu
 
 	retained_json_map := make(map[string][]byte, len(ws_allowed_ctx_startwith))
 
+	handleCeilingAll := func(mp map[string][]byte, topic string, webjson []byte) {
+		if "action/ceilingAll/light" == topic {
+			for _, tp := range topics_fancy_ceiling {
+				retained_json_map[tp] = webjson //just pointer. should be ok since we never change single bytes
+			}
+		}
+	}
+
 	for {
 		select {
 		case <-shutdown_chan:
 			return
 		case webmsg_i := <-msgtoall_chan:
 			if webmsg, castok := webmsg_i.(wsMessageOut); castok {
+				LogWS_.Printf("goJSONMarshalStuffForWebSockClientsAndRetain", webmsg)
 				if webjson, err := json.Marshal(webmsg); err == nil {
-					ps_.PubNonBlocking(webjson, PS_WEBSOCK_ALL_JSON)
+					ps_.Pub(webjson, PS_WEBSOCK_ALL_JSON)
 					retained_json_map[webmsg.Ctx] = webjson
+					handleCeilingAll(retained_json_map, webmsg.Ctx, webjson)
 				} else {
 					LogWS_.Println(err)
 				}

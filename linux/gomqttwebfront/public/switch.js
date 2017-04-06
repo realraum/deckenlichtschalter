@@ -55,7 +55,7 @@ function remoteKeyboard( e ) {
     //case 81: sendYmhButton( ( e.altKey ? 'REBOOT' : 'w' ) ); break;       // ALT-Q = reboot, Q = Power
     case 38: sendYmhButton( 'ymhprgup' ); break; //up
     case 37: sendYmhButton( 'ymhminus' ); break; //left
-    //case 13: sendYmhButton( '' ); break;  //enter
+    //case 13: sendYmhButton( '' ); break;  //enter 
     case 39: sendYmhButton( 'ymhplus' ); break; //right
     case 40: sendYmhButton( 'ymhprgdown' ); break; //down
     //case  8: sendYmhButton( 'T_back' ); break; //backspace
@@ -88,6 +88,49 @@ function remoteKeyboard( e ) {
 }
 
 document.onkeydown = remoteKeyboard;
+
+var fancycolorstate_={};  
+function handleExternalFancySetting(fancyid, data)
+{
+  var coldwhite_representation  = [1, 0xfa/0xff, 0xc0/0xff];
+  var warmwhite_representation = [71/0xff, 171/0xff, 1];
+
+  //save data for next color chooser popup
+  fancycolorstate_[fancyid] = data;
+  if (data.cw + data.ww == 0)
+  {  
+    fancycolorstate_[fancyid].compound_r = Math.floor(data.r / 4);
+    fancycolorstate_[fancyid].compound_g = Math.floor(data.g / 4);
+    fancycolorstate_[fancyid].compound_b = Math.floor(data.b / 4);
+  } else if (data.r+data.g+data.b == 0)
+  {
+    fancycolorstate_[fancyid].compound_r = Math.floor((data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0]) / 8);
+    fancycolorstate_[fancyid].compound_g = Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 8);
+    fancycolorstate_[fancyid].compound_b = Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 8);
+  } else {
+    fancycolorstate_[fancyid].compound_r = Math.floor((data.r/4 + data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0]) / 9);
+    fancycolorstate_[fancyid].compound_g = Math.floor((data.g/4 + data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 9);
+    fancycolorstate_[fancyid].compound_b = Math.floor((data.b/4 + data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 9);
+  }
+  console.log(fancycolorstate_[fancyid]);
+  var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
+  var elem = $("button.popupselect_trigger[optionsid=fancycolorquickoptions"+fancyid+"]");
+  if (elem) {
+    console.log(rgbstring);
+    elem.css("background-color",rgbstring);
+  }
+  if (fancyid=="All")
+  {
+    for (var fid=1; fid<10; fid++)
+    {
+      fancycolorstate_[fid] = fancycolorstate_["All"];
+      elem = $("button.popupselect_trigger[optionsid=fancycolorquickoptions"+fid+"]");
+      if (elem) {
+        elem.css("background-color",rgbstring);
+      }      
+    }
+  }
+}
 
 function enableRedShift() {
   var participating = Array();
@@ -220,6 +263,14 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
           });
         };
       }(topic));
+    });
+
+    $.each([1,2,3,4,5,6,7,8,9,"All"], function(idx, fancyid) {
+      ws.registerContext("action/ceiling"+fancyid+"/light",function(fancyid){
+        return function(data) {
+          handleExternalFancySetting(fancyid, data);
+        }
+      }(fancyid));
     });
   }
 
