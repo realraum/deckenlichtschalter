@@ -30,17 +30,15 @@ var popupselect = {
 		if (optionscopyattr) {
 			var attrvaluetocopy = event.target.getAttribute(optionscopyattr);
 			if (attrvaluetocopy) {
-				$(oelem).find(".popupselect_option").attr(optionscopyattr,attrvaluetocopy);
+				$(oelem).find("."+popupselect.options.class_option).attr(optionscopyattr,attrvaluetocopy);
 			}
 		}
-		oelem.css("left",x - oelem.width()/2).css("top",y - oelem.height()/2).css("visibility","visible").animate(1000);
+		oelem.css("left",Math.trunc(x - oelem.width()/2)+"px").css("top",Math.trunc(y - oelem.height()/2)+"px").css("visibility","visible");
 		popupselect.openinprogress=false;
 	},
 
 	popupselectSelect:function(event) {
-		console.log(event.target);
-		//console.log(event);
-		$("."+popupselect.options.class_popupoverlay).css("visibility","hidden").animate(500);
+		$("."+popupselect.options.class_popupoverlay).css("visibility","hidden");
 		var selectedbtn = $(event.target);
 		if (selectedbtn.hasClass(popupselect.options.class_option))
 		{
@@ -64,8 +62,8 @@ var popupselect = {
 			$(document).on("mouseup",this.popupselectSelect);
 		}
 		$("."+this.options.class_triggerpopup).on("touchstart click mousedown",this.popupselectOpen);
-		//$("."+this.options.class_triggerpopup).click(this.popupselectOpen);
-		$("."+this.options.class_option).click(this.popupHoverSelector);
+		//$("."+this.options.class_triggerpopup).on("click",this.popupselectOpen);
+		$("."+this.options.class_option).on("click",this.popupHoverSelector);
 		$(document).on("mouseup touchend",this.popupselectSelect);
 	},
 
@@ -79,7 +77,7 @@ var popupselect = {
 	addSelectHandlerToAll:function(func) {
 		if (typeof(func) == "function")
 		{
-			$("."+this.options.class_option).each(function(idx, elem) {popupselect.onselect[elem] = func;});
+			$("."+this.options.class_option).each(function(elem, idx) {popupselect.onselect[elem] = func;});
 		}
 
 	},

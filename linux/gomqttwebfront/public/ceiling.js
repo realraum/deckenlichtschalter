@@ -68,10 +68,12 @@ var buttons = {
 
   webSocketSupport = hasWebSocketSupport();
 
-  var ceilings = document.getElementsByClassName('ceiling');
-  for (var i = 0; i < ceilings.length; i++) {
 
-    ceilings[i].addEventListener('click', function() {
+  $(".mqttrawjson").on("click",eventOnRawMqttElement);
+  $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
+  popupselect.init({class_option:"bigpopupselect_option"});
+  popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
+  $(".basiclight").on("click",function() {
       var id = this.getAttribute('id');
       var topic = topic_namectrl + id;
       if (!buttons.hasOwnProperty(id)) {
@@ -83,9 +85,9 @@ var buttons = {
         sendMQTT(topic, {Action:"on"});
       }
     });
-
-    if (webSocketSupport) {
-      var keyid = ceilings[i].getAttribute('id');
+  if (webSocketSupport) {
+    $(".basiclight").each(function(idx, elem) {
+      var keyid = $(elem).attr('id');
       var topic = topic_namectrl + keyid;
       ws.registerContext(topic, (function(topic,keyid) {
         return function(data) {
@@ -98,7 +100,7 @@ var buttons = {
           renderButtonStates();
         };
       }(topic, keyid)));
-    }
+    });
   }
 
   var rfirs = document.getElementsByClassName('rfir');
@@ -135,4 +137,5 @@ var buttons = {
       sendMQTT_XHTTP("","");
     }, 30*1000);
   }
+
 })();

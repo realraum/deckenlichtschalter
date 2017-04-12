@@ -27,14 +27,14 @@ function renderRFIRButtonUpdate(snd_btn) {
 }
 
 function populatedivrfswitchboxes(elem, names) {
-  $.each(names, function(lightname, desc) {
+  Object.keys(names).forEach(function(lightname) {
     $(elem).append('\
       <div class="switchbox">\
           <span class="alignbuttonsleft">\
           <button class="onbutton" lightname="'+lightname+'" action="on">On</button>\
           <button class="offbutton" lightname="'+lightname+'" action="off">Off</button>\
           </span>\
-          <div class="switchnameright">'+desc+'</div>\
+          <div class="switchnameright">'+names[lightname]+'</div>\
       </div>\
       <br>');
   });
@@ -222,7 +222,8 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
     }
   }
   if (webSocketSupport) {
-    $.each(topics_to_subscribe, function(topic, lightname) {
+    Object.keys(topics_to_subscribe).forEach(function(topic) {
+      var lightname = topics_to_subscribe[topic];
       ws.registerContext(topic, function(topic) {
         var btns = $("button[lightname="+lightname+"]");
         return function(data) {
@@ -236,7 +237,7 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
       }(topic));
     });
 
-    $.each([1,2,3,4,5,6,7,8,9,"All"], function(idx, fancyid) {
+    [1,2,3,4,5,6,7,8,9,"All"].forEach(function(fancyid, idx) {
       ws.registerContext("action/ceiling"+fancyid+"/light",function(fancyid){
         return function(data) {
           handleExternalFancySetting(fancyid, data);

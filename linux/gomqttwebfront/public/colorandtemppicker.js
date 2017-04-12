@@ -121,8 +121,8 @@ function drawcolourtemppicker(elemid) {
 	  $('#cwwwoverrgbcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")").css("opacity",brightness/1000.0);
 	  $('#cwwwcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")");
 	};
-	$(canvas).click(pickcolour);
-	$(canvas).mousemove(pickcolour);
+	$(canvas).on("click",pickcolour);
+	$(canvas).on("mousemove",pickcolour);
 
 }
 
@@ -170,8 +170,8 @@ function drawcolourpicker(elemid) {
 	  $('#B div.colorlevel').css("width",b1k/10+"%");
 	  $('#rgbcolor').css("background-color","rgb("+R+","+G+","+B+")");
 	};
-	$(canvas).click(pickcolour);
-	$(canvas).mousemove(pickcolour);
+	$(canvas).on("click",pickcolour);
+	$(canvas).on("mousemove",pickcolour);
 }
 
 function init_colour_temp_picker() {
@@ -179,29 +179,29 @@ function init_colour_temp_picker() {
 	drawcolourpicker("pickcolour");
 
 	changecolourlevel = function(event){if (this.value < 0 || this.value > 1000) {return;}; $(this).siblings().find('.colorlevel').css("width",this.value/10+"%");}
-	$('#R input').change(changecolourlevel);
-	$('#G input').change(changecolourlevel);
-	$('#B input').change(changecolourlevel);
-	$('#WW input').change(changecolourlevel);
-	$('#CW input').change(changecolourlevel);
+	$('#R input').on("change",changecolourlevel);
+	$('#G input').on("change",changecolourlevel);
+	$('#B input').on("change",changecolourlevel);
+	$('#WW input').on("change",changecolourlevel);
+	$('#CW input').on("change",changecolourlevel);
 	changetextfromlevel = function(event){
 	  if (event.type == "mousemove" && event.buttons != 1) {return;}
 	  var x = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
 	  // var y = event.pageY - this.offsetTop;
 	  var promille = Math.trunc(Math.max(0,Math.min(1000,x*1000/this.offsetWidth)));
 	  $(this).siblings("input").val(promille);
-	  $(this).find('.colorlevel').css("width",x);
+	  $(this).find('.colorlevel').css("width",x+"px");
 	};
-	$('#R div.colorlevelcontainer').mousemove(changetextfromlevel);
-	$('#G div.colorlevelcontainer').mousemove(changetextfromlevel);
-	$('#B div.colorlevelcontainer').mousemove(changetextfromlevel);
-	$('#WW div.colorlevelcontainer').mousemove(changetextfromlevel);
-	$('#CW div.colorlevelcontainer').mousemove(changetextfromlevel);
-	$('#R div.colorlevelcontainer').click(changetextfromlevel);
-	$('#G div.colorlevelcontainer').click(changetextfromlevel);
-	$('#B div.colorlevelcontainer').click(changetextfromlevel);
-	$('#WW div.colorlevelcontainer').click(changetextfromlevel);
-	$('#CW div.colorlevelcontainer').click(changetextfromlevel);
+	$('#R div.colorlevelcontainer').on("mousemove",changetextfromlevel);
+	$('#G div.colorlevelcontainer').on("mousemove",changetextfromlevel);
+	$('#B div.colorlevelcontainer').on("mousemove",changetextfromlevel);
+	$('#WW div.colorlevelcontainer').on("mousemove",changetextfromlevel);
+	$('#CW div.colorlevelcontainer').on("mousemove",changetextfromlevel);
+	$('#R div.colorlevelcontainer').on("click",changetextfromlevel);
+	$('#G div.colorlevelcontainer').on("click",changetextfromlevel);
+	$('#B div.colorlevelcontainer').on("click",changetextfromlevel);
+	$('#WW div.colorlevelcontainer').on("click",changetextfromlevel);
+	$('#CW div.colorlevelcontainer').on("click",changetextfromlevel);
 }
 
 function rainbowHSLpicker(canvas,ctx) { 
