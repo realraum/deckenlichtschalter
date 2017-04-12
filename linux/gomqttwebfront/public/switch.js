@@ -192,10 +192,17 @@ function updateColdWarmWhiteBalanceIntensity(event)
 function enableRedShift() {
   var participating = Array();
   $(".scriptctrl_redshift_checkbox").each(function(elem){
-    if ($(elem).checked) {
-      participating.append(parseInt(elem.getAttribute("target")))
+    console.log(elem);
+    if (elem.checked) {
+      var target = elem.getAttribute("target");
+      if (target == "A"){
+        participating=Array(1,2,3,4,5,6);
+      } else {
+        participating.push(parseInt(target));
+      }
     }
   });
+  console.log(participating);
   if (participating.length > 0) {
     sendMQTT("action/ceilingscripts/activatescript",{"script":"redshift","participating":participating})
   } else {
