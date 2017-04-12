@@ -47,3 +47,15 @@ function eventOnFancyLightPresent(event) {
   var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
   sendMQTT("action/"+name+"/light",settings);
 };
+
+//takes function with signature (fancyid, data)
+//and calls it if fancy light updates externally
+function registerFunctionForFancyLightUpdate(fun) {
+  ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","ceilng7","ceiling8","ceiling9","ceilingAll"].forEach(function(fancyid) {
+    ws.registerContext("action/"+fancyid+"/light",function(fancyid){
+      return function(data) {
+        fun(fancyid, data);
+      }
+    }(fancyid));
+  });
+}

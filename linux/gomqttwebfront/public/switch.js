@@ -98,7 +98,7 @@ function handleExternalFancySetting(fancyid, data)
   //save data for next color chooser popup
   fancycolorstate_[fancyid] = data;
   if (data.cw + data.ww == 0)
-  {  
+  {
     fancycolorstate_[fancyid].compound_r = Math.floor(data.r / 4);
     fancycolorstate_[fancyid].compound_g = Math.floor(data.g / 4);
     fancycolorstate_[fancyid].compound_b = Math.floor(data.b / 4);
@@ -114,20 +114,20 @@ function handleExternalFancySetting(fancyid, data)
   }
   console.log(fancycolorstate_[fancyid]);
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
-  var elem = $("button.popupselect_trigger[optionsid=fancycolorquickoptions"+fancyid+"]");
+  var elem = $("button.popupselect_trigger[name="+fancyid+"]");
   if (elem) {
     console.log(rgbstring);
     elem.css("background-color",rgbstring);
   }
-  if (fancyid=="All")
+  if (fancyid=="ceilingAll")
   {
     for (var fid=1; fid<10; fid++)
     {
       fancycolorstate_[fid] = fancycolorstate_["All"];
-      elem = $("button.popupselect_trigger[optionsid=fancycolorquickoptions"+fid+"]");
+      elem = $("button.popupselect_trigger[name="+fid+"]");
       if (elem) {
         elem.css("background-color",rgbstring);
-      }      
+      } 
     }
   }
 }
@@ -237,13 +237,7 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
       }(topic));
     });
 
-    [1,2,3,4,5,6,7,8,9,"All"].forEach(function(fancyid, idx) {
-      ws.registerContext("action/ceiling"+fancyid+"/light",function(fancyid){
-        return function(data) {
-          handleExternalFancySetting(fancyid, data);
-        }
-      }(fancyid));
-    });
+    registerFunctionForFancyLightUpdate(handleExternalFancySetting);
   }
 
   popupselect.init();

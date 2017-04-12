@@ -37,6 +37,49 @@ function setButtonStates(data) {
   renderButtonStates();
 }
 
+var fancycolorstate_={};
+function handleExternalFancySetting(fancyid, data)
+{
+  var coldwhite_representation  = [1, 0xfa/0xff, 0xc0/0xff];
+  var warmwhite_representation = [71/0xff, 171/0xff, 1];
+
+  //save data for next color chooser popup
+  fancycolorstate_[fancyid] = data;
+  if (data.cw + data.ww == 0)
+  {
+    fancycolorstate_[fancyid].compound_r = Math.floor(data.r / 4);
+    fancycolorstate_[fancyid].compound_g = Math.floor(data.g / 4);
+    fancycolorstate_[fancyid].compound_b = Math.floor(data.b / 4);
+  } else if (data.r+data.g+data.b == 0)
+  {
+    fancycolorstate_[fancyid].compound_r = Math.floor((data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0]) / 8);
+    fancycolorstate_[fancyid].compound_g = Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 8);
+    fancycolorstate_[fancyid].compound_b = Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 8);
+  } else {
+    fancycolorstate_[fancyid].compound_r = Math.floor((data.r/4 + data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0]) / 9);
+    fancycolorstate_[fancyid].compound_g = Math.floor((data.g/4 + data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 9);
+    fancycolorstate_[fancyid].compound_b = Math.floor((data.b/4 + data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 9);
+  }
+  console.log(fancycolorstate_[fancyid]);
+  var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
+  var elem = $("button.popupselect_trigger[name="+fancyid+"]");
+  if (elem) {
+    console.log(rgbstring);
+    elem.css("background-color",rgbstring);
+  }
+  if (fancyid=="ceilingAll")
+  {
+    for (var fid=1; fid<10; fid++)
+    {
+      fancycolorstate_[fid] = fancycolorstate_["All"];
+      elem = $("button.popupselect_trigger[name="+fid+"]");
+      if (elem) {
+        elem.css("background-color",rgbstring);
+      }
+    }
+  }
+}
+
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
 var cgiUrl = '/cgi-bin/fallback.cgi';
 
@@ -101,6 +144,8 @@ var buttons = {
         };
       }(topic, keyid)));
     });
+
+    registerFunctionForFancyLightUpdate(handleExternalFancySetting);
   }
 
   var rfirs = document.getElementsByClassName('rfir');
