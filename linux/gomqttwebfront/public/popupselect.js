@@ -26,6 +26,13 @@ var popupselect = {
 		var y = event.pageY;
 		var optionselementid = event.target.getAttribute("optionsid");
 		var oelem = $(document.getElementById(optionselementid));
+		var optionscopyattr = event.target.getAttribute("optionscopyattr");
+		if (optionscopyattr) {
+			var attrvaluetocopy = event.target.getAttribute(optionscopyattr);
+			if (attrvaluetocopy) {
+				$(oelem).find(".popupselect_option").attr(optionscopyattr,attrvaluetocopy);
+			}
+		}
 		oelem.css("left",x - oelem.width()/2).css("top",y - oelem.height()/2).css("visibility","visible").animate(1000);
 		popupselect.openinprogress=false;
 	},
