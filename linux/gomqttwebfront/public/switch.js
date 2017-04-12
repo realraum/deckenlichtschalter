@@ -40,6 +40,34 @@ function populatedivrfswitchboxes(elem, names) {
   });
 }
 
+function populatedivfancyswitchboxes(elem, names) {
+  Object.keys(names).forEach(function(lightname) {
+    var targetid = lightname.substr(7,1);
+    $(elem).append('        <div class="switchbox">\
+            <div style="width:100%; font-weight: bold; color:white; background-color: black;">'+names[lightname]+'</div>\
+            <span class="alignbuttonsleft">\
+            <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="'+lightname+'" style="background-color:black;"></button>\
+            <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="'+lightname+'">PickColor</button>\
+              RedShift:\
+              <div class="onoffswitch">\
+                  <input type="checkbox" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="'+targetid+'" id="'+lightname+'ctonoff">\
+                  <label class="onoffswitch-label" for="'+lightname+'ctonoff">\
+                      <span class="onoffswitch-inner"></span>\
+                      <span class="onoffswitch-switch"></span>\
+                  </label>\
+              </div>\
+            </span>\
+            <span class="alignbuttonsleft">\
+              <input type="range" min="0" max="1000" step="1" value="0" class="fancyintensityslider" name="'+lightname+'"> Light Intensity\
+            </span>\
+            <span class="alignbuttonsleft">\
+              <input type="range" min="0" max="1000" step="1" value="500" class="fancybalanceslider" name="'+lightname+'"> Color Temp.\
+            </span>\
+          </div>\
+          <br/>');
+  });
+}
+
 function sendYmhButton( btn ) {
   document.getElementById('indicator').style.backgroundColor="red";
   document.getElementById('commandlabel').innerHTML=btn;
@@ -132,6 +160,24 @@ function handleExternalFancySetting(fancyid, data)
   }
 }
 
+function calcColorFromDayLevel(day_factor, value)
+{
+    var day_factor = Math.min(1.0,Math.max(-1.0,day_factor))
+    var r = 1000 * value * Math.max(0.0, -1.0 * day_factor)
+    var b = 0
+    var cw = 1000 * value * Math.max(0.0, day_factor)
+    var ww = Math.max(0,1000 * value - cw - (r/3))
+    return {"r":Math.trunc(r), "b":Math.trunc(b), "cw":Math.trunc(cw), "ww":Math.trunc(ww)}
+}
+
+function updateColdWarmWhiteBalanceIntensity(event)
+{
+  var fancyid = event.target.getAttribute("name");
+  var intensity = parseInt($("input.fancyintensityslider[name="+fancyid+"]")[0].value,10) / 1000.0;
+  var balance = (1000 - parseInt($("input.fancybalanceslider[name="+fancyid+"]")[0].value,10)*2) / 1000.0;
+  sendMQTT("action/"+fancyid+"/light",calcColorFromDayLevel(balance, intensity));
+}
+
 function enableRedShift() {
   var participating = Array();
   $(".scriptctrl_redshift_checkbox").each(function(elem){
@@ -152,8 +198,8 @@ var fancycolorpicker_apply_name="ceiling1";
 function popupFancyColorPicker(event) {
   var x = event.pageX;
   var y = event.pageY;
-  $("#fancycolorpicker").css("left",x).css("top",y).css("visibility","visible").animate(1000);
-  fancycolorpicker_apply_name = this.getAttribute("name");
+  $("#fancycolorpicker").css("left",x).css("top",y).css("visibility","visible");
+  fancycolorpicker_apply_name = event.target.getAttribute("name");
 }
 
 
@@ -183,14 +229,24 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "boilerolga":"Warmwasser OLGA"
 });
 
-populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
+populatedivrfswitchboxes(document.getElementById("divbasiclightswitchboxes"), {
 "ceiling1":"Decke Leinwand",
 "ceiling2":"Decke Durchgang",
 "ceiling3":"Decke Küche",
 "ceiling4":"Decke Lasercutter",
 "ceiling5":"Decke Eingang",
 "ceiling6":"Decke Tesla",
-"ceilingAll":"Alle BasicLights",
+"ceilingAll":"All BasicLights",
+});
+
+populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
+"ceiling1":"Decke Leinwand",
+"ceiling2":"Decke Durchgang",
+"ceiling3":"Decke Küche",
+"ceiling4":"Decke Lasercutter",
+"ceiling5":"Decke Eingang",
+"ceiling6":"Decke Tesla",
+"ceilingAll":"All FancyLights",
 });
 
 (function() {
@@ -207,9 +263,6 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
   var onbtns = [].slice.call(document.getElementsByClassName('onbutton'));
   var offbtns = [].slice.call(document.getElementsByClassName('offbutton'));
   var onoffbtn = Array.prototype.concat(onbtns,offbtns);
-  var fancypresetbtns = document.getElementsByClassName('fancylightpresetbutton');
-  var ledpipepresetbtns = document.getElementsByClassName('ledpipepresetbutton');
-  var redshiftcheckbox = document.getElementsByClassName('scriptctrl_redshift_checkbox');
   for (var i = 0; i < onoffbtn.length; i++) {
     var lightname = onoffbtn[i].getAttribute("lightname");
     var action = onoffbtn[i].getAttribute("action");
@@ -243,10 +296,9 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
   popupselect.init();
   $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
-  
-  for (var i = 0; i < redshiftcheckbox.length; i++) {
-    redshiftcheckbox[i].addEventListener('click', enableRedShift);
-  }
+  $('.scriptctrl_redshift_checkbox').on("click",enableRedShift);
+  $("input.fancyintensityslider").on("change",updateColdWarmWhiteBalanceIntensity)
+  $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
   $("#fancycolorpicker_close_button").on("click",function(event){$("#fancycolorpicker").css("visibility","hidden")});
   $("#fancycolorpicker_apply_button").on("click",function(event){
@@ -262,27 +314,25 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
   init_colour_temp_picker();
   //define setLedPipePattern(objdata)
 
-for (var i = 0; i < ledpipepresetbtns.length; i++) {
-    ledpipepresetbtns[i].addEventListener('click', function() {
-      var pipepattern = this.getAttribute("pipepattern");
-      if (!pipepattern) { return;  }
-      var hue = parseInt(this.getAttribute("pipehue")) || undefined;
-      var brightness = parseInt(this.getAttribute("pipebrightness")) || undefined;
-      var speed = parseInt(this.getAttribute("pipespeed")) || undefined;
-      var arg = parseInt(this.getAttribute("pipearg")) || undefined;
-      var arg1 = parseInt(this.getAttribute("pipearg1")) || undefined;
-      var data = {pattern:pipepattern, hue:hue, brightness:brightness, speed:speed, arg:arg, arg1:arg1};
-      setLedPipePattern(data);
-      if (brightness) {
-        document.getElementById("pipebrightness").value=brightness;
-      }
-      if (hue) {
-        document.getElementById("pipehue").value=hue;
-      }
-      if (speed) {
-        document.getElementById("pipespeed").value=speed;
-      }      
-    });
-  }
+  $(".ledpipepresetbutton").on('click', function() {
+    var pipepattern = this.getAttribute("pipepattern");
+    if (!pipepattern) { return;  }
+    var hue = parseInt(this.getAttribute("pipehue")) || undefined;
+    var brightness = parseInt(this.getAttribute("pipebrightness")) || undefined;
+    var speed = parseInt(this.getAttribute("pipespeed")) || undefined;
+    var arg = parseInt(this.getAttribute("pipearg")) || undefined;
+    var arg1 = parseInt(this.getAttribute("pipearg1")) || undefined;
+    var data = {pattern:pipepattern, hue:hue, brightness:brightness, speed:speed, arg:arg, arg1:arg1};
+    setLedPipePattern(data);
+    if (brightness) {
+      document.getElementById("pipebrightness").value=brightness;
+    }
+    if (hue) {
+      document.getElementById("pipehue").value=hue;
+    }
+    if (speed) {
+      document.getElementById("pipespeed").value=speed;
+    }      
+  });
 
 })();

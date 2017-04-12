@@ -138,6 +138,8 @@ button.leftalignroundedbutton {
     position: relative; width: 85px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
     margin:1px;
+    top:1ex;
+    display: inline-block;
 }
 .onoffswitch-checkbox {
     display: none;

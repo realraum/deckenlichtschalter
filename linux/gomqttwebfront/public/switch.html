@@ -61,56 +61,12 @@
 
 <div style="float:left;">
 
-      <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
-      <h3>Personal Presets</h3>
-      - Save RoomState as Preset in browser localstore<br/>
-      - Preset 1<br/>
-      - Preset 2<br/>
-      - etc<br/>
-      - Rename Preset<br/>
-      </div>
-
-      <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;">
-        <div class="switchbox">
-          <span class="alignbuttonsleft">
-          <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling1" style="background-color:black;"></button>
-          <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="ceiling1">PickColor</button>
-          </span>
-          <span class="alignbuttonsleft">
-            <div class="onoffswitch">
-                <input type="checkbox" name="ceiling1ctonoff" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="1" id="ceiling1ctonoff" checked>
-                <label class="onoffswitch-label" for="ceiling1ctonoff">
-                    <span class="onoffswitch-inner"></span>
-                    <span class="onoffswitch-switch"></span>
-                </label>
-            </div>Colortemp follows daylight
-          </span>
-          <div class="switchnameright">Leinwand</div>
-        </div>
-        <br/>
-
-        <div class="switchbox">
-          <span class="alignbuttonsleft">
-          <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling2" style="background-color:black;"></button>
-          <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="ceiling2">PickColor</button>
-          </span>
-          <span class="alignbuttonsleft">
-            <div class="onoffswitch">
-                <input type="checkbox" name="ceiling2ctonoff" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="2" id="ceiling2ctonoff" checked>
-                <label class="onoffswitch-label" for="ceiling2ctonoff">
-                    <span class="onoffswitch-inner"></span>
-                    <span class="onoffswitch-switch"></span>
-                </label>
-            </div>Colortemp follows daylight
-          </span>
-          <div class="switchnameright">Durchgang</div>
-        </div>
-        <br/>
-
+      <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divfancylightswitchboxes">
+        <!-- JS populatedivfancyswitchboxes adds Buttons -->
       </div>
 
       <div style="float:left;">
-        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divbasiclightwitchboxes">
+        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divbasiclightswitchboxes">
         <!-- JS populatedivrfswitchboxes adds Buttons -->
         </div>
       </div>
