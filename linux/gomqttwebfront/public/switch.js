@@ -158,16 +158,27 @@ function handleExternalFancySetting(fancyid, data)
       } 
     }
   }
+  cwwwslidedata = calcDayLevelFromColor(data);
+  $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
+  $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((cwwwslidedata["balance"]*1000+1000)/2));
+}
+
+function calcDayLevelFromColor(data)
+{
+  var value = Math.min(1000,data.cw + data.ww + data.r*3)/1000.0;
+  var day_factor = data.cw * 1.0 / (data.cw+data.ww) / 1000.0;
+  day_factor = Math.min(1.0,Math.max(0.0,  day_factor - (data.r/1000.0) ));
+  return {"balance":day_factor, "intensity":value};
 }
 
 function calcColorFromDayLevel(day_factor, value)
 {
-    var day_factor = Math.min(1.0,Math.max(-1.0,day_factor))
-    var r = 1000 * value * Math.max(0.0, -1.0 * day_factor)
-    var b = 0
-    var cw = 1000 * value * Math.max(0.0, day_factor)
-    var ww = Math.max(0,1000 * value - cw - (r/3))
-    return {"r":Math.trunc(r), "b":Math.trunc(b), "cw":Math.trunc(cw), "ww":Math.trunc(ww)}
+  var day_factor = Math.min(1.0,Math.max(-1.0,day_factor));
+  var r = 1000 * value * Math.max(0.0, -1.0 * day_factor);
+  var b = 0;
+  var cw = 1000 * value * Math.max(0.0, day_factor);
+  var ww = Math.max(0,1000 * value - cw - (r/3));
+  return {"r":Math.trunc(r), "b":Math.trunc(b), "cw":Math.trunc(cw), "ww":Math.trunc(ww)};
 }
 
 function updateColdWarmWhiteBalanceIntensity(event)
