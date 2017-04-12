@@ -254,13 +254,13 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 });
 
 populatedivrfswitchboxes(document.getElementById("divbasiclightswitchboxes"), {
-"ceiling1":"Decke Leinwand",
-"ceiling2":"Decke Durchgang",
-"ceiling3":"Decke Küche",
-"ceiling4":"Decke Lasercutter",
-"ceiling5":"Decke Eingang",
-"ceiling6":"Decke Tesla",
-"ceilingAll":"All BasicLights",
+"basiclight1":"Decke Leinwand",
+"basiclight2":"Decke Durchgang",
+"basiclight3":"Decke Küche",
+"basiclight4":"Decke Lasercutter",
+"basiclight5":"Decke Eingang",
+"basiclight6":"Decke Tesla",
+"basiclightAll":"All BasicLights",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
@@ -296,6 +296,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
         return function() {  sendMQTT(topic,{Action:action});  };
       }(topic, action));
       topics_to_subscribe[topic] = lightname;
+      topics_to_subscribe[topic.replace("basiclight","ceiling")] = lightname;
     }
   }
   if (webSocketSupport) {

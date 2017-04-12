@@ -119,7 +119,7 @@ class CeilingScriptClass():
             self.trigger_seq_num = (self.trigger_seq_num + 1) % (1<<30) # ensure seq number fits in signed int32
         if light == "All":
             cc=None  # we don't want to be triggerd by x lights at once
-        if fade_duration != None and fade_duration >= 100 and fade_duration <= 60000:
+        if fade_duration != None and fade_duration >= 100 and fade_duration <= 120000:
             msg["fade"]={"duration":fade_duration, "cc":cc}
         elif flash_repetitions != None and flash_repetitions >= 1 and flash_repetitions <= 10:
             msg["fade"]={"repetitions":flash_repetitions, "cc":cc}

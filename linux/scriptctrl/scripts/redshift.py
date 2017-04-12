@@ -23,10 +23,10 @@ def activate(scr, newsettings):
         fade_duration_= min(120000,max(600,newsettings["fadeduration"]))
     else:
         fade_duration_ = 120000
-    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all([isinstance(x,int) and x >=src.light_min for x in newsettings["participating"]]):
-    	participating_targets_ = newsettings["participating"]
+    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all([isinstance(x,int) and x >=scr.light_min for x in newsettings["participating"]]):
+        participating_targets_ = newsettings["participating"]
     else:
-    	participating_targets_ = list(range(src.light_min, src.light_max+1))
+        participating_targets_ = list(range(scr.light_min, scr.light_max+1))
     if "latitude" in newsettings and isinstance(newsettings["latitude"],float):
         latitude_ = newsettings["latitude"]
     if "longitude" in newsettings and isinstance(newsettings["longitude"],float):
@@ -39,6 +39,7 @@ def activate(scr, newsettings):
         transition_low_ = newsettings["transition_low"]
 
     for t in participating_targets_:
+        redshiftLight(scr, t, True)
         redshiftLight(scr, t)
 
 
@@ -64,7 +65,7 @@ def calcColorFromDayLevel(day_factor, value):
     ww = max(0,1000 * value - cw - (r/3))
     return int(r), int(b), int(cw), int(ww)
 
-def redshiftLight(scr, lightnum):
+def redshiftLight(scr, lightnum, inital=False):
     solar_altitude = solar.GetAltitudeFast(latitude_, longitude_, datetime.datetime.utcnow())
     daylevel = 1.0
     if solar_altitude >= transition_high_:
@@ -76,7 +77,9 @@ def redshiftLight(scr, lightnum):
     elif solar_altitude > transition_low_ and solar_altitude < transition_middle_:
         daylevel = -1 * (solar_altitude - transition_middle_) / (transition_low_ - transition_middle_)
     r,b,cw,ww = calcColorFromDayLevel(daylevel, hsvvalue_)
-    scr.setLight([lightnum],r=r,g=0,b=b,cw=cw,ww=ww,fade_duration=fade_duration_,trigger_on_complete=["c%d" % lightnum])
+    scr.setLight(lightnum,r=r,g=0,b=b,cw=cw,ww=ww,
+        fade_duration=None if inital else fade_duration_,
+        trigger_on_complete=["c%d" % lightnum] )
 
 def init(scr):
     scr.registerActivate(activate)

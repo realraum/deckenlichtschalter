@@ -1,15 +1,13 @@
 [Unit]
 Description=Quickly switch RF433 and Ceiling lights via WEB
-Wants=network.target
 
 [Service]
 Type=simple
 Restart=always
 RestartSec=3s
-WorkingDirectory=/home/realraum/gomqttwebfront
-EnvironmentFile=/home/realraum/gomqttwebfront/config.env
-ExecStartPre=/bin/sh -c 'for gpio in 4 17 18 21 22 23; do while ! [ -e /sys/class/gpio/gpio$gpio ]; do echo $gpio >| /sys/class/gpio/export; sleep 1; done; done'
-ExecStart=/home/realraum/gomqttwebfront/gomqttwebfront
+WorkingDirectory=/home/licht/gomqttwebfront
+EnvironmentFile=/home/licht/gomqttwebfront/config.env
+ExecStart=/home/licht/gomqttwebfront/gomqttwebfront
 SyslogIdentifier=%i
 
 [Install]
