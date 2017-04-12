@@ -1,4 +1,13 @@
 
+var mqtttopic_activatescript = "action/ceilingscripts/activatescript";
+var mqtttopic_pipeledpattern = "action/PipeLEDs/pattern";
+function mqtttopic_golightctrl(lightname) {
+  return "action/GoLightCtrl/"+lightname;
+}
+function mqtttopic_fancylight(fancyid) {
+  return "action/"+fancyid+"/light";
+}
+
 function sendMQTT_XHTTP(ctx, data) {
   var req = new XMLHttpRequest;
   req.open("POST", cgiUrl, true);

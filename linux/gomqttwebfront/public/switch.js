@@ -71,7 +71,7 @@ function populatedivfancyswitchboxes(elem, names) {
 function sendYmhButton( btn ) {
   document.getElementById('indicator').style.backgroundColor="red";
   document.getElementById('commandlabel').innerHTML=btn;
-  sendMQTT("action/GoLightCtrl/"+btn,{Action:"send"});
+  sendMQTT(mqtttopic_golightctrl(btn),{Action:"send"});
   document.getElementById('indicator').style.backgroundColor="white";
   document.getElementById('commandlabel').innerHTML='&nbsp;';
 }
@@ -174,7 +174,7 @@ function updateColdWarmWhiteBalanceIntensity(event)
   var fancyid = event.target.getAttribute("name");
   var intensity = parseInt($("input.fancyintensityslider[name="+fancyid+"]")[0].value,10) / 1000.0;
   var balance = (1000 - parseInt($("input.fancybalanceslider[name="+fancyid+"]")[0].value,10)*2) / 1000.0;
-  sendMQTT("action/"+fancyid+"/light",calcColorFromDayLevel(balance, intensity));
+  sendMQTT(mqtttopic_fancylight(fancyid),calcColorFromDayLevel(balance, intensity));
 }
 
 function enableRedShift() {
@@ -190,11 +190,11 @@ function enableRedShift() {
     }
   });
   if (participating.length > 0) {
-    sendMQTT("action/ceilingscripts/activatescript",{"script":"redshift","participating":participating,"value":parseInt($("#scriptctrlfancyintensityslider").val(),10)/1000.0});
+    sendMQTT(mqtttopic_activatescript,{"script":"redshift","participating":participating,"value":parseInt($("#scriptctrlfancyintensityslider").val(),10)/1000.0});
   } else {
     //TODO FIXME: propably not what we want.
     //this will switch off all ceiling lights, even if some were not script controlled
-    sendMQTT("action/ceilingscripts/activatescript",{script:"off"})
+    sendMQTT(mqtttopic_activatescript,{script:"off"})
   }
 }
 
@@ -208,7 +208,7 @@ function popupFancyColorPicker(event) {
 
 
 function setLedPipePattern(data) {
-  sendMQTT("action/PipeLEDs/pattern",data);
+  sendMQTT(mqtttopic_pipeledpattern, data);
 }
 
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
@@ -271,7 +271,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     var lightname = onoffbtn[i].getAttribute("lightname");
     var action = onoffbtn[i].getAttribute("action");
     if (lightname) {
-      var topic = "action/GoLightCtrl/"+lightname;
+      var topic = mqtttopic_golightctrl(lightname);
       onoffbtn[i].addEventListener('click', function(topic, action) {
         return function() {  sendMQTT(topic,{Action:action});  };
       }(topic, action));
@@ -314,7 +314,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
       var CW = parseInt($('#CW input').val()) || 0;
       var WW = parseInt($('#WW input').val()) || 0;
       var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
-      sendMQTT("action/"+fancycolorpicker_apply_name+"/light",settings);
+      sendMQTT(mqtttopic_fancylight(fancycolorpicker_apply_name),settings);
   });
   //draw color picker canvases
   init_colour_temp_picker();
