@@ -246,26 +246,15 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
   }
 
   popupselect.init();
-  var fancypresenhandle = function(event) {
-      var name = event.target.getAttribute("name");
-      if (!name) { return;  }
-      var R = parseInt(event.target.getAttribute("ledr")) || 0;
-      var G = parseInt(event.target.getAttribute("ledg")) || 0;
-      var B = parseInt(event.target.getAttribute("ledb")) || 0;
-      var CW = parseInt(event.target.getAttribute("ledcw")) || 0;
-      var WW = parseInt(event.target.getAttribute("ledww")) || 0;
-      var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
-      sendMQTT("action/"+name+"/light",settings);
-    };
-  $(".fancylightpresetbutton").click(fancypresenhandle);
-  popupselect.addSelectHandlerToAll(fancypresenhandle);
+  $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
+  popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
   
   for (var i = 0; i < redshiftcheckbox.length; i++) {
     redshiftcheckbox[i].addEventListener('click', enableRedShift);
   }
-  $(".fancylightcolourtempselectorbutton").click(popupFancyColorPicker);
-  $("#fancycolorpicker_close_button").click(function(event){$("#fancycolorpicker").css("visibility","hidden")});
-  $("#fancycolorpicker_apply_button").click(function(event){
+  $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
+  $("#fancycolorpicker_close_button").on("click",function(event){$("#fancycolorpicker").css("visibility","hidden")});
+  $("#fancycolorpicker_apply_button").on("click",function(event){
       var R = parseInt($('#R input').val()) || 0;
       var G = parseInt($('#G input').val()) || 0;
       var B = parseInt($('#B input').val()) || 0;

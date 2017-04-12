@@ -28,4 +28,22 @@ function sendMQTT(ctx, data) {
   }
 }
 
+function eventOnRawMqttElement(event) {
+  var topic = event.target.getAttribute("topic");
+  var payloadobj = JSON.parse(event.target.getAttribute("payload"));
+  if (payloadobj) {
+    sendMQTT(topic, payloadobj);
+  }
+}
 
+function eventOnFancyLightPresent(event) {
+  var name = event.target.getAttribute("name");
+  if (!name) { return;  }
+  var R = parseInt(event.target.getAttribute("ledr")) || 0;
+  var G = parseInt(event.target.getAttribute("ledg")) || 0;
+  var B = parseInt(event.target.getAttribute("ledb")) || 0;
+  var CW = parseInt(event.target.getAttribute("ledcw")) || 0;
+  var WW = parseInt(event.target.getAttribute("ledww")) || 0;
+  var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
+  sendMQTT("action/"+name+"/light",settings);
+};
