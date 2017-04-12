@@ -120,29 +120,40 @@ document.onkeydown = remoteKeyboard;
 var fancycolorstate_={};  
 function handleExternalFancySetting(fancyid, data)
 {
-  var coldwhite_representation  = [1, 0xfa/0xff, 0xc0/0xff];
-  var warmwhite_representation = [71/0xff, 171/0xff, 1];
+  console.log("handleExternalFancySetting",data);
+  var warmwhite_representation  = [255.0, 250.0, 192];
+  var coldwhite_representation = [71.0, 171.0, 255];
+
+  //fill data with zero if missing
+  data.r = data.r || 0;
+  data.g = data.g || 0;
+  data.b = data.b || 0;
+  data.ww = data.ww || 0;
+  data.cw = data.cw || 0;
 
   //save data for next color chooser popup
   fancycolorstate_[fancyid] = data;
   if (data.cw + data.ww == 0)
   {
-    fancycolorstate_[fancyid].compound_r = Math.floor(data.r / 4);
-    fancycolorstate_[fancyid].compound_g = Math.floor(data.g / 4);
-    fancycolorstate_[fancyid].compound_b = Math.floor(data.b / 4);
+    fancycolorstate_[fancyid].compound_r = Math.floor(255*data.r / 1000);
+    fancycolorstate_[fancyid].compound_g = Math.floor(255*data.g / 1000);
+    fancycolorstate_[fancyid].compound_b = Math.floor(255*data.b / 1000);
+    console.log("data.cw + data.ww == 0");
   } else if (data.r+data.g+data.b == 0)
   {
-    fancycolorstate_[fancyid].compound_r = Math.floor((data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0]) / 8);
-    fancycolorstate_[fancyid].compound_g = Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 8);
-    fancycolorstate_[fancyid].compound_b = Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 8);
+    console.log("data.r+data.g+data.b == 0");
+    fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor((data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
+    fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
+    fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor((data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
   } else {
-    fancycolorstate_[fancyid].compound_r = Math.floor((data.r/4 + data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0]) / 9);
-    fancycolorstate_[fancyid].compound_g = Math.floor((data.g/4 + data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 9);
-    fancycolorstate_[fancyid].compound_b = Math.floor((data.b/4 + data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1]) / 9);
+    console.log("else");
+    fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor(data.r + (data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
+    fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor(data.g + (data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
+    fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor(data.b + (data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
   }
   console.log(fancycolorstate_[fancyid]);
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
-  var elem = $("button.popupselect_trigger[name="+fancyid+"]");
+  var elem = $(".popupselect_trigger[name="+fancyid+"]");
   if (elem) {
     console.log(rgbstring);
     elem.css("background-color",rgbstring);
@@ -152,41 +163,15 @@ function handleExternalFancySetting(fancyid, data)
     for (var fid=1; fid<10; fid++)
     {
       fancycolorstate_[fid] = fancycolorstate_["All"];
-      elem = $("button.popupselect_trigger[name=ceiling"+fid+"]");
+      elem = $(".popupselect_trigger[name=ceiling"+fid+"]");
       if (elem) {
         elem.css("background-color",rgbstring);
-      } 
+      }
     }
   }
-  cwwwslidedata = calcDayLevelFromColor(data);
-  console.log(cwwwslidedata);
+  var cwwwslidedata = calcDayLevelFromColor(data);
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
-  console.log(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
   $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
-}
-
-function calcDayLevelFromColor(data)
-{
-  var value = Math.min(1000,data.cw + data.ww + data.r*3)/1000.0;
-  console.log(data);
-  var day_factor;
-  if (data.cw+data.ww == 0) {
-    day_factor = 0.0;
-  } else {
-    day_factor = data.cw * 1.0 / (data.cw+data.ww) - data.r / 1000.0;
-    day_factor = Math.min(1.0,Math.max(-1.0,  day_factor ));
-  }
-  return {"balance":day_factor, "intensity":value};
-}
-
-function calcColorFromDayLevel(day_factor, value)
-{
-  var day_factor = Math.min(1.0,Math.max(-1.0,day_factor));
-  var r = 1000 * value * Math.max(0.0, -1.0 * day_factor);
-  var b = 0;
-  var cw = 1000 * value * Math.max(0.0, day_factor);
-  var ww = Math.max(0,1000 * value - cw - (r/3));
-  return {"r":Math.trunc(r), "b":Math.trunc(b), "cw":Math.trunc(cw), "ww":Math.trunc(ww)};
 }
 
 function updateColdWarmWhiteBalanceIntensity(event)

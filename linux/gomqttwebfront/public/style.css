@@ -194,13 +194,13 @@ div.popupselect_overlay {
 div.popupselect_trigger {
 }
 
-button.bigpopupselect_option {
+button.popupselect_option {
     width:25%;
     height:40%;
     margin:3%;
 }
 
-button.bigpopupselect_option:hover {
+button.popupselect_option:hover {
     width:31%;
     height:46%;
     margin:0;
