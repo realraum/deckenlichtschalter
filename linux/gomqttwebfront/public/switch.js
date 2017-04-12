@@ -227,7 +227,7 @@ populatedivrfswitchboxes(document.getElementById("divbasiclightwitchboxes"), {
       ws.registerContext(topic, function(topic) {
         var btns = $("button[lightname="+lightname+"]");
         return function(data) {
-          btns.each(function(idx,elem) {
+          btns.each(function(elem) {
             if (elem.getAttribute("action") == data.Action) 
             {
               renderRFIRButtonUpdate(elem);

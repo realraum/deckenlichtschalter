@@ -86,7 +86,7 @@ var buttons = {
       }
     });
   if (webSocketSupport) {
-    $(".basiclight").each(function(idx, elem) {
+    $(".basiclight").each(function(elem) {
       var keyid = $(elem).attr('id');
       var topic = topic_namectrl + keyid;
       ws.registerContext(topic, (function(topic,keyid) {
