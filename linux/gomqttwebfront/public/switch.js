@@ -187,6 +187,9 @@ function updateColdWarmWhiteBalanceIntensity(event)
   var intensity = parseInt($("input.fancyintensityslider[name="+fancyid+"]")[0].value,10) / 1000.0;
   var balance = (1000 - parseInt($("input.fancybalanceslider[name="+fancyid+"]")[0].value,10)*2) / 1000.0;
   sendMQTT("action/"+fancyid+"/light",calcColorFromDayLevel(balance, intensity));
+  if (fancyid == "ceilingAll") {
+    enableRedShift();
+  }
 }
 
 function enableRedShift() {
@@ -204,7 +207,10 @@ function enableRedShift() {
   });
   console.log(participating);
   if (participating.length > 0) {
-    sendMQTT("action/ceilingscripts/activatescript",{"script":"redshift","participating":participating})
+    if ($("input.fancyintensityslider[name=ceilingAll]")[0].value == 0) {
+      $("input.fancyintensityslider[name=ceilingAll]").val(500);
+    }
+    sendMQTT("action/ceilingscripts/activatescript",{"script":"redshift","participating":participating,"value":parseInt($("input.fancyintensityslider[name=ceilingAll]")[0].value,10)/1000.0});
   } else {
     //TODO FIXME: propably not what we want.
     //this will switch off all ceiling lights, even if some were not script controlled
