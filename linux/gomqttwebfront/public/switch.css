@@ -45,7 +45,7 @@ nav a {
 div.switchbox {
     float:left;
     margin:2px;
-    max-width:300px;
+    max-width:330px;
     font-size:10pt;
     border:1px solid black;
     padding:0;
@@ -211,4 +211,12 @@ button.popupselect_option:hover {
     width:2.8em;
     height:2.8em;
     margin:0em;
+}
+
+#scriptctrlfancyintensityslider,input.fancyintensityslider, input.fancybalanceslider {
+    width:190px;
+}
+
+#divfancylightswitchboxes,#divbasiclightswitchboxes,#divrfswitchboxes {
+    float:left; background:rgb(248,248,248); margin-right:2ex; margin-bottom:2ex;
 }

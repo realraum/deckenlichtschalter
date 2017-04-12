@@ -43,7 +43,7 @@ function populatedivrfswitchboxes(elem, names) {
 function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
     var targetid = lightname.substr(7,1);
-    $(elem).append('        <div class="switchbox">\
+    $(elem).append('<div class="switchbox">\
             <div style="width:100%; font-weight: bold; color:white; background-color: black;">'+names[lightname]+'</div>\
             <span class="alignbuttonsleft">\
             <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="'+lightname+'" style="background-color:black;"></button>\
@@ -120,7 +120,6 @@ document.onkeydown = remoteKeyboard;
 var fancycolorstate_={};  
 function handleExternalFancySetting(fancyid, data)
 {
-  console.log("handleExternalFancySetting",data);
   var warmwhite_representation  = [255.0, 250.0, 192];
   var coldwhite_representation = [71.0, 171.0, 255];
 
@@ -138,24 +137,20 @@ function handleExternalFancySetting(fancyid, data)
     fancycolorstate_[fancyid].compound_r = Math.floor(255*data.r / 1000);
     fancycolorstate_[fancyid].compound_g = Math.floor(255*data.g / 1000);
     fancycolorstate_[fancyid].compound_b = Math.floor(255*data.b / 1000);
-    console.log("data.cw + data.ww == 0");
   } else if (data.r+data.g+data.b == 0)
   {
-    console.log("data.r+data.g+data.b == 0");
     fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor((data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
     fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
     fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor((data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
   } else {
-    console.log("else");
     fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor(data.r + (data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
     fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor(data.g + (data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
     fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor(data.b + (data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
   }
-  console.log(fancycolorstate_[fancyid]);
+  //console.log(fancycolorstate_[fancyid]);
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
   var elem = $(".popupselect_trigger[name="+fancyid+"]");
   if (elem) {
-    console.log(rgbstring);
     elem.css("background-color",rgbstring);
   }
   if (fancyid=="ceilingAll")
@@ -180,9 +175,6 @@ function updateColdWarmWhiteBalanceIntensity(event)
   var intensity = parseInt($("input.fancyintensityslider[name="+fancyid+"]")[0].value,10) / 1000.0;
   var balance = (1000 - parseInt($("input.fancybalanceslider[name="+fancyid+"]")[0].value,10)*2) / 1000.0;
   sendMQTT("action/"+fancyid+"/light",calcColorFromDayLevel(balance, intensity));
-  if (fancyid == "ceilingAll") {
-    enableRedShift();
-  }
 }
 
 function enableRedShift() {
@@ -198,10 +190,7 @@ function enableRedShift() {
     }
   });
   if (participating.length > 0) {
-    if ($("input.fancyintensityslider[name=ceilingAll]")[0].value == 0) {
-      $("input.fancyintensityslider[name=ceilingAll]").val(500);
-    }
-    sendMQTT("action/ceilingscripts/activatescript",{"script":"redshift","participating":participating,"value":parseInt($("input.fancyintensityslider[name=ceilingAll]")[0].value,10)/1000.0});
+    sendMQTT("action/ceilingscripts/activatescript",{"script":"redshift","participating":participating,"value":parseInt($("#scriptctrlfancyintensityslider").val(),10)/1000.0});
   } else {
     //TODO FIXME: propably not what we want.
     //this will switch off all ceiling lights, even if some were not script controlled
@@ -313,6 +302,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
   $('.scriptctrl_redshift_checkbox').on("click",enableRedShift);
+  $('#scriptctrlfancyintensityslider').on("change",enableRedShift);
   $("input.fancyintensityslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);

@@ -61,18 +61,26 @@
 
 <div style="float:left;">
 
-      <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divfancylightswitchboxes">
+      <div id="divfancylightswitchboxes">
+        <div class="switchbox">
+            <div style="width:100%; font-weight: bold; color:white; background-color: black;">Script Control</div>
+            <span class="alignbuttonsleft">
+            Active Script: redshift<br/> <!-- TODO: add dropdown box -->
+            <input type="range" min="0" max="1000" step="1" value="800" id="scriptctrlfancyintensityslider"> Light Intensity
+            </span>
+        </div>
+        <br/>
         <!-- JS populatedivfancyswitchboxes adds Buttons -->
       </div>
 
       <div style="float:left;">
-        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divbasiclightswitchboxes">
+        <div id="divbasiclightswitchboxes">
         <!-- JS populatedivrfswitchboxes adds Buttons -->
         </div>
       </div>
 
       <div style="float:left;">
-        <div style="float:left; border:1px solid black; margin-right:2ex; margin-bottom:2ex;" id="divrfswitchboxes">
+        <div id="divrfswitchboxes">
         <!-- JS populatedivrfswitchboxes adds Buttons -->
         </div>
       </div>
