@@ -152,22 +152,30 @@ function handleExternalFancySetting(fancyid, data)
     for (var fid=1; fid<10; fid++)
     {
       fancycolorstate_[fid] = fancycolorstate_["All"];
-      elem = $("button.popupselect_trigger[name="+fid+"]");
+      elem = $("button.popupselect_trigger[name=ceiling"+fid+"]");
       if (elem) {
         elem.css("background-color",rgbstring);
       } 
     }
   }
   cwwwslidedata = calcDayLevelFromColor(data);
+  console.log(cwwwslidedata);
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
-  $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((cwwwslidedata["balance"]*1000+1000)/2));
+  console.log(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
+  $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
 }
 
 function calcDayLevelFromColor(data)
 {
   var value = Math.min(1000,data.cw + data.ww + data.r*3)/1000.0;
-  var day_factor = data.cw * 1.0 / (data.cw+data.ww) / 1000.0;
-  day_factor = Math.min(1.0,Math.max(0.0,  day_factor - (data.r/1000.0) ));
+  console.log(data);
+  var day_factor;
+  if (data.cw+data.ww == 0) {
+    day_factor = 0.0;
+  } else {
+    day_factor = data.cw * 1.0 / (data.cw+data.ww) - data.r / 1000.0;
+    day_factor = Math.min(1.0,Math.max(-1.0,  day_factor ));
+  }
   return {"balance":day_factor, "intensity":value};
 }
 
@@ -195,7 +203,6 @@ function updateColdWarmWhiteBalanceIntensity(event)
 function enableRedShift() {
   var participating = Array();
   $(".scriptctrl_redshift_checkbox").each(function(elem){
-    console.log(elem);
     if (elem.checked) {
       var target = elem.getAttribute("target");
       if (target == "A"){
@@ -205,7 +212,6 @@ function enableRedShift() {
       }
     }
   });
-  console.log(participating);
   if (participating.length > 0) {
     if ($("input.fancyintensityslider[name=ceilingAll]")[0].value == 0) {
       $("input.fancyintensityslider[name=ceilingAll]").val(500);
