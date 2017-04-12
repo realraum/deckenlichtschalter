@@ -30,6 +30,16 @@
       
       <div class="light fancylight mqttrawjson" topic="action/ceiling1/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight1off"></div>
       <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling1" style="background-color:black;" id="fancylight1popup"></div>
+      <div class="light fancylight mqttrawjson" topic="action/ceiling2/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight2off"></div>
+      <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling2" style="background-color:black;" id="fancylight2popup"></div>
+      <div class="light fancylight mqttrawjson" topic="action/ceiling3/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight3off"></div>
+      <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling3" style="background-color:black;" id="fancylight3popup"></div>
+      <div class="light fancylight mqttrawjson" topic="action/ceiling4/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight4off"></div>
+      <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling4" style="background-color:black;" id="fancylight4popup"></div>
+      <div class="light fancylight mqttrawjson" topic="action/ceiling5/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight5off"></div>
+      <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling5" style="background-color:black;" id="fancylight5popup"></div>
+      <div class="light fancylight mqttrawjson" topic="action/ceiling6/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight6off"></div>
+      <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling6" style="background-color:black;" id="fancylight6popup"></div>
 
       <div class="light rfir" id="regalleinwand"></div>
       <div class="light rfir" id="couchred"></div>
@@ -39,17 +49,23 @@
       <div class="light rfir" id="abwasch"></div>
       <div class="light rfir" id="labortisch"></div>
       <div class="light rfir" id="floodtesla"></div>
-    </div>
 
-  <div id="fancycolorquickoptions1" class="popupselect_overlay">
-    <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
-    <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
-    <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
-  <br/>
-    <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
-    <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
-    <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
-  </div>
+
+      <div class="light fancylight mqttrawjson" topic="action/ceiling8/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight8off"></div>
+      <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling8" style="background-color:black;" id="fancylight8popup"></div>
+
+
+      <div id="fancycolorquickoptions1" class="popupselect_overlay">
+        <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="0" ledcw="700" ledww="0" style="background-color:rgb(58, 125, 182);"></button>
+        <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:black;"></button>
+        <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="0" ledcw="0" ledww="900" style="background-color: rgb(237, 233, 180);"></button>
+      <br/>
+        <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="1000" ledg="0" ledb="200" ledcw="0" ledww="0" style="background-color:purple;"></button>
+        <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="1000" ledb="0" ledcw="0" ledww="0" style="background-color:green;"></button>
+        <button class="fancylightpresetbutton bigpopupselect_option" name="" ledr="0" ledg="0" ledb="800" ledcw="0" ledww="0" style="background-color:blue;"></button>
+      </div>
+
+    </div>
 
     <script type="text/javascript" src="websocket.js"></script>
     <script type="text/javascript" src="mqtt.js"></script>

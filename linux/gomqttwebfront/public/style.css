@@ -105,13 +105,45 @@ button.activatedbtn {
     top: 21%;
 }
 
-#fancylight1off, #fancylight1popup {
+#fancylight1off, #fancylight1popup, #fancylight6off, #fancylight6popup {
     left: 77%;
 }
 
-#fancylight1popup {
+#fancylight2off, #fancylight2popup, #fancylight5off, #fancylight5popup {
+    left: 47%;
+}
+
+#fancylight3off, #fancylight3popup, #fancylight4off, #fancylight4popup {
+    left: 20%;
+}
+
+#fancylight1popup, #fancylight2popup, #fancylight3popup  {
     top: 32%;
 }
+
+#fancylight4popup, #fancylight5popup, #fancylight6popup  {
+    top: 68%;
+}
+
+#fancylight1off, #fancylight2off, #fancylight3off  {
+    top: 21%;
+}
+
+#fancylight4off, #fancylight5off, #fancylight6off  {
+    top: 57%;
+}
+
+#fancylight8off, #fancylight8popup {
+    bottom:0%;
+}
+
+#fancylight8off {
+    left:25%;
+}
+#fancylight8popup {
+    left:32%;
+}
+
 
 #regalleinwand {
     top: 10%;
@@ -155,23 +187,21 @@ div.popupselect_overlay {
     visibility:hidden;
     padding:2px;
     z-index: 20;
+    width:23%;
+    height:25%;
 }
 
-button.popupselect_trigger {
-    width:2.5em;
-    height:2.5em;
-    padding:2px;
+div.popupselect_trigger {
 }
 
 button.bigpopupselect_option {
-    width: 8em;
-    height: 8em;
-    padding:2px;
-    margin:1em;
+    width:25%;
+    height:40%;
+    margin:3%;
 }
 
 button.bigpopupselect_option:hover {
-    width: 10em;
-    height:10em;
-    margin:0em;
+    width:31%;
+    height:46%;
+    margin:0;
 }
