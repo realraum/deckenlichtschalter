@@ -61,11 +61,11 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 		if mqttc != nil {
 			topic_in_chan := SubscribeMultipleAndForwardToChannel(mqttc, ws_allowed_ctx_startwith)
 			go func(c mqtt.Client, msg_in_chan chan mqtt.Message) {
-				lp := make(map[string]interface{}, 10)
 				// if msg.Retained() {
 				// 	return
 				// }
 				for msg := range msg_in_chan {
+					lp := make(map[string]interface{}, 10)
 					//Error check, then forward
 					if err := json.Unmarshal(msg.Payload(), &lp); err == nil {
 						webmsg := wsMessageOut{Ctx: msg.Topic(), Data: lp}
