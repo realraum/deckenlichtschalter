@@ -88,12 +88,18 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ymhp5":        ActionIRCmdMQTT{ircmd: "ymhp5"},
 
 	//Basic Light
-	"ceiling1": ActionBasicLight{0},
-	"ceiling2": ActionBasicLight{1},
-	"ceiling3": ActionBasicLight{2},
-	"ceiling4": ActionBasicLight{3},
-	"ceiling5": ActionBasicLight{4},
-	"ceiling6": ActionBasicLight{5},
+	"ceiling1":    ActionBasicLight{0},
+	"ceiling2":    ActionBasicLight{1},
+	"ceiling3":    ActionBasicLight{2},
+	"ceiling4":    ActionBasicLight{3},
+	"ceiling5":    ActionBasicLight{4},
+	"ceiling6":    ActionBasicLight{5},
+	"basiclight1": ActionBasicLight{0},
+	"basiclight2": ActionBasicLight{1},
+	"basiclight3": ActionBasicLight{2},
+	"basiclight4": ActionBasicLight{3},
+	"basiclight5": ActionBasicLight{4},
+	"basiclight6": ActionBasicLight{5},
 
 	//Fancy Light
 	"fancyalloff": ActionMQTTMsg{r3events.TOPIC_ACTIONS + r3events.CLIENTID_CEILINGALL + "/" + r3events.TYPE_LIGHT, payload_fancyoff},
@@ -199,7 +205,8 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 
 	//Meta Events
 	"ambientlights": ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
-	"ceilingAll":    ActionMeta{metaaction: []string{"ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"ceilingAll":    ActionMeta{metaaction: []string{"basiclightAll"}},
+	"basiclightAll": ActionMeta{metaaction: []string{"ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 	"fancyvortrag":  ActionMeta{metaaction: []string{"fancy1off", "fancy6off", "fancy2cw1", "fancy5cw1", "fancy3cw2", "fancy4cw2"}},
 	"allrf":         ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla"}},
 	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
