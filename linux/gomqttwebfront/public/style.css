@@ -63,6 +63,13 @@ nav a {
     transition: background-color 0.5s;
 }
 
+.light.fancylight {
+    z-index:11;
+    width: 7%;
+    padding-top: 7%;
+    border:1px solid white;
+}
+
 .light.rfir {
     background: linear-gradient(-45deg, red 0%, red 50%, green 50%, green 100%);
     width: 7%;
@@ -74,24 +81,36 @@ button.activatedbtn {
     transition-duration: 100ms;
 }
 
-#ceiling2, #ceiling4, #ceiling6 {
+#basiclight1, #basiclight2, #basiclight3 {
     top: 21%;
 }
 
-#ceiling1, #ceiling3, #ceiling5 {
+#basiclight4, #basiclight5, #basiclight6 {
     top: 57%;
 }
 
-#ceiling1, #ceiling2 {
+#basiclight1, #basiclight6 {
     left: 70%
 }
 
-#ceiling3, #ceiling4 {
+#basiclight2, #basiclight5 {
     left: 40%
 }
 
-#ceiling5, #ceiling6 {
+#basiclight3, #basiclight4 {
     left: 13%;
+}
+
+#fancylight1off {
+    top: 21%;
+}
+
+#fancylight1off, #fancylight1popup {
+    left: 77%;
+}
+
+#fancylight1popup {
+    top: 32%;
 }
 
 #regalleinwand {

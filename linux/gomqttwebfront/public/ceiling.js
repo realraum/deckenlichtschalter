@@ -14,7 +14,7 @@ function resizeRoomImg() {
 }
 
 function renderButtonStates() {
-  var ceilings = document.getElementsByClassName('ceiling');
+  var ceilings = document.getElementsByClassName('basiclight');
   for (var i = 0; i < ceilings.length; i++) {
     var id = ceilings[i].getAttribute('id');
     if (!buttons.hasOwnProperty(id)) {
@@ -54,12 +54,12 @@ var topic_fancy_ceiling9 = "action/ceiling9/light"
 var topic_namectrl = "action/GoLightCtrl/"
 
 var buttons = {
-  ceiling1: false,
-  ceiling2: false,
-  ceiling3: false,
-  ceiling4: false,
-  ceiling5: false,
-  ceiling6: false
+  basiclight1: false,
+  basiclight2: false,
+  basiclight3: false,
+  basiclight4: false,
+  basiclight5: false,
+  basiclight6: false
 };
 
 (function() {

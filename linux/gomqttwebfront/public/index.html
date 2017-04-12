@@ -17,12 +17,15 @@
     <div class="room">
       <img src="imgs/realraumsimpel.png" alt="room map" width="987" height="631" />
 
-      <div class="light ceiling" id="ceiling1"></div>
-      <div class="light ceiling" id="ceiling2"></div>
-      <div class="light ceiling" id="ceiling3"></div>
-      <div class="light ceiling" id="ceiling4"></div>
-      <div class="light ceiling" id="ceiling5"></div>
-      <div class="light ceiling" id="ceiling6"></div>
+      <div class="light basiclight" id="basiclight1"></div>
+      <div class="light basiclight" id="basiclight2"></div>
+      <div class="light basiclight" id="basiclight3"></div>
+      <div class="light basiclight" id="basiclight4"></div>
+      <div class="light basiclight" id="basiclight5"></div>
+      <div class="light basiclight" id="basiclight6"></div>
+      
+      <div class="light fancylight mqttrawjson" topic="action/ceiling1/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' id="fancylight1off"></div>
+      <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling1" style="background-color:black;" id="fancylight1popup"></div>
 
       <div class="light rfir" id="regalleinwand"></div>
       <div class="light rfir" id="couchred"></div>
