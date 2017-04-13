@@ -177,24 +177,67 @@ function updateColdWarmWhiteBalanceIntensity(event)
   sendMQTT(mqtttopic_fancylight(fancyid),calcColorFromDayLevel(balance, intensity));
 }
 
-function enableRedShift() {
+function enableRedShift(event) {
   var participating = Array();
-  $(".scriptctrl_redshift_checkbox").each(function(elem){
-    if (elem.checked) {
-      var target = elem.getAttribute("target");
-      if (target == "A"){
-        participating=Array(1,2,3,4,5,6);
-      } else {
-        participating.push(parseInt(target));
+  if (event && event.target.getAttribute("target") == "A") {
+    if (event.target.checked)
+      participating=Array(1,2,3,4,5,6);
+    else
+      participating = Array();
+  } else {
+    $(".scriptctrl_redshift_checkbox").each(function(elem){
+      if (elem.checked) {
+        var target = elem.getAttribute("target");
+        if (target != "A"){
+          participating.push(parseInt(target));
+        }
       }
-    }
-  });
+    });    
+  }
   if (participating.length > 0) {
     sendMQTT(mqtttopic_activatescript,{"script":"redshift","participating":participating,"value":parseInt($("#scriptctrlfancyintensityslider").val(),10)/1000.0});
   } else {
     //TODO FIXME: propably not what we want.
     //this will switch off all ceiling lights, even if some were not script controlled
     sendMQTT(mqtttopic_activatescript,{script:"off"})
+  }
+}
+
+function handleChangeScriptCtrl(event) {
+  var script = $(event.target).val();
+  if (script == "redshift") {
+    enableRedShift();
+  } else {
+    sendMQTT(mqtttopic_activatescript,{script:script,value:$('#scriptctrlfancyintensityslider').val()/1000.0});
+  }
+}
+
+function handleExternalActivateScript(data) {
+  $("#scriptctrlselect").val(data.script);
+  if (data.script == "redshift") {
+    // -------- Script redshift ---------
+    if (data.value) {
+      $("#scriptctrlfancyintensityslider").val(Math.floor(data.value*1000));
+    }
+    if (data.participating == undefined || data.participating.length==6) {
+      data.participating=[1,2,3,4,5,6,"A"];
+      //$(".scriptctrl_redshift_checkbox[target=A]")[0].checked=true;
+    }
+    $(".scriptctrl_redshift_checkbox").each(function(elem) {
+      var target = elem.getAttribute("target");
+      target = parseInt(target) || target;
+      elem.checked = (-1 != data.participating.indexOf(target));
+    });
+  } else if (data.script == "randomcolor") {
+    // -------- Script randomcolor ---------
+  } else if (data.script == "colorfade") {
+    // -------- Script colorfade ---------
+  } else if (data.script == "ceilingsinus") {
+    // -------- Script ceilingsinus ---------
+  } else if (data.script == "off") {
+    $(".scriptctrl_redshift_checkbox").each(function(elem) {
+      elem.checked = false;
+    });    
   }
 }
 
@@ -296,13 +339,15 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     });
 
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
+    ws.registerContext(mqtttopic_activatescript,handleExternalActivateScript);
   }
 
   popupselect.init();
   $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
   $('.scriptctrl_redshift_checkbox').on("click",enableRedShift);
-  $('#scriptctrlfancyintensityslider').on("change",enableRedShift);
+  $('#scriptctrlfancyintensityslider').on("change",handleChangeScriptCtrl);
+  $("#scriptctrlselect").on("change", handleChangeScriptCtrl);
   $("input.fancyintensityslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);

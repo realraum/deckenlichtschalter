@@ -100,8 +100,6 @@ var cgiUrl = '/cgi-bin/fallback.cgi';
 
 var webSocketSupport = null;
 
-var topic_namectrl = "action/GoLightCtrl/"
-
 var buttons = {
   basiclight1: false,
   basiclight2: false,
@@ -124,7 +122,7 @@ var buttons = {
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
   $(".basiclight").on("click",function() {
       var id = this.getAttribute('id');
-      var topic = topic_namectrl + id;
+      var topic = mqtttopic_golightctrl(id);
       if (!buttons.hasOwnProperty(id)) {
         return;
       }

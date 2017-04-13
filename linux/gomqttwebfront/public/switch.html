@@ -65,7 +65,13 @@
         <div class="switchbox">
             <div style="width:100%; font-weight: bold; color:white; background-color: black;">Script Control</div>
             <span class="alignbuttonsleft">
-            Active Script: redshift<br/> <!-- TODO: add dropdown box -->
+            Active Script: <select id="scriptctrlselect">
+              <option value="redshift">RedShift</option>
+              <option value="off">Off</option>
+              <option value="ceilingsinus">CeilingSinus</option>
+              <option value="colorfade">ColorFade</option>
+              <option value="randomcolor">RandomColor</option>
+            </select><br/>
             <input type="range" min="0" max="1000" step="1" value="800" id="scriptctrlfancyintensityslider"> Light Intensity
             </span>
         </div>
