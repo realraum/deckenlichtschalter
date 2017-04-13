@@ -38,7 +38,11 @@ var popupselect = {
 	},
 
 	popupselectSelect:function(event) {
-		$("."+popupselect.options.class_popupoverlay).css("visibility","hidden");
+		//Array.from(document.getElementsByClassName(popupselect.options.class_popupoverlay)).forEach(function(elem) {elem.style.visibility="hidden";elem.style.display="none";});
+		var allmypopups = document.getElementsByClassName(popupselect.options.class_popupoverlay)
+		for (var i=0; i<allmypopups.length; i++) {
+			if (allmypopups[i]) { allmypopups[i].style.visibility="hidden"; }
+		}
 		var selectedbtn = $(event.target);
 		if (selectedbtn.hasClass(popupselect.options.class_option))
 		{
@@ -56,7 +60,7 @@ var popupselect = {
 		}
 		if (isMobileBrowser()) {
 			$("."+this.options.class_triggerpopup).on("click",this.popupselectOpen);
-			$("."+this.options.class_option).click(this.popupHoverSelector);
+			$("."+this.options.class_option).on("click",this.popupHoverSelector);
 		} else {
 			$("."+this.options.class_triggerpopup).on("mousedown",this.popupselectOpen);
 			$(document).on("mouseup",this.popupselectSelect);
