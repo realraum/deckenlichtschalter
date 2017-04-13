@@ -40,7 +40,6 @@ function setButtonStates(data) {
 var fancycolorstate_={};
 function handleExternalFancySetting(fancyid, data)
 {
-  console.log("handleExternalFancySetting",data);
   var warmwhite_representation  = [255.0, 250.0, 192];
   var coldwhite_representation = [71.0, 171.0, 255];
 
@@ -58,24 +57,20 @@ function handleExternalFancySetting(fancyid, data)
     fancycolorstate_[fancyid].compound_r = Math.floor(255*data.r / 1000);
     fancycolorstate_[fancyid].compound_g = Math.floor(255*data.g / 1000);
     fancycolorstate_[fancyid].compound_b = Math.floor(255*data.b / 1000);
-    console.log("data.cw + data.ww == 0");
   } else if (data.r+data.g+data.b == 0)
   {
-    console.log("data.r+data.g+data.b == 0");
     fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor((data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
     fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
     fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor((data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
   } else {
-    console.log("else");
     fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor(data.r + (data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
     fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor(data.g + (data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
     fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor(data.b + (data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
   }
-  console.log(fancycolorstate_[fancyid]);
+  //console.log(fancycolorstate_[fancyid]);
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
   var elem = $(".popupselect_trigger[name="+fancyid+"]");
   if (elem) {
-    console.log(rgbstring);
     elem.css("background-color",rgbstring);
   }
   if (fancyid=="ceilingAll")
@@ -93,7 +88,6 @@ function handleExternalFancySetting(fancyid, data)
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
   $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
 }
-
 
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
 var cgiUrl = '/cgi-bin/fallback.cgi';
@@ -135,7 +129,7 @@ var buttons = {
   if (webSocketSupport) {
     $(".basiclight").each(function(elem) {
       var keyid = $(elem).attr('id');
-      var topic = topic_namectrl + keyid;
+      var topic = mqtttopic_golightctrl(keyid);
       ws.registerContext(topic, (function(topic,keyid) {
         return function(data) {
           console.log(topic, data);
@@ -156,7 +150,7 @@ var buttons = {
   for (var i = 0; i < rfirs.length; i++) {
     rfirs[i].addEventListener('click', function(event) {
       var id = this.getAttribute('id');
-      var topic = topic_namectrl + id;
+      var topic = mqtttopic_golightctrl(id);
       var offset = $(this).offset();
       var relX = (event.pageX - offset.left) / $(this).width();
       var relY = (event.pageY - offset.top) / $(this).height();

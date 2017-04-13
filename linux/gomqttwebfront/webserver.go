@@ -15,19 +15,7 @@ import (
 )
 
 var (
-	topic_fancy_ceiling_all = "action/ceilingAll/light"
-	topics_fancy_ceiling    = []string{
-		"action/ceiling1/light",
-		"action/ceiling2/light",
-		"action/ceiling3/light",
-		"action/ceiling4/light",
-		"action/ceiling5/light",
-		"action/ceiling6/light",
-		"action/ceiling7/light",
-		"action/ceiling8/light",
-		"action/ceiling9/light"}
-
-	ws_allowed_ctx_startwith = append([]string{r3events.ACT_PIPELEDS_PATTERN, r3events.ACT_YAMAHA_SEND,
+	topics_other = []string{r3events.ACT_PIPELEDS_PATTERN, r3events.ACT_YAMAHA_SEND,
 		"action/GoLightCtrl/all",
 		"action/GoLightCtrl/allrf",
 		"action/GoLightCtrl/ambientlights",
@@ -38,13 +26,6 @@ var (
 		"action/GoLightCtrl/ceiling5",
 		"action/GoLightCtrl/ceiling6",
 		"action/GoLightCtrl/ceilingAll",
-		"action/GoLightCtrl/basiclight1",
-		"action/GoLightCtrl/basiclight2",
-		"action/GoLightCtrl/basiclight3",
-		"action/GoLightCtrl/basiclight4",
-		"action/GoLightCtrl/basiclight5",
-		"action/GoLightCtrl/basiclight6",
-		"action/GoLightCtrl/basiclightAll",
 		"action/GoLightCtrl/ymhpoweroff",
 		"action/GoLightCtrl/ymhpower",
 		"action/GoLightCtrl/ymhpoweron",
@@ -86,8 +67,30 @@ var (
 		"action/GoLightCtrl/boilerolga",
 		"action/GoLightCtrl/boiler",
 		"action/GoLightCtrl/fancyvortrag",
-		"action/ceilingscripts/activatescript",
-		topic_fancy_ceiling_all}, topics_fancy_ceiling...)
+		"action/ceilingscripts/activatescript"}
+	topic_fancy_ceiling_all = "action/ceilingAll/light"
+	topic_basic_ceiling_all = "action/GoLightCtrl/basiclightAll"
+	topics_fancy_ceiling    = []string{
+		"action/ceiling1/light",
+		"action/ceiling2/light",
+		"action/ceiling3/light",
+		"action/ceiling4/light",
+		"action/ceiling5/light",
+		"action/ceiling6/light",
+		"action/ceiling7/light",
+		"action/ceiling8/light",
+		"action/ceiling9/light"}
+	topics_basic_ceiling = []string{
+		"action/GoLightCtrl/basiclight1",
+		"action/GoLightCtrl/basiclight2",
+		"action/GoLightCtrl/basiclight3",
+		"action/GoLightCtrl/basiclight4",
+		"action/GoLightCtrl/basiclight5",
+		"action/GoLightCtrl/basiclight6",
+	}
+
+	ws_allowed_ctx_startwith  = append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topic_basic_ceiling_all, topic_fancy_ceiling_all))
+	ws_allowed_ctx_withoutALL = ws_allowed_ctx_startwith[:len(ws_allowed_ctx_startwith)-2]
 )
 
 const (
@@ -110,8 +113,12 @@ func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFutu
 	retained_json_map := make(map[string][]byte, len(ws_allowed_ctx_startwith))
 
 	handleCeilingAll := func(mp map[string][]byte, topic string, webjson []byte) {
-		if "action/ceilingAll/light" == topic {
+		if topic_fancy_ceiling_all == topic {
 			for _, tp := range topics_fancy_ceiling {
+				retained_json_map[tp] = webjson //just pointer. should be ok since we never change single bytes
+			}
+		} else if topic_basic_ceiling_all == topic {
+			for _, tp := range topics_basic_ceiling {
 				retained_json_map[tp] = webjson //just pointer. should be ok since we never change single bytes
 			}
 		}
@@ -293,7 +300,7 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_json_ch
 
 	//send client the inital known states
 	ourfuture := make(chan OurFutures, 2)
-	retained_json_chan <- JsonFuture{future: ourfuture, what: ws_allowed_ctx_startwith}
+	retained_json_chan <- JsonFuture{future: ourfuture, what: ws_allowed_ctx_withoutALL}
 	for _, f := range <-ourfuture {
 		ws.WriteMessage(websocket.TextMessage, f)
 	}

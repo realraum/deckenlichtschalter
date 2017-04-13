@@ -204,7 +204,7 @@ function enableRedShift(event) {
 }
 
 function handleChangeScriptCtrl(event) {
-  var script = $(event.target).val();
+  var script = $("#scriptctrlselect").val();
   if (script == "redshift") {
     enableRedShift();
   } else {
@@ -298,12 +298,6 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 
 (function() {
   webSocketSupport = hasWebSocketSupport();
-  if (webSocketSupport) {
-    ws.open(webSocketUrl);
-  } else {
-    updateButtons("/cgi-bin/mswitch.cgi");
-    setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);
-  }
 
   var topics_to_subscribe = {};
 
@@ -385,5 +379,12 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
       document.getElementById("pipespeed").value=speed;
     }      
   });
+
+  if (webSocketSupport) {
+    ws.open(webSocketUrl);
+  } else {
+    updateButtons("/cgi-bin/mswitch.cgi");
+    setInterval("updateButtons(\"/cgi-bin/mswitch.cgi\");", 30*1000);
+  }
 
 })();
