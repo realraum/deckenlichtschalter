@@ -91,3 +91,37 @@ function calcColorFromDayLevel(day_factor, value)
   var ww = Math.max(0,1000 * value - cw - (r/3));
   return {"r":Math.trunc(r), "b":Math.trunc(b), "cw":Math.trunc(cw), "ww":Math.trunc(ww)};
 }
+
+function calcCompoundRGB(data)
+{
+  var warmwhite_representation  = [255.0/255, 250.0/255, 192/255];
+  var coldwhite_representation = [220.0/255, 220.0/255, 255/255];
+
+  //fill data with zero if missing
+  data.r = data.r || 0;
+  data.g = data.g || 0;
+  data.b = data.b || 0;
+  data.ww = data.ww || 0;
+  data.cw = data.cw || 0;
+
+  var r_factor = 1;
+  var g_factor = 3; //green 3 times as bright as red
+  var b_factor = g_factor*3; //blue 2 times as bright as green
+  var ww_factor = 44; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
+  var cw_factor = 22;
+
+  var r = data.r*r_factor + data.ww*warmwhite_representation[0]*ww_factor + data.cw*coldwhite_representation[0]*cw_factor;
+  var g = data.g*g_factor + data.ww*warmwhite_representation[1]*ww_factor + data.cw*coldwhite_representation[1]*cw_factor;
+  var b = data.b*b_factor + data.ww*warmwhite_representation[2]*ww_factor + data.cw*coldwhite_representation[2]*cw_factor;
+
+  var maximum = Math.max(r,g,b);
+
+  //now normalize
+  r = r * 255.0 / maximum;
+  g = g * 255.0 / maximum;
+  b = b * 255.0 / maximum;
+
+  data.compound_r = Math.min(255,Math.floor(r));
+  data.compound_g = Math.min(255,Math.floor(g));
+  data.compound_b = Math.min(255,Math.floor(b));  
+}

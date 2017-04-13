@@ -120,49 +120,14 @@ document.onkeydown = remoteKeyboard;
 var fancycolorstate_={};  
 function handleExternalFancySetting(fancyid, data)
 {
-  var warmwhite_representation  = [255.0, 250.0, 192];
-  var coldwhite_representation = [71.0, 171.0, 255];
-
-  //fill data with zero if missing
-  data.r = data.r || 0;
-  data.g = data.g || 0;
-  data.b = data.b || 0;
-  data.ww = data.ww || 0;
-  data.cw = data.cw || 0;
-
   //save data for next color chooser popup
   fancycolorstate_[fancyid] = data;
-  if (data.cw + data.ww == 0)
-  {
-    fancycolorstate_[fancyid].compound_r = Math.floor(255*data.r / 1000);
-    fancycolorstate_[fancyid].compound_g = Math.floor(255*data.g / 1000);
-    fancycolorstate_[fancyid].compound_b = Math.floor(255*data.b / 1000);
-  } else if (data.r+data.g+data.b == 0)
-  {
-    fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor((data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
-    fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor((data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
-    fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor((data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
-  } else {
-    fancycolorstate_[fancyid].compound_r = Math.min(255,Math.floor(data.r + (data.cw*coldwhite_representation[0] + data.ww*warmwhite_representation[0])/1000));
-    fancycolorstate_[fancyid].compound_g = Math.min(255,Math.floor(data.g + (data.cw*coldwhite_representation[1] + data.ww*warmwhite_representation[1])/1000));
-    fancycolorstate_[fancyid].compound_b = Math.min(255,Math.floor(data.b + (data.cw*coldwhite_representation[2] + data.ww*warmwhite_representation[2])/1000));
-  }
-  //console.log(fancycolorstate_[fancyid]);
+  calcCompoundRGB(fancycolorstate_[fancyid]);
+
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
   var elem = $(".popupselect_trigger[name="+fancyid+"]");
   if (elem) {
     elem.css("background-color",rgbstring);
-  }
-  if (fancyid=="ceilingAll")
-  {
-    for (var fid=1; fid<10; fid++)
-    {
-      fancycolorstate_[fid] = fancycolorstate_["All"];
-      elem = $(".popupselect_trigger[name=ceiling"+fid+"]");
-      if (elem) {
-        elem.css("background-color",rgbstring);
-      }
-    }
   }
   var cwwwslidedata = calcDayLevelFromColor(data);
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
