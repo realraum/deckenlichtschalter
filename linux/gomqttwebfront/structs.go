@@ -39,8 +39,9 @@ type jsonButtonUsed struct {
 type OurFutures [][]byte
 
 type JsonFuture struct {
-	future chan OurFutures
-	what   []string
+	future    chan OurFutures
+	omitempty bool
+	what      []string
 }
 
 type ActionNameHandler struct {

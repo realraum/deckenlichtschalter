@@ -59,7 +59,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOMQTTWEBFRONT_MQTTBROKER", DEFAULT_GOMQTTWEBFRONT_MQTTBROKER), EnvironOrDefault("GOMQTTWEBFRONT_CLIENTID", r3events.CLIENTID_WEBFRONT))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
-			topic_in_chan := SubscribeMultipleAndForwardToChannel(mqttc, ws_allowed_ctx_startwith)
+			topic_in_chan := SubscribeMultipleAndForwardToChannel(mqttc, ws_allowed_ctx_all)
 			go func(c mqtt.Client, msg_in_chan chan mqtt.Message) {
 				// if msg.Retained() {
 				// 	return

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/btittelbach/pubsub"
 	"github.com/codegangsta/martini"
 	"github.com/gorilla/websocket"
 	"github.com/realraum/door_and_sensors/r3events"
@@ -19,13 +20,6 @@ var (
 		"action/GoLightCtrl/all",
 		"action/GoLightCtrl/allrf",
 		"action/GoLightCtrl/ambientlights",
-		"action/GoLightCtrl/ceiling1",
-		"action/GoLightCtrl/ceiling2",
-		"action/GoLightCtrl/ceiling3",
-		"action/GoLightCtrl/ceiling4",
-		"action/GoLightCtrl/ceiling5",
-		"action/GoLightCtrl/ceiling6",
-		"action/GoLightCtrl/ceilingAll",
 		"action/GoLightCtrl/ymhpoweroff",
 		"action/GoLightCtrl/ymhpower",
 		"action/GoLightCtrl/ymhpoweron",
@@ -68,9 +62,10 @@ var (
 		"action/GoLightCtrl/boiler",
 		"action/GoLightCtrl/fancyvortrag",
 		"action/ceilingscripts/activatescript"}
-	topic_fancy_ceiling_all = "action/ceilingAll/light"
-	topic_basic_ceiling_all = "action/GoLightCtrl/basiclightAll"
-	topics_fancy_ceiling    = []string{
+	topic_fancy_ceiling_all    = "action/ceilingAll/light"
+	topic_basic_ceiling_all    = "action/GoLightCtrl/basiclightAll"
+	topic_oldbasic_ceiling_all = "action/GoLightCtrl/ceilingAll"
+	topics_fancy_ceiling       = []string{
 		"action/ceiling1/light",
 		"action/ceiling2/light",
 		"action/ceiling3/light",
@@ -88,9 +83,17 @@ var (
 		"action/GoLightCtrl/basiclight5",
 		"action/GoLightCtrl/basiclight6",
 	}
+	topics_oldbasic_ceiling = []string{
+		"action/GoLightCtrl/ceiling1",
+		"action/GoLightCtrl/ceiling2",
+		"action/GoLightCtrl/ceiling3",
+		"action/GoLightCtrl/ceiling4",
+		"action/GoLightCtrl/ceiling5",
+		"action/GoLightCtrl/ceiling6",
+	}
 
-	ws_allowed_ctx_startwith  = append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topic_basic_ceiling_all, topic_fancy_ceiling_all))
-	ws_allowed_ctx_withoutALL = ws_allowed_ctx_startwith[:len(ws_allowed_ctx_startwith)-2]
+	ws_allowed_ctx_all                   = append(append(append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_oldbasic_ceiling...), topic_basic_ceiling_all, topic_fancy_ceiling_all, topic_oldbasic_ceiling_all)))
+	ws_allowed_ctx_sendtoclientonconnect = append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...)
 )
 
 const (
@@ -102,42 +105,73 @@ const (
 
 var wsupgrader = websocket.Upgrader{} // use default options with Origin Check
 
-// glue-code that repackages updates as json
-// It is here so we can rewrite the json output format for the webserver if we want
-// AND so that conversion to JSON is done only once for every connected websocket
-func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFuture) {
+//Atomizing because we take a CeilingAll msg and split it and send on its parts Ceiling1 .. Ceiling9
+func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessageOut) {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
 	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
 	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
-
-	retained_json_map := make(map[string][]byte, len(ws_allowed_ctx_startwith))
-
-	handleCeilingAll := func(mp map[string][]byte, topic string, webjson []byte) {
-		if topic_fancy_ceiling_all == topic {
-			for _, tp := range topics_fancy_ceiling {
-				retained_json_map[tp] = webjson //just pointer. should be ok since we never change single bytes
-			}
-		} else if topic_basic_ceiling_all == topic {
-			for _, tp := range topics_basic_ceiling {
-				retained_json_map[tp] = webjson //just pointer. should be ok since we never change single bytes
-			}
-		}
-	}
-
 	for {
 		select {
 		case <-shutdown_chan:
 			return
 		case webmsg_i := <-msgtoall_chan:
 			if webmsg, castok := webmsg_i.(wsMessageOut); castok {
-				LogWS_.Printf("goJSONMarshalStuffForWebSockClientsAndRetain", webmsg)
-				if webjson, err := json.Marshal(webmsg); err == nil {
-					ps_.Pub(webjson, PS_WEBSOCK_ALL_JSON)
-					retained_json_map[webmsg.Ctx] = webjson
-					handleCeilingAll(retained_json_map, webmsg.Ctx, webjson)
-				} else {
-					LogWS_.Println(err)
+				switch webmsg.Ctx {
+				case topic_fancy_ceiling_all:
+					for _, tp := range topics_fancy_ceiling {
+						atomized_wsout_chan <- wsMessageOut{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+					}
+				case topic_basic_ceiling_all:
+					for _, tp := range topics_basic_ceiling {
+						atomized_wsout_chan <- wsMessageOut{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+					}
+				case topic_oldbasic_ceiling_all:
+					for _, tp := range topics_basic_ceiling { //convert oldbasic to new basic
+						atomized_wsout_chan <- wsMessageOut{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+					}
+				case topics_oldbasic_ceiling[0]: //convert oldbasic to new basic
+					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[0], webmsg.Data}
+				case topics_oldbasic_ceiling[1]: //convert oldbasic to new basic
+					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[1], webmsg.Data}
+				case topics_oldbasic_ceiling[2]: //convert oldbasic to new basic
+					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[2], webmsg.Data}
+				case topics_oldbasic_ceiling[3]: //convert oldbasic to new basic
+					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[3], webmsg.Data}
+				case topics_oldbasic_ceiling[4]: //convert oldbasic to new basic
+					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[4], webmsg.Data}
+				case topics_oldbasic_ceiling[5]: //convert oldbasic to new basic
+					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[5], webmsg.Data}
+				default:
+					atomized_wsout_chan <- webmsg
 				}
+			}
+		}
+	}
+
+}
+
+// glue-code that repackages updates as json
+// It is here so we can rewrite the json output format for the webserver if we want
+// AND so that conversion to JSON is done only once for every connected websocket
+func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFuture) {
+	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
+	atomized_wsout_chan := make(chan wsMessageOut, 30)
+	retained_json_map := make(map[string][]byte, len(ws_allowed_ctx_sendtoclientonconnect))
+
+	go goAtomizeCeilingAll(ps_, atomized_wsout_chan) //subscribes to PS_WEBSOCK_ALL and gives us possibly replaced wsMessageOut structs
+
+	for {
+		select {
+		case <-shutdown_chan:
+			return
+
+		case webmsg := <-atomized_wsout_chan:
+			LogWS_.Printf("goJSONMarshalStuffForWebSockClientsAndRetain", webmsg)
+			if webjson, err := json.Marshal(webmsg); err == nil {
+				ps_.Pub(webjson, PS_WEBSOCK_ALL_JSON)
+				retained_json_map[webmsg.Ctx] = webjson
+			} else {
+				LogWS_.Println(err)
 			}
 
 		case f := <-getretained_chan:
@@ -145,16 +179,19 @@ func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFutu
 				continue
 			}
 			var reply = make(OurFutures, len(f.what))
-			for idx, rettopic := range f.what {
+			idx := 0
+			for _, rettopic := range f.what {
 				jsonbytes, inmap := retained_json_map[rettopic]
 				if inmap {
 					reply[idx] = jsonbytes
-				} else {
+					idx++
+				} else if f.omitempty == false {
 					reply[idx] = []byte{'{', '}'}
+					idx++
 				}
 			}
 			select {
-			case f.future <- reply:
+			case f.future <- reply[:idx]:
 				close(f.future)
 			default:
 				close(f.future)
@@ -271,7 +308,7 @@ func webHandleCGICtxData(w http.ResponseWriter, r *http.Request, retained_json_c
 
 	if ctx_inmap && data_inmap && ctx_a != nil && data_a != nil && len(ctx_a) == 1 && len(data_a) == 1 {
 		ctx := ctx_a[0]
-		if stringInSlice(ctx, ws_allowed_ctx_startwith) {
+		if stringInSlice(ctx, ws_allowed_ctx_all) {
 			//TODO: sanity check json payload that goes from web to MQTT
 			//TODO: then sanity check specific structs
 			MQTT_sendmsg_chan_ <- MQTTOutboundMsg{topic: ctx, msg: data_a[0]}
@@ -279,7 +316,7 @@ func webHandleCGICtxData(w http.ResponseWriter, r *http.Request, retained_json_c
 	}
 
 	ourfuture := make(chan OurFutures, 2)
-	retained_json_chan <- JsonFuture{future: ourfuture, what: ws_allowed_ctx_startwith}
+	retained_json_chan <- JsonFuture{future: ourfuture, omitempty: true, what: ws_allowed_ctx_sendtoclientonconnect}
 	futures := <-ourfuture
 	w.Write([]byte{'['})
 	w.Write(bytes.Join(futures, []byte{','}))
@@ -300,7 +337,7 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_json_ch
 
 	//send client the inital known states
 	ourfuture := make(chan OurFutures, 2)
-	retained_json_chan <- JsonFuture{future: ourfuture, what: ws_allowed_ctx_withoutALL}
+	retained_json_chan <- JsonFuture{future: ourfuture, omitempty: true, what: ws_allowed_ctx_sendtoclientonconnect}
 	for _, f := range <-ourfuture {
 		ws.WriteMessage(websocket.TextMessage, f)
 	}
@@ -328,7 +365,7 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_json_ch
 			}
 		}
 		LogWS_.Printf("webHandleWebSocket Gotmsg: %+v", v)
-		if stringInSlice(v.Ctx, ws_allowed_ctx_startwith) {
+		if stringInSlice(v.Ctx, ws_allowed_ctx_all) {
 			//TODO: sanity check json payload that goes from web to MQTT
 			//TODO: then sanity check specific structs
 			// if err = SanityCheckWSFancyLight(&data); err != nil {
