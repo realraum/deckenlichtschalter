@@ -4,6 +4,12 @@ div.popupselect_overlay {
 	border:5px solid black;
 	visibility:hidden;
 	padding:2px;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
 }
 
 button.popupselect_trigger {
