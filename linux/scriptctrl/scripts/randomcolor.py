@@ -28,10 +28,10 @@ def activate(scr, newsettings):
         interval_= min(1200,max(fade_duration_/1000,newsettings["interval"]))
     else:
         interval_ = 60.0
-    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all([isinstance(x,int) and x >=src.light_min for x in newsettings["participating"]]):
+    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all([isinstance(x,int) and x >=scr.light_min for x in newsettings["participating"]]):
     	participating_targets_ = newsettings["participating"]
     else:
-    	participating_targets_ = list(range(src.light_min, 9))
+    	participating_targets_ = list(range(scr.light_min, 9))
     colorAllLights(scr)
 
 def deactivate(scr):
