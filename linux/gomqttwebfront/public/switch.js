@@ -46,8 +46,8 @@ function populatedivfancyswitchboxes(elem, names) {
     $(elem).append('<div class="switchbox">\
             <div style="width:100%; font-weight: bold; color:white; background-color: black;">'+names[lightname]+'</div>\
             <span class="alignbuttonsleft">\
-            <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="'+lightname+'" style="background-color:black;"></button>\
             <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="'+lightname+'">PickColor</button>\
+            <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="'+lightname+'" style="background-color:black;"></button>\
               RedShift:\
               <div class="onoffswitch">\
                   <input type="checkbox" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="'+targetid+'" id="'+lightname+'ctonoff">\

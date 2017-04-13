@@ -126,12 +126,14 @@ button.leftalignroundedbutton {
    letter-spacing:.1em;
    font-variant:small-caps;
    /*give the corners a small curve*/
-   -webkit-border-radius: 0 15px 15px 0;
-   -moz-border-radius: 0 15px 15px 0;
-   border-radius: 0 15px 15px 0;
+   -webkit-border-radius: 15px 0 0 15px;
+   -moz-border-radius: 15px 0 0 15px;
+   border-radius: 15px 0 0 15px;
    text-align:left;
    vertical-align: middle;
 }
+
+/* BEGIN ON OFF SWITCH */
 
 .onoffswitch {
     font-size:80%;
@@ -176,14 +178,16 @@ button.leftalignroundedbutton {
     position: absolute; top: 0; bottom: 0;
     right: 50px;
     border: 2px solid ; border-radius: 11px;
-    transition: all 0.3s ease-in 0s; 
+    transition: all 0.3s ease-in 0s;
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
     margin-left: 0;
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-    right: 0px; 
+    right: 0px;
 }
+
+/* END ON OFF SWITCH */
 
 div.popupselect_overlay {
     position:absolute;
