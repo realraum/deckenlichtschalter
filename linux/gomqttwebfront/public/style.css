@@ -187,7 +187,7 @@ div.popupselect_overlay {
     visibility:hidden;
     padding:2px;
     z-index: 20;
-    width:23%;
+    width:35%;
     height:25%;
 }
 
@@ -195,13 +195,13 @@ div.popupselect_trigger {
 }
 
 button.popupselect_option {
-    width:25%;
+    width:15%;
     height:40%;
-    margin:3%;
+    margin:2%;
 }
 
 button.popupselect_option:hover {
-    width:31%;
+    width:19%;
     height:46%;
     margin:0;
 }
