@@ -123,5 +123,5 @@ function calcCompoundRGB(data)
 
   data.compound_r = Math.min(255,Math.floor(r));
   data.compound_g = Math.min(255,Math.floor(g));
-  data.compound_b = Math.min(255,Math.floor(b));  
+  data.compound_b = Math.min(255,Math.floor(b));
 }

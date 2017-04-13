@@ -83,7 +83,7 @@ function remoteKeyboard( e ) {
     //case 81: sendYmhButton( ( e.altKey ? 'REBOOT' : 'w' ) ); break;       // ALT-Q = reboot, Q = Power
     case 38: sendYmhButton( 'ymhprgup' ); break; //up
     case 37: sendYmhButton( 'ymhminus' ); break; //left
-    //case 13: sendYmhButton( '' ); break;  //enter 
+    //case 13: sendYmhButton( '' ); break;  //enter
     case 39: sendYmhButton( 'ymhplus' ); break; //right
     case 40: sendYmhButton( 'ymhprgdown' ); break; //down
     //case  8: sendYmhButton( 'T_back' ); break; //backspace
@@ -117,7 +117,7 @@ function remoteKeyboard( e ) {
 
 document.onkeydown = remoteKeyboard;
 
-var fancycolorstate_={};  
+var fancycolorstate_={};
 function handleExternalFancySetting(fancyid, data)
 {
   //save data for next color chooser popup
@@ -157,7 +157,7 @@ function enableRedShift(event) {
           participating.push(parseInt(target));
         }
       }
-    });    
+    });
   }
   if (participating.length > 0) {
     sendMQTT(mqtttopic_activatescript,{"script":"redshift","participating":participating,"value":parseInt($("#scriptctrlfancyintensityslider").val(),10)/1000.0});
@@ -202,7 +202,7 @@ function handleExternalActivateScript(data) {
   } else if (data.script == "off") {
     $(".scriptctrl_redshift_checkbox").each(function(elem) {
       elem.checked = false;
-    });    
+    });
   }
 }
 
@@ -288,7 +288,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
         var btns = $("button[lightname="+lightname+"]");
         return function(data) {
           btns.each(function(elem) {
-            if (elem.getAttribute("action") == data.Action) 
+            if (elem.getAttribute("action") == data.Action)
             {
               renderRFIRButtonUpdate(elem);
             }
@@ -342,7 +342,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     }
     if (speed) {
       document.getElementById("pipespeed").value=speed;
-    }      
+    }
   });
 
   if (webSocketSupport) {

@@ -107,43 +107,39 @@ button.activatedbtn {
     left: 13%;
 }
 
-#fancylight1off {
-    top: 21%;
-}
-
-#fancylight1off, #fancylight1popup, #fancylight6off, #fancylight6popup {
+#fancylight1redshift, #fancylight1popup, #fancylight6redshift, #fancylight6popup {
     left: 77%;
 }
 
-#fancylight2off, #fancylight2popup, #fancylight5off, #fancylight5popup {
+#fancylight2redshift, #fancylight2popup, #fancylight5redshift, #fancylight5popup {
     left: 47%;
 }
 
-#fancylight3off, #fancylight3popup, #fancylight4off, #fancylight4popup {
+#fancylight3redshift, #fancylight3popup, #fancylight4redshift, #fancylight4popup {
     left: 20%;
 }
 
 #fancylight1popup, #fancylight2popup, #fancylight3popup  {
-    top: 32%;
+    top: 31.8%;
 }
 
 #fancylight4popup, #fancylight5popup, #fancylight6popup  {
-    top: 68%;
+    top: 67.8%;
 }
 
-#fancylight1off, #fancylight2off, #fancylight3off  {
-    top: 21%;
+#fancylight1redshift, #fancylight2redshift, #fancylight3redshift  {
+    top: 27.8%;
 }
 
-#fancylight4off, #fancylight5off, #fancylight6off  {
-    top: 57%;
+#fancylight4redshift, #fancylight5redshift, #fancylight6redshift  {
+    top: 64%;
 }
 
-#fancylight8off, #fancylight8popup {
+#fancylight8redshift, #fancylight8popup {
     bottom:0%;
 }
 
-#fancylight8off {
+#fancylight8redshift {
     left:25%;
 }
 #fancylight8popup {
@@ -185,6 +181,64 @@ button.activatedbtn {
     bottom:0%;
     left: 70%;
 }
+
+/* BEGIN ON OFF SWITCH */
+
+.onoffswitch {
+    z-index:11;
+    width: 7%;
+    height:3.5%;
+    position: absolute;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #E3E3E3; border-radius: 7%;
+    top: 0; bottom: 0;
+    height:82%;
+    background-color: #FFFFFF;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 1.3em; padding: 0; line-height: 100%;
+    font-size:100%; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "Red>>";
+    padding-left: 0%;
+    background-color: #49E845; color: #FFFFFF;
+    padding-bottom:100%;
+}
+.onoffswitch-inner:after {
+    content: "Off";
+    padding-right: 10%;
+    background-color: #FFFFFF; color: #666666;
+    text-align: right;
+    padding-bottom:100%
+}
+.onoffswitch-switch {
+    display: block; width: 25%; margin: 0px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 55%;
+    border: 2px solid #E3E3E3; border-radius: 7%;
+    transition: all 0.3s ease-in 0s;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: -10%;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px;
+}
+
+/* END ON OFF SWITCH */
 
 div.popupselect_overlay {
     position:absolute;

@@ -17,9 +17,9 @@ function rgb2hsv (r,g,b) {
 	var computedV = 0;
 
 	//remove spaces from input RGB values, convert to int
-	var r = parseInt( (''+r).replace(/\s/g,''),10 ); 
-	var g = parseInt( (''+g).replace(/\s/g,''),10 ); 
-	var b = parseInt( (''+b).replace(/\s/g,''),10 ); 
+	var r = parseInt( (''+r).replace(/\s/g,''),10 );
+	var g = parseInt( (''+g).replace(/\s/g,''),10 );
+	var b = parseInt( (''+b).replace(/\s/g,''),10 );
 
 	if ( r==null || g==null || b==null ||
 	 isNaN(r) || isNaN(g)|| isNaN(b) ) {
@@ -109,7 +109,7 @@ function drawcolourtemppicker(elemid) {
 	  var WW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transY)   *1000/squarewidth))); //0...1000
 	  //var brightness = (diamondwidth - untransY) *1000/diamondwidth;
 	  var brightness = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
-	  var ctempmix = WW*1000/CW/2;	
+	  var ctempmix = WW*1000/CW/2;
 	  // making the color the value of the input
 	  $('#CW input').val(CW);
 	  $('#WW input').val(WW);
@@ -204,11 +204,11 @@ function init_colour_temp_picker() {
 	$('#CW div.colorlevelcontainer').on("click",changetextfromlevel);
 }
 
-function rainbowHSLpicker(canvas,ctx) { 
+function rainbowHSLpicker(canvas,ctx) {
     var w = canvas.width;
     var h = canvas.height;
     var gradient;
-  
+
   	gradient = ctx.createLinearGradient(0,0,w,0);
   	gradient.addColorStop(0,"rgba(255, 0, 0, 1)");
   	gradient.addColorStop(0.166,"rgba(255, 255, 0, 1)");
@@ -227,14 +227,14 @@ function rainbowHSLpicker(canvas,ctx) {
   	gradient.addColorStop(lower_black_percent,"rgba(0, 0, 0, 1)");
   	gradient.addColorStop(1.0,"rgba(0, 0, 0, 1)");
   	ctx.fillStyle = gradient;
-    ctx.fillRect(0,0,w,h);  	
+    ctx.fillRect(0,0,w,h);
 }
 
-function quadGradient(canvas, ctx, corners) { 
+function quadGradient(canvas, ctx, corners) {
     var w = canvas.width;
     var h = canvas.height;
     var gradient, startColor, endColor, fac;
-  
+
     for(var i = 0; i < h; i++) {
         gradient = ctx.createLinearGradient(0, i, w, i);
         fac = i / (h - 1);
@@ -245,10 +245,10 @@ function quadGradient(canvas, ctx, corners) {
         endColor = arrayToRGBA(
           lerp(corners.topRight, corners.bottomRight, fac)
         );
-      
+
         gradient.addColorStop(0, startColor);
         gradient.addColorStop(1, endColor);
-      
+
         ctx.fillStyle = gradient;
         ctx.fillRect(0, i, w, i);
     }
@@ -262,7 +262,7 @@ function arrayToRGBA(arr) {
 
     // alpha should retain its value
     ret[3] = arr[3];
-  
+
     return 'rgba(' + ret.join(',') + ')';
 }
 

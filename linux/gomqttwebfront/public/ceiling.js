@@ -54,6 +54,46 @@ function handleExternalFancySetting(fancyid, data)
   $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
 }
 
+function enableRedShift(event) {
+  var participating = Array();
+  {
+    $(".scriptctrl_redshift_checkbox").each(function(elem){
+      if (elem.checked) {
+        var target = elem.getAttribute("target");
+        if (target != "A"){
+          participating.push(parseInt(target));
+        }
+      }
+    });
+  }
+  if (participating.length > 0) {
+    sendMQTT(mqtttopic_activatescript,{"script":"redshift","participating":participating});
+  } else {
+    //TODO FIXME: propably not what we want.
+    //this will switch off all ceiling lights, even if some were not script controlled
+    sendMQTT(mqtttopic_activatescript,{script:"off"})
+  }
+}
+
+function handleExternalActivateScript(data) {
+  $("#scriptctrlselect").val(data.script);
+  if (data.script == "redshift") {
+    // -------- Script redshift ---------
+    if (data.participating == undefined || data.participating.length==6) {
+      data.participating=[1,2,3,4,5,6];
+    }
+    $(".scriptctrl_redshift_checkbox").each(function(elem) {
+      var target = elem.getAttribute("target");
+      target = parseInt(target) || target;
+      elem.checked = (-1 != data.participating.indexOf(target));
+    });
+  } else {
+    $(".scriptctrl_redshift_checkbox").each(function(elem) {
+      elem.checked = false;
+    });
+  }
+}
+
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
 var cgiUrl = '/cgi-bin/fallback.cgi';
 
@@ -77,6 +117,7 @@ var buttons = {
 
   $(".mqttrawjson").on("click",eventOnRawMqttElement);
   $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
+  $('.scriptctrl_redshift_checkbox').on("click",enableRedShift);
   popupselect.init({class_option:"popupselect_option"});
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
   $(".basiclight").on("click",function() {
@@ -108,6 +149,7 @@ var buttons = {
       }(topic, keyid)));
     });
 
+    ws.registerContext(mqtttopic_activatescript,handleExternalActivateScript);
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
   }
 
