@@ -79,10 +79,14 @@ def redshiftLight(scr, lightnum, inital=False):
     r,b,cw,ww = calcColorFromDayLevel(daylevel, hsvvalue_)
     scr.setLight(lightnum,r=r,g=0,b=b,cw=cw,ww=ww,
         fade_duration=None if inital else fade_duration_,
-        trigger_on_complete=["c%d" % lightnum] )
+        trigger_on_complete=[] if initial else ["c%d" % lightnum] )
+
+def redshiftLightOnTrigger(scr, lightnum):
+	if lightnum in participating_targets_:
+		redshiftLight(scr, lightnum)
 
 def init(scr):
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
     for t in participating_targets_:
-        scr.registerTrigger("c%d" % t,lambda scr: redshiftLight(scr, t))
+        scr.registerTrigger("c%d" % t,lambda scr: redshiftLightOnTrigger(scr, t))
