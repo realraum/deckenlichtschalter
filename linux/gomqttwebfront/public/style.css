@@ -207,7 +207,7 @@ button.activatedbtn {
 }
 .onoffswitch-inner:before, .onoffswitch-inner:after {
     display: block; float: left; width: 50%; height: 1.3em; padding: 0; line-height: 100%;
-    font-size:100%; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    font-size:1.3vw; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
     box-sizing: border-box;
 }
 .onoffswitch-inner:before {
@@ -272,4 +272,8 @@ button.popupselect_option:hover {
     width:10vmin;
     height:10vmin;
     margin:0;
+}
+
+#roommap {
+    width:100vw;
 }
