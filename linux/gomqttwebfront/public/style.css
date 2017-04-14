@@ -196,9 +196,9 @@ button.activatedbtn {
 }
 .onoffswitch-label {
     display: block; overflow: hidden; cursor: pointer;
-    border: 2px solid #E3E3E3; border-radius: 7%;
+    border: 2px solid #E3E3E3; border-radius: 0;
     top: 0; bottom: 0;
-    height:82%;
+    height:90%;
     background-color: #FFFFFF;
 }
 .onoffswitch-inner {
@@ -228,7 +228,7 @@ button.activatedbtn {
     background: #FFFFFF;
     position: absolute; top: 0; bottom: 0;
     right: 55%;
-    border: 2px solid #E3E3E3; border-radius: 7%;
+    border: 2px solid #E3E3E3; border-radius: 0;
     transition: all 0.3s ease-in 0s;
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
