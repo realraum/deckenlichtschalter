@@ -129,7 +129,7 @@ function handleExternalFancySetting(fancyid, data)
   if (elem) {
     elem.css("background-color",rgbstring);
   }
-  var cwwwslidedata = calcDayLevelFromColor(data);
+  var cwwwslidedata = calcDayLevelFromColor(fancycolorstate_[fancyid]);
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
   $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
 }

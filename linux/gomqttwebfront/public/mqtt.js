@@ -71,7 +71,6 @@ function registerFunctionForFancyLightUpdate(fun) {
 
 function calcDayLevelFromColor(data)
 {
-  var value = Math.min(1000,data.cw + data.ww + data.r*3)/1000.0;
   var day_factor;
   if (data.cw+data.ww == 0) {
     day_factor = 0.0;
@@ -79,6 +78,23 @@ function calcDayLevelFromColor(data)
     day_factor = data.cw * 1.0 / (data.cw+data.ww) - data.r / 1000.0;
     day_factor = Math.min(1.0,Math.max(-1.0,  day_factor ));
   }
+  console.log(day_factor);
+
+  var numvalues = 1;
+  var value = Math.min(1.0,(data.ww + (data.r/3.0) + data.cw) / 1000.0);
+  /*
+  if (day_factor < 0.0) {
+    value += data.r / day_factor / -1000.0;
+    numvalues += 1;
+  }
+  */
+  if (day_factor > 0.0) {
+    value += data.cw / day_factor / 1000.0;
+    numvalues += 1;
+  }
+  //calc average
+  value /= numvalues;
+  console.log(value);
   return {"balance":day_factor, "intensity":value};
 }
 
