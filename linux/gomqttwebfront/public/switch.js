@@ -48,9 +48,9 @@ function populatedivfancyswitchboxes(elem, names) {
             <span class="alignbuttonsleft">\
             <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="'+lightname+'">PickColor</button>\
             <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="'+lightname+'" style="background-color:black;"></button>\
-              RedShift:\
+              <div style="display:inline-block; text-align:right; padding-top:0em; padding-right:0.5em;">Script<br/>Controlled:</div>\
               <div class="onoffswitch">\
-                  <input type="checkbox" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" target="'+targetid+'" id="'+lightname+'ctonoff">\
+                  <input type="checkbox" class="onoffswitch-checkbox scriptctrl_checkbox" target="'+targetid+'" id="'+lightname+'ctonoff">\
                   <label class="onoffswitch-label" for="'+lightname+'ctonoff">\
                       <span class="onoffswitch-inner"></span>\
                       <span class="onoffswitch-switch"></span>\
@@ -142,7 +142,7 @@ function updateColdWarmWhiteBalanceIntensity(event)
   sendMQTT(mqtttopic_fancylight(fancyid),calcColorFromDayLevel(balance, intensity));
 }
 
-function enableRedShift(event) {
+function handleChangeScriptCtrl(event) {
   var participating = Array();
   if (event && event.target.getAttribute("target") == "A") {
     if (event.target.checked)
@@ -150,7 +150,7 @@ function enableRedShift(event) {
     else
       participating = Array();
   } else {
-    $(".scriptctrl_redshift_checkbox").each(function(elem){
+    $(".scriptctrl_checkbox").each(function(elem){
       if (elem.checked) {
         var target = elem.getAttribute("target");
         if (target != "A"){
@@ -159,48 +159,59 @@ function enableRedShift(event) {
       }
     });
   }
-  if (participating.length > 0) {
-    sendMQTT(mqtttopic_activatescript,{"script":"redshift","participating":participating,"value":parseInt($("#scriptctrlfancyintensityslider").val(),10)/1000.0});
-  } else {
-    //TODO FIXME: propably not what we want.
-    //this will switch off all ceiling lights, even if some were not script controlled
-    sendMQTT(mqtttopic_activatescript,{script:"off"})
-  }
-}
+  //don't switch off if scriptselect is "off" and we want to pre-toggle checkboxes
+  if (event && $(event.target).hasClass('scriptctrl_checkbox') && $("#scriptctrlselect").val() == "off")
+    return;
 
-function handleChangeScriptCtrl(event) {
-  var script = $("#scriptctrlselect").val();
-  if (script == "redshift") {
-    enableRedShift();
-  } else {
-    sendMQTT(mqtttopic_activatescript,{script:script,value:$('#scriptctrlfancyintensityslider').val()/1000.0});
+  // if checkboxes selected and script selected, enable script
+  if (participating.length > 0) {
+    sendMQTT(mqtttopic_activatescript,{"script":$("#scriptctrlselect").val(),"participating":participating,"value":parseInt($("#scriptctrlfancyintensityslider").val(),10)/1000.0});
+    return;
   }
+
+  //don't switch off if no checkbox is checked yet but script got selected
+  if (event && event.target == document.getElementById("scriptctrlselect") && $("#scriptctrlselect").val() != "off")
+    return;
+
+  //otherwise switch off
+  sendMQTT(mqtttopic_activatescript,{script:"off"});
 }
 
 function handleExternalActivateScript(data) {
   $("#scriptctrlselect").val(data.script);
+  if (data.value) {
+    $("#scriptctrlfancyintensityslider").val(Math.floor(data.value*1000));
+  }
+  if (data.participating == undefined || data.participating.length>=6) {
+    data.participating=[1,2,3,4,5,6,"A"];
+  }
+
   if (data.script == "redshift") {
     // -------- Script redshift ---------
-    if (data.value) {
-      $("#scriptctrlfancyintensityslider").val(Math.floor(data.value*1000));
-    }
-    if (data.participating == undefined || data.participating.length==6) {
-      data.participating=[1,2,3,4,5,6,"A"];
-      //$(".scriptctrl_redshift_checkbox[target=A]")[0].checked=true;
-    }
-    $(".scriptctrl_redshift_checkbox").each(function(elem) {
+    $(".scriptctrl_checkbox").each(function(elem) {
       var target = elem.getAttribute("target");
       target = parseInt(target) || target;
       elem.checked = (-1 != data.participating.indexOf(target));
     });
   } else if (data.script == "randomcolor") {
     // -------- Script randomcolor ---------
+    $(".scriptctrl_checkbox").each(function(elem) {
+      var target = elem.getAttribute("target");
+      target = parseInt(target) || target;
+      elem.checked = (-1 != data.participating.indexOf(target));
+    });
   } else if (data.script == "colorfade") {
     // -------- Script colorfade ---------
+    $(".scriptctrl_checkbox").each(function(elem) {
+      elem.checked = true;
+    });
   } else if (data.script == "ceilingsinus") {
     // -------- Script ceilingsinus ---------
-  } else if (data.script == "off") {
-    $(".scriptctrl_redshift_checkbox").each(function(elem) {
+    $(".scriptctrl_checkbox").each(function(elem) {
+      elem.checked = true;
+    });
+  } else {
+    $(".scriptctrl_checkbox").each(function(elem) {
       elem.checked = false;
     });
   }
@@ -304,7 +315,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   popupselect.init();
   $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
-  $('.scriptctrl_redshift_checkbox').on("click",enableRedShift);
+  $('.scriptctrl_checkbox').on("click",handleChangeScriptCtrl);
   $('#scriptctrlfancyintensityslider').on("change",handleChangeScriptCtrl);
   $("#scriptctrlselect").on("change", handleChangeScriptCtrl);
   $("input.fancyintensityslider").on("change",updateColdWarmWhiteBalanceIntensity)
@@ -326,7 +337,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 
   $(".ledpipepresetbutton").on('click', function() {
     var pipepattern = this.getAttribute("pipepattern");
-    if (!pipepattern) { return;  }
+    if (!pipepattern) { return; }
     var hue = parseInt(this.getAttribute("pipehue")) || undefined;
     var brightness = parseInt(this.getAttribute("pipebrightness")) || undefined;
     var speed = parseInt(this.getAttribute("pipespeed")) || undefined;

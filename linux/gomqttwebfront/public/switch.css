@@ -162,13 +162,13 @@ button.leftalignroundedbutton {
     box-sizing: border-box;
 }
 .onoffswitch-inner:before {
-    content: "ON";
-    padding-left: 15px;
+    content: "Yes";
+    padding-left: 20px;
     background-color: #34CC29; color: #FFFFFF;
 }
 .onoffswitch-inner:after {
-    content: "OFF";
-    padding-right: 15px;
+    content: "No";
+    padding-right: 20px;
     background-color: #EEEEEE; color: #999999;
     text-align: right;
 }
