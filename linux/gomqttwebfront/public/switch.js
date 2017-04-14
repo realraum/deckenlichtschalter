@@ -321,6 +321,16 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $("input.fancyintensityslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
+  $(document).on("click",function(event){
+    console.log(event.target);
+    console.log(document.getElementById("fancycolorpicker").contains(event.target));
+    console.log($(".fancylightcolourtempselectorbutton").has(event.target));
+    if (!document.getElementById("fancycolorpicker").contains(event.target) &&
+      $(".fancylightcolourtempselectorbutton").has(event.target).length==0)
+    {
+      $("#fancycolorpicker").css("visibility","hidden");
+    }
+  });
   $("#fancycolorpicker_close_button").on("click",function(event){$("#fancycolorpicker").css("visibility","hidden")});
   $("#fancycolorpicker_apply_button").on("click",function(event){
       var R = parseInt($('#R input').val()) || 0;
