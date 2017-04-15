@@ -64,7 +64,7 @@ div.switchnameleft {
 }
 
 span.alignbuttonsright {
-    top:0px; float:right; display:inline-block; text-align:right; padding:0;
+    top:0px; float:right; display:inline-block; text-align:right; padding:0; vertical-align: middle;
 }
 
 div.switchnameright {
@@ -72,7 +72,7 @@ div.switchnameright {
 }
 
 span.alignbuttonsleft {
-    float:left; text-align:left; padding:0;
+    float:left; text-align:left; padding:0; vertical-align: middle;
 }
 
 .onbutton {

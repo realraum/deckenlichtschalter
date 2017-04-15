@@ -64,7 +64,7 @@ function hsv2rgb(h,s,v) {
 	var p = v * (1 - s);
 	var q = v * (1 - f * s);
 	var t = v * (1 - (1 - f) * s);
-	console.log(range, h, f);
+	// console.log(range, h, f);
 	switch (range)
 	{
 	    case 0:
@@ -86,12 +86,14 @@ var colortemppickerstate = {
 	compound_r:0,
 	compound_g:0,
 	compound_b:0,
+	intensity:0,
+	balance:0,
 };
 
 function drawcolourtemppicker(elemid) {
     var canvas = document.getElementById(elemid);
     var canvas2d = canvas.getContext('2d');
-    console.log(canvas);
+    // console.log(canvas);
 
     quadGradient(canvas, canvas2d, {
       topLeft: [1,1,1,1],
@@ -115,8 +117,8 @@ function drawcolourtemppicker(elemid) {
 	  var CW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transX)   *1000/squarewidth)));
 	  var WW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transY)   *1000/squarewidth))); //0...1000
 	  //var brightness = (diamondwidth - untransY) *1000/diamondwidth;
-	  colortemppickerstate.brightness = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
-	  colortemppickerstate.intensity = WW*1000/CW/2;
+	  colortemppickerstate.intensity = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
+	  colortemppickerstate.balance = WW*1000/CW/2;
 
 	  // making the color the value of the input
 	  // var img_data = canvas2d.getImageData(transX, transY, 1, 1);
@@ -176,9 +178,9 @@ function drawcolourpicker(elemid) {
 	  	var s = 1.0;
 	  	var v = (heightminusblack - y) / heightminusblack * 2.15;
 	  	var rgb = hsv2rgb(h,s,v);
-	  	var R = rgb[0];
-	  	var G = rgb[1];
-	  	var B = rgb[2];
+	  	var R = Math.trunc(rgb[0]);
+	  	var G = Math.trunc(rgb[1]);
+	  	var B = Math.trunc(rgb[2]);
 	  }
 	  calcCeilingValuesFrom(colortemppickerstate, R, G, B);
 	  updateColorPreview();
@@ -191,7 +193,12 @@ function init_colour_temp_picker() {
 	drawcolourtemppicker("pickcolourtemp");
 	drawcolourpicker("pickcolour");
 
-	changecolourlevel = function(event){if (this.value < 0 || this.value > 1000) {return;}; $(this).siblings().find('.colorlevel').css("width",this.value/10+"%");}
+	changecolourlevel = function(event){
+		if (this.value < 0 || this.value > 1000) {return;};
+		var variable = this.parentNode.id.toLowerCase();
+		colortemppickerstate[variable] = this.value;
+		updateColorPreview();
+	}
 	$('#R input').on("change",changecolourlevel);
 	$('#G input').on("change",changecolourlevel);
 	$('#B input').on("change",changecolourlevel);
@@ -202,8 +209,9 @@ function init_colour_temp_picker() {
 	  var x = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
 	  // var y = event.pageY - this.offsetTop;
 	  var promille = Math.trunc(Math.max(0,Math.min(1000,x*1000/this.offsetWidth)));
-	  $(this).siblings("input").val(promille);
-	  $(this).find('.colorlevel').css("width",x+"px");
+	  var variable = this.parentNode.id.toLowerCase();
+	  colortemppickerstate[variable] = promille;
+	  updateColorPreview();
 	};
 	$('#R div.colorlevelcontainer').on("mousemove",changetextfromlevel);
 	$('#G div.colorlevelcontainer').on("mousemove",changetextfromlevel);
@@ -215,6 +223,7 @@ function init_colour_temp_picker() {
 	$('#B div.colorlevelcontainer').on("click",changetextfromlevel);
 	$('#WW div.colorlevelcontainer').on("click",changetextfromlevel);
 	$('#CW div.colorlevelcontainer').on("click",changetextfromlevel);
+	updateColorPreview();
 }
 
 function rainbowHSLpicker(canvas,ctx) {

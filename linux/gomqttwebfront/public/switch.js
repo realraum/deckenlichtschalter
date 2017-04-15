@@ -322,9 +322,6 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
   $(document).on("click",function(event){
-    console.log(event.target);
-    console.log(document.getElementById("fancycolorpicker").contains(event.target));
-    console.log($(".fancylightcolourtempselectorbutton").has(event.target));
     if (!document.getElementById("fancycolorpicker").contains(event.target) &&
       $(".fancylightcolourtempselectorbutton").has(event.target).length==0)
     {

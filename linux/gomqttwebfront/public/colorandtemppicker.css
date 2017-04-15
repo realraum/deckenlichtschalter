@@ -15,17 +15,10 @@ div.colorvalue {
  margin:4px;
 }
 
-div.previewcontainer {
-	width:12em;
-	height:4em;
-	display:inline-block;
-	background-color: black;
-}
-
 div#cwwwrgbcolor {
 	width:9em;
 	height:4em;
-	position:absolute;
+	display:inline-block;
 	background-color:black;
 }
 
