@@ -11,7 +11,6 @@ input.colortext {
 }
 
 div.colorvalue {
- background-color:white;
  margin:4px;
 }
 
@@ -25,12 +24,24 @@ div#cwwwrgbcolor {
 div.colorpickerrow {
 	margin:1ex;
 	width:100%;
+	vertical-align: top;
+}
+
+div.colorpickercolumn {
+	vertical-align: top;
+	display:inline-block;
 }
 
 div#fancycolorpicker {
 	visibility:hidden;
 	position:absolute;
-	background:#FFDB58;
+	background:#EEEEEE;
 	border:5px solid gray;
 	text-align: left;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
 }

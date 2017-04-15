@@ -134,7 +134,7 @@
 
 <div id="fancycolorpicker">
   <div class="colorpickerrow">
-  <div style="width:256px; display:inline-block;">
+  <div class="colorpickercolumn">
     <div id="pickcolourtempcontainer" style="width:256px; height:256px;">
       <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
       <canvas id="pickcolourtemp" width="181" height="181" style="width:181px; height:181px; transform: translate(21%,21%) rotate(45deg);"></canvas>
@@ -145,10 +145,10 @@
   <div class="colorvalue" id="WW">WW <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,250,202);" class="colorlevel"></div></div></div>
   </div>
 
-  <div style="width:256px; display:inline-block;">
+  <div class="colorpickercolumn">
+  HSL with S=100%
   <div id="pickcolourcontainer" style="width:256px; height:256px;">
   <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
-  HSL with S=100%
   <canvas id="pickcolour" width="256" height="256"></canvas>
   </div>
   <div class="colorvalue" id="R">R: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,0,0);" class="colorlevel"></div></div></div>
@@ -157,24 +157,26 @@
   </div>
   </div>
   <div class="colorpickerrow">
-    <div id="cwwwrgbcolor"></div>
-    <button id="fancycolorpicker_apply_button">Apply</button>
-    <button id="fancycolorpicker_close_button">Close</button>
-  </div>
-  <div class="colorpickerrow" style="font-size:50%">
-    <h2>Excercises left to the fellow hacker:</h2>
-    <ul>
-    <li>Make nice layout with e.g. bootstrap</li>
-    <li>Add axes indicating "brighness" and "colour-temp-balance"</li>
-    <li>Enable range-sliders and update values from them</li>
-    <li>calculate CW/WW preview colour from text-input-element-values</li>
-    <li>Indicate current selected colour on canvas using e.g. crosshairs</li>
-    <li>Save and display favorite settings</li>
-    <li>Display history of chosen settings</li>
-    <li>Measure, calculate and display lux</li>
-    <li>add small "Set to 0/Max" Buttons</li>
-    <li>fix the colorlevel elemnts so we can reliably set min/max value </li>
-    </ul>
+    <div class="colorpickercolumn" id="cwwwrgbcolor"></div>
+    <div class="colorpickercolumn">
+      <button id="fancycolorpicker_apply_button">Apply</button><br/>
+      <button id="fancycolorpicker_close_button">Close</button>
+    </div>
+    <div class="colorpickercolumn" style="font-size:50%;">
+      <h2>Excercises left to the fellow hacker:</h2>
+      <ul>
+      <li>Make nice layout with e.g. bootstrap</li>
+      <li>Add axes indicating "brighness" and "colour-temp-balance"</li>
+      <li>Enable range-sliders and update values from them</li>
+      <li>calculate CW/WW preview colour from text-input-element-values</li>
+      <li>Indicate current selected colour on canvas using e.g. crosshairs</li>
+      <li>Save and display favorite settings</li>
+      <li>Display history of chosen settings</li>
+      <li>Measure, calculate and display lux</li>
+      <li>add small "Set to 0/Max" Buttons</li>
+      <li>fix the colorlevel elemnts so we can reliably set min/max value </li>
+      </ul>
+    </div>
   </div>
 </div>
 
