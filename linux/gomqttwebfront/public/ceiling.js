@@ -1,5 +1,18 @@
 "use strict";
 
+function resizeRoomImg() {
+  var room = document.getElementById('room');
+  var img = document.getElementById('roommap');
+  var width =  img.getAttribute('width');
+  var height =  img.getAttribute('height');
+  width = width === null || width === '' ? img.width : width;
+  height = height === null || height === '' ? img.height : height;
+  var ratio = width / height;
+  var height = (window.innerHeight - room.offsetTop - 10);
+  // todo: only set if bigger
+  img.style.width = (height * ratio) + 'px';
+}
+
 function renderButtonStates() {
   var ceilings = document.getElementsByClassName('basiclight');
   for (var i = 0; i < ceilings.length; i++) {
@@ -96,6 +109,8 @@ var buttons = {
 };
 
 (function() {
+  $(window).on('resize orientationchange', resizeRoomImg);
+  resizeRoomImg();
 
   webSocketSupport = hasWebSocketSupport();
 

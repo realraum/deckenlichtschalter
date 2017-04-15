@@ -46,13 +46,13 @@ nav a {
     margin: 0 auto;
 }
 
-.room {
+#room {
     max-width: 100%;
     position: relative;
     display: inline-block;
 }
 
-.room img {
+#roommap {
     max-width: 100%;
     max-height: 100%;
     height: auto;
@@ -274,8 +274,4 @@ button.popupselect_option:hover {
     width:10vmin;
     height:10vmin;
     margin:0;
-}
-
-#roommap {
-    width:100vw;
 }
