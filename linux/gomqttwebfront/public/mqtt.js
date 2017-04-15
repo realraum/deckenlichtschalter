@@ -120,19 +120,39 @@ function calcCompoundRGB(data)
   data.ww = data.ww || 0;
   data.cw = data.cw || 0;
 
+  var magn_orig = Math.sqrt(data.r*data.r+data.g*data.g+data.b*data.b+data.ww*data.ww+data.cw*data.cw);
+
   var r_factor = 1;
   var g_factor = 3; //green 3 times as bright as red
   var b_factor = g_factor*3; //blue 2 times as bright as green
   var ww_factor = 44; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
   var cw_factor = 22;
 
-  var r = data.r*r_factor + data.ww*warmwhite_representation[0]*ww_factor + data.cw*coldwhite_representation[0]*cw_factor;
-  var g = data.g*g_factor + data.ww*warmwhite_representation[1]*ww_factor + data.cw*coldwhite_representation[1]*cw_factor;
-  var b = data.b*b_factor + data.ww*warmwhite_representation[2]*ww_factor + data.cw*coldwhite_representation[2]*cw_factor;
+  var r = data.r*r_factor;
+  var g = data.g*g_factor;
+  var b = data.b*b_factor;
+  var cw = data.cw*cw_factor;
+  var ww = data.ww*ww_factor;
 
-  var maximum = Math.max(r,g,b);
+  //vector magnitude
+  var magn_new = Math.sqrt(r*r+g*g+b*b+cw*cw+ww*ww);
+  var scale = magn_orig/magn_new;
 
-  //now normalize
+  r *= scale;
+  g *= scale;
+  b *= scale;
+  ww *= scale;
+  cw *= scale;
+
+  r += ww*warmwhite_representation[0] + cw*coldwhite_representation[0];
+  g += ww*warmwhite_representation[1] + cw*coldwhite_representation[1];
+  b += ww*warmwhite_representation[2] + cw*coldwhite_representation[2];
+
+  var maximum = Math.max(1000,r,g,b);
+
+  console.log(r,g,b,ww,cw,maximum);
+
+  //now fit to box
   r = r * 255.0 / maximum;
   g = g * 255.0 / maximum;
   b = b * 255.0 / maximum;
