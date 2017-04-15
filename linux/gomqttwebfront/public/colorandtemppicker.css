@@ -22,23 +22,7 @@ div.previewcontainer {
 	background-color: black;
 }
 
-div#rgbcolor {
-	width:9em;
-	height:4em;
-	position:absolute;
-	background-color:black;
-}
-
-div#cwwwoverrgbcolor {
-	width:6em;
-	height:4em;
-	position:absolute;
-	opacity: 0.0;
-	margin-left:3em;
-}
-
-div#cwwwcolor {
-	margin-left:3em;
+div#cwwwrgbcolor {
 	width:9em;
 	height:4em;
 	position:absolute;

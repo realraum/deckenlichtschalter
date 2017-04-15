@@ -242,6 +242,8 @@ button.activatedbtn {
 
 div.popupselect_overlay {
     position:absolute;
+    top:0;
+    left:0;
     background-color:white;
     border:5px solid black;
     visibility:hidden;

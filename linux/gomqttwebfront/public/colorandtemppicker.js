@@ -81,6 +81,13 @@ function hsv2rgb(h,s,v) {
 	return [v, p, q];
 }
 
+var colortemppickerstate = {
+	cw:0, ww:0, r:0, g:0, b:0,
+	compound_r:0,
+	compound_g:0,
+	compound_b:0,
+};
+
 function drawcolourtemppicker(elemid) {
     var canvas = document.getElementById(elemid);
     var canvas2d = canvas.getContext('2d');
@@ -108,22 +115,37 @@ function drawcolourtemppicker(elemid) {
 	  var CW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transX)   *1000/squarewidth)));
 	  var WW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transY)   *1000/squarewidth))); //0...1000
 	  //var brightness = (diamondwidth - untransY) *1000/diamondwidth;
-	  var brightness = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
-	  var ctempmix = WW*1000/CW/2;
+	  colortemppickerstate.brightness = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
+	  colortemppickerstate.intensity = WW*1000/CW/2;
+
 	  // making the color the value of the input
-	  $('#CW input').val(CW);
-	  $('#WW input').val(WW);
-	  $('#CW div.colorlevel').css("width",CW/10+"%");
-	  $('#WW div.colorlevel').css("width",WW/10+"%");
-	  $('#WhiteBrightness input').val(brightness);
-	  $('#WhiteTemp input').val(ctempmix);
-	  var img_data = canvas2d.getImageData(transX, transY, 1, 1);
-	  $('#cwwwoverrgbcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")").css("opacity",brightness/1000.0);
-	  $('#cwwwcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")");
+	  // var img_data = canvas2d.getImageData(transX, transY, 1, 1);
+	  // $('#cwwwoverrgbcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")").css("opacity",brightness/1000.0);
+	  // $('#cwwwcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")");
+	  colortemppickerstate.ww = WW;
+	  colortemppickerstate.cw = CW;
+	  updateColorPreview();
 	};
 	$(canvas).on("click",pickcolour);
 	$(canvas).on("mousemove",pickcolour);
+}
 
+function updateColorPreview() {
+	calcCompoundRGB(colortemppickerstate);
+	//var bi = calcDayLevelFromColor(colortemppickerstate);
+	$("#cwwwrgbcolor").css("background-color","rgb("+colortemppickerstate.compound_r+","+colortemppickerstate.compound_g+","+colortemppickerstate.compound_b+")");
+	$('#R input').val(colortemppickerstate.r);
+	$('#G input').val(colortemppickerstate.g);
+	$('#B input').val(colortemppickerstate.b);
+	$('#R div.colorlevel').css("width",colortemppickerstate.r/10+"%");
+	$('#G div.colorlevel').css("width",colortemppickerstate.g/10+"%");
+	$('#B div.colorlevel').css("width",colortemppickerstate.b/10+"%");
+	$('#CW input').val(colortemppickerstate.cw);
+	$('#WW input').val(colortemppickerstate.ww);
+	$('#CW div.colorlevel').css("width",colortemppickerstate.cw/10+"%");
+	$('#WW div.colorlevel').css("width",colortemppickerstate.ww/10+"%");
+	$('#WhiteBrightness input').val(colortemppickerstate.brightness);
+	$('#WhiteTemp input').val(colortemppickerstate.intensity);
 }
 
 var lower_black_percent = 0.95;
@@ -158,17 +180,8 @@ function drawcolourpicker(elemid) {
 	  	var G = rgb[1];
 	  	var B = rgb[2];
 	  }
-	  var r1k = Math.trunc(Math.max(0,Math.min(1000,R*1000/255)));
-	  var g1k = Math.trunc(Math.max(0,Math.min(1000,G*1000/255)));
-	  var b1k = Math.trunc(Math.max(0,Math.min(1000,B*1000/255)));
-	  // making the color the value of the input
-	  $('#R input').val(r1k);
-	  $('#G input').val(g1k);
-	  $('#B input').val(b1k);
-	  $('#R div.colorlevel').css("width",r1k/10+"%");
-	  $('#G div.colorlevel').css("width",g1k/10+"%");
-	  $('#B div.colorlevel').css("width",b1k/10+"%");
-	  $('#rgbcolor').css("background-color","rgb("+R+","+G+","+B+")");
+	  calcCeilingValuesFrom(colortemppickerstate, R, G, B);
+	  updateColorPreview();
 	};
 	$(canvas).on("click",pickcolour);
 	$(canvas).on("mousemove",pickcolour);

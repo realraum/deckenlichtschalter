@@ -141,3 +141,18 @@ function calcCompoundRGB(data)
   data.compound_g = Math.min(255,Math.floor(g));
   data.compound_b = Math.min(255,Math.floor(b));
 }
+
+function calcCeilingValuesFrom(data,r,g,b)
+{
+  var r_factor = 1;
+  var g_factor = 3; //green 3 times as bright as red
+  var b_factor = g_factor*3; //blue 2 times as bright as green
+  var ww_factor = 44; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
+  var cw_factor = 22;
+
+  var maximum = Math.min(r,g,b);
+
+  data.r = 1000.0*r/255.0/r_factor*maximum;
+  data.g = 1000.0*g/255.0/g_factor*maximum;
+  data.b = 1000.0*b/255.0/b_factor*maximum;
+}
