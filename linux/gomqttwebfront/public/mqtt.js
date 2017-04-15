@@ -144,15 +144,29 @@ function calcCompoundRGB(data)
 
 function calcCeilingValuesFrom(data,r,g,b)
 {
-  var r_factor = 1;
-  var g_factor = 3; //green 3 times as bright as red
+  var r_factor = 1.0;
+  var g_factor = 3.0; //green 3 times as bright as red
   var b_factor = g_factor*3; //blue 2 times as bright as green
-  var ww_factor = 44; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
-  var cw_factor = 22;
+  var ww_factor = 44.0; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
+  var cw_factor = 22.0;
 
-  var maximum = Math.min(r,g,b);
+  var magn_orig = Math.sqrt(r*r+g*g+b*b);
 
-  data.r = 1000.0*r/255.0/r_factor*maximum;
-  data.g = 1000.0*g/255.0/g_factor*maximum;
-  data.b = 1000.0*b/255.0/b_factor*maximum;
+  r = r/r_factor;
+  g = g/g_factor;
+  b = b/b_factor;
+  var magn_new = Math.sqrt(r*r+g*g+b*b);
+
+  //scale color vector to original magnitude
+  var scale = magn_orig/magn_new;
+  r *= scale;
+  g *= scale;
+  b *= scale;
+
+  //fit into 255 by 255 by 255 box
+  var fitting = Math.max(255,r,g,b);
+
+  data.r = Math.trunc(r * 1000 / fitting)
+  data.g = Math.trunc(g * 1000 / fitting)
+  data.b = Math.trunc(b * 1000 / fitting)
 }
