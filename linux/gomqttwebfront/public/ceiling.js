@@ -58,10 +58,10 @@ function handleExternalFancySetting(fancyid, data)
 
   //on ceiling.js/index.html we only have redshift script on/off buttons
   //redshift uses triggers for each individual light and thus always has an
-  //acompaning "sq" field in json sent to lamp
+  //acompaning "s" field in json sent to lamp
   //so it's easy to detect if redshift is on for that light or not.
   var targetstr = fancyid.substr(fancyid.length-1,1);
-  $("input.scriptctrl_redshift_checkbox[target='"+targetstr+"']")[0].checked = (script_running_ == "redshift" && data.sq && data.sq > 0);
+  $("input.scriptctrl_redshift_checkbox[target='"+targetstr+"']")[0].checked = (data.s && data.s == "redshift");
 }
 
 function enableRedShift(event) {

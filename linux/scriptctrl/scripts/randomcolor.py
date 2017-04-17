@@ -45,7 +45,7 @@ def colorALight(scr, targets, duration=1000):
     r = int(min(r,1000))
     g = int(min(g*4.0/5.0,800))
     b = int(min(b*2.0/3.0,666))
-    scr.setLight(targets[0],r=r,g=g,b=b,cw=0,ww=0,fade_duration=duration,cc=targets)
+    scr.setLight(targets[0],r=r,g=g,b=b,cw=0,ww=0,fade_duration=duration,cc=targets[1:])
 
 def colorAllLights(scr):
     lst = participating_targets_

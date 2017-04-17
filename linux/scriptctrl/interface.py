@@ -93,7 +93,7 @@ class CeilingScriptClass():
         self.deactivatefunc = deactivatefunc
         return self
 
-    def setLight(self, light,r=None,g=None,b=None,cw=None,ww=None,fade_duration=None,flash_repetitions=None,cc=[],trigger_on_complete=[]):
+    def setLight(self, light,r=None,g=None,b=None,cw=None,ww=None,fade_duration=None,flash_repetitions=None,cc=[],trigger_on_complete=[], include_scriptname=True):
         if not (light == "All" or (light >= 0 and light <= 9)):
             return
         msg = {"r":r, "g":g, "b":b, "cw":cw, "ww": ww}
@@ -117,6 +117,8 @@ class CeilingScriptClass():
             cc += trigger_on_complete
             msg["sq"] = self.trigger_seq_num
             self.trigger_seq_num = (self.trigger_seq_num + 1) % (1<<30) # ensure seq number fits in signed int32
+        if include_scriptname:
+            msg["s"]=self.scriptname
         if light == "All":
             cc=None  # we don't want to be triggerd by x lights at once
         if fade_duration != None and fade_duration >= 100 and fade_duration <= 120000:
@@ -213,9 +215,9 @@ class CeilingClass():
             self._active_script = None
             self._scripts[script].deactivate()
             time.sleep(0.1)
-            self._scripts[script].setLight("All",r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000)
+            self._scripts[script].setLight("All",r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000,include_scriptname=False)
             time.sleep(0.4)
-            self._scripts[script].setLight("All",r=0,g=0,b=0,cw=0,ww=0)
+            self._scripts[script].setLight("All",r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
 
     def activateScript(self, script, newsettings):
         if script in self._scripts:

@@ -159,14 +159,7 @@ function handleExternalFancySetting(fancyid, data)
   //i.e. the json includes a trigger sequence number "sq"
   // only works for lights being used as triggers
   var targetstr = fancyid.substr(fancyid.length-1,1);
-  if (data.sq && data.sq > 0)
-  {
-    //controlled by script
-    $("input.scriptctrl_checkbox[target='"+targetstr+"']")[0].checked=true;
-  } else if (mqtt_scriptctrl_scripts_uses_trigger_for_each_light_.indexOf(script_running_) >= 0) {
-    //redshift activated but no sq number? --> not controlled by script
-    $("input.scriptctrl_checkbox[target='"+targetstr+"']")[0].checked=false;
-  } // else we can't say for sure
+  $("input.scriptctrl_checkbox[target='"+targetstr+"']")[0].checked = (data.s && data.s != "off");
 }
 
 function updateColdWarmWhiteBalanceIntensity(event)
