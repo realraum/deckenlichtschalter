@@ -82,11 +82,6 @@ nav a {
     padding-top: 7%;
 }
 
-button.activatedbtn {
-    background-color: cyan;
-    transition-duration: 100ms;
-}
-
 #basiclight1, #basiclight2, #basiclight3 {
     top: 21%;
 }
@@ -180,6 +175,11 @@ button.activatedbtn {
 #floodtesla {
     bottom:0%;
     left: 70%;
+}
+
+.activatedbtn {
+    border:5px solid cyan;
+    transition-duration: 100ms;
 }
 
 /* BEGIN ON OFF SWITCH */

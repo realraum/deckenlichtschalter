@@ -53,12 +53,6 @@ div.switchbox {
     transition: background-color 600ms, margin 300ms;
 }
 
-div.activatedbtn {
-    background-color: cyan;
-    margin-top: 8px;
-    margin-bottom: 8px;
-}
-
 div.switchnameleft {
     width:12em; display:inline-block; vertical-align:middle; margin-left:3px;
 }
@@ -111,6 +105,12 @@ span.alignbuttonsleft {
     font-weight: bold;
     font-variant: small-caps;
     border-style: inset;
+}
+
+.activatedbtn {
+    background-color: cyan;
+    border:2px solid cyan;
+    transition-duration: 100ms;
 }
 
 div.pipeslider {
