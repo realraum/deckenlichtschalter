@@ -44,6 +44,14 @@ function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
     var basiclightname = lightname.replace("ceiling","basiclight");
     var targetid = lightname.substr(7,1);
+    var allbasic="BasicLight On:";
+    if ("basiclightAll" == basiclightname) {
+      allbasic='All BasicLights:\
+          <button class="onbutton" lightname="'+basiclightname+'" action="on">On</button>\
+          <button class="offbutton" lightname="'+basiclightname+'" action="off">Off</button>\
+          '
+    }
+
     $(elem).append('<div class="switchbox">\
             <div style="width:100%; font-weight: bold; color:white; background-color: black;">'+names[lightname]+'</div>\
             <span class="alignbuttonsleft">\
@@ -65,7 +73,7 @@ function populatedivfancyswitchboxes(elem, names) {
               <input type="range" min="0" max="1000" step="1" value="500" class="fancybalanceslider" name="'+lightname+'"> Color Temp.\
             </span>\
           <span class="alignbuttonsright" style="margin:1ex; margin-right:2ex;">\
-          BasicLight On:\
+          '+allbasic+'\
           <div class="onoffswitch">\
                   <input type="checkbox" class="onoffswitch-checkbox basiclight_checkbox" name="'+basiclightname+'" id="'+basiclightname+'basiconoff">\
                   <label class="onoffswitch-label" for="'+basiclightname+'basiconoff">\
