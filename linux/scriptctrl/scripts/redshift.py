@@ -65,7 +65,7 @@ def calcColorFromDayLevel(day_factor, value):
     ww = max(0,1000 * value - cw - (r/3))
     return int(r), int(b), int(cw), int(ww)
 
-def redshiftLight(scr, lightnum, inital=False):
+def redshiftLight(scr, lightnum, initial=False):
     solar_altitude = solar.GetAltitudeFast(latitude_, longitude_, datetime.datetime.utcnow())
     daylevel = 1.0
     if solar_altitude >= transition_high_:
@@ -78,7 +78,7 @@ def redshiftLight(scr, lightnum, inital=False):
         daylevel = -1 * (solar_altitude - transition_middle_) / (transition_low_ - transition_middle_)
     r,b,cw,ww = calcColorFromDayLevel(daylevel, hsvvalue_)
     scr.setLight(lightnum,r=r,g=0,b=b,cw=cw,ww=ww,
-        fade_duration=None if inital else fade_duration_,
+        fade_duration=None if initial else fade_duration_,
         trigger_on_complete=[] if initial else ["c%d" % lightnum] )
 
 def redshiftLightOnTrigger(scr, lightnum):
