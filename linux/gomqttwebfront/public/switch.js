@@ -264,13 +264,13 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
+"ceilingAll":"Alle Deckenlichter",
 "ceiling1":"Decke Leinwand",
 "ceiling2":"Decke Durchgang",
 "ceiling3":"Decke Küche",
 "ceiling4":"Decke Lasercutter",
 "ceiling5":"Decke Eingang",
 "ceiling6":"Decke Tesla",
-"ceilingAll":"Alle Deckenlichter",
 });
 
 (function() {
