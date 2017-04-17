@@ -57,6 +57,17 @@ function eventOnFancyLightPresent(event) {
   sendMQTT("action/"+name+"/light",settings);
 };
 
+function colorFancyLightPresent(elem) {
+  var R = parseInt(elem.getAttribute("ledr")) || 0;
+  var G = parseInt(elem.getAttribute("ledg")) || 0;
+  var B = parseInt(elem.getAttribute("ledb")) || 0;
+  var CW = parseInt(elem.getAttribute("ledcw")) || 0;
+  var WW = parseInt(elem.getAttribute("ledww")) || 0;
+  var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
+  calcCompoundRGB(settings);
+  elem.style.backgroundColor="rgb("+settings.compound_r+","+settings.compound_g+","+settings.compound_b+")";
+}
+
 //takes function with signature (fancyid, data)
 //and calls it if fancy light updates externally
 function registerFunctionForFancyLightUpdate(fun) {
@@ -119,6 +130,13 @@ function calcCompoundRGB(data)
   data.cw = data.cw || 0;
 
   var magn_orig = Math.sqrt(data.r*data.r+data.g*data.g+data.b*data.b+data.ww*data.ww+data.cw*data.cw);
+
+  if (magn_orig == 0) {
+    data.compound_r = 0;
+    data.compound_g = 0;
+    data.compound_b = 0;
+    return;
+  }
 
   var r_factor = 1;
   var g_factor = 3; //green 3 times as bright as red

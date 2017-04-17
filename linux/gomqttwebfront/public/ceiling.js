@@ -114,6 +114,8 @@ var buttons = {
 
   webSocketSupport = hasWebSocketSupport();
 
+  //set background color for fancylightpresetbuttons according to ledr=, ledb=, etc.
+  $(".fancylightpresetbutton").each(colorFancyLightPresent);
 
   $(".mqttrawjson").on("click",eventOnRawMqttElement);
   $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);

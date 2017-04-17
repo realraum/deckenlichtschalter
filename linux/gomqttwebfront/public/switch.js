@@ -331,6 +331,9 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     ws.registerContext(mqtttopic_activatescript,handleExternalActivateScript);
   }
 
+  //set background color for fancylightpresetbuttons according to ledr=, ledb=, etc.
+  $(".fancylightpresetbutton").each(colorFancyLightPresent);
+
   popupselect.init();
   $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
