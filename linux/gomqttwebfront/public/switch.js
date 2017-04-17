@@ -293,7 +293,8 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     }
   }
   $(".basiclight_checkbox").on("click",function(event){
-    var topic = mqtttopic_golightctrl(event.target.getAttribute("name"));
+    var elemname = event.target.getAttribute("name");
+    var topic = mqtttopic_golightctrl(elemname);
     var action = "off";
     if (event.target.checked) {
       action = "on";
@@ -301,16 +302,29 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     sendMQTT(topic,{Action:action});
   });
   if (webSocketSupport) {
-    $(".basiclight_checkbox").each(function(elem){
-      var topic = mqtttopic_golightctrl(elem.getAttribute("name"));
+    $(".basiclight_checkbox").each(function(oelem){
+      var topic = mqtttopic_golightctrl(oelem.getAttribute("name"));
       ws.registerContext(topic, function(elem) {
         return function(data) {
-          if (data.Action == "on" || data.Action == 1 || data.Action == "1" || data.Action == "send")
+          console.log(data);
+          console.log(elem);
+          if (data.Action == "1" || data.Action == "on" || data.Action == "send" || data.Action == 1)
             elem.checked = true;
           else
             elem.checked = false;
-          };
-        });
+
+          //now check if all are checked and thus also check the "all"-checkbox
+          var allelem=undefined;
+          var checked=true;
+          $(".basiclight_checkbox").each(function(elem){
+            if (elem.getAttribute("name")=="basiclightAll")
+              allelem=elem;
+            else
+              checked=checked && elem.checked;
+          });
+          allelem.checked=checked;
+        }
+      }(oelem));
     });
     Object.keys(topics_to_subscribe).forEach(function(topic) {
       var lightname = topics_to_subscribe[topic];

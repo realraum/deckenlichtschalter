@@ -140,8 +140,7 @@ var buttons = {
       var topic = mqtttopic_golightctrl(keyid);
       ws.registerContext(topic, (function(topic,keyid) {
         return function(data) {
-          console.log(topic, data);
-          if (data.Action == "1" || data.Action == "on" || data.Action == "send") {
+          if (data.Action == "1" || data.Action == "on" || data.Action == "send" || data.Action == 1) {
             buttons[keyid] = true;
           } else {
             buttons[keyid] = false;
