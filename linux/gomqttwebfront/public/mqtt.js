@@ -78,7 +78,6 @@ function calcDayLevelFromColor(data)
     day_factor = data.cw * 1.0 / (data.cw+data.ww) - data.r / 1000.0;
     day_factor = Math.min(1.0,Math.max(-1.0,  day_factor ));
   }
-  console.log(day_factor);
 
   var numvalues = 1;
   var value = Math.min(1.0,(data.ww + (data.r/3.0) + data.cw) / 1000.0);
@@ -94,7 +93,6 @@ function calcDayLevelFromColor(data)
   }
   //calc average
   value /= numvalues;
-  console.log(value);
   return {"balance":day_factor, "intensity":value};
 }
 
@@ -149,8 +147,6 @@ function calcCompoundRGB(data)
   b += ww*warmwhite_representation[2] + cw*coldwhite_representation[2];
 
   var maximum = Math.max(1000,r,g,b);
-
-  console.log(r,g,b,ww,cw,maximum);
 
   //now fit to box
   r = r * 255.0 / maximum;

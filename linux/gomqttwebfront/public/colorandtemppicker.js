@@ -108,7 +108,6 @@ function drawcolourtemppicker(elemid) {
 	  //var untransY = event.pageY - this.offsetTop;
 	  var transX = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
 	  var transY = (typeof event.offsetY == "number") ? event.offsetY : event.layerY || 0;
-
 	  // getting image data and RGB values
 	  // var CWwhole = Math.trunc((rotatedwidth - x)*1000/rotatedwidth);
 	  // var WWwhole = Math.trunc(x*1000/rotatedwidth);
