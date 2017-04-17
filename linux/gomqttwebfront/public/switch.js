@@ -42,6 +42,7 @@ function populatedivrfswitchboxes(elem, names) {
 
 function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
+    var basiclightname = lightname.replace("ceiling","basiclight");
     var targetid = lightname.substr(7,1);
     $(elem).append('<div class="switchbox">\
             <div style="width:100%; font-weight: bold; color:white; background-color: black;">'+names[lightname]+'</div>\
@@ -63,6 +64,16 @@ function populatedivfancyswitchboxes(elem, names) {
             <span class="alignbuttonsleft">\
               <input type="range" min="0" max="1000" step="1" value="500" class="fancybalanceslider" name="'+lightname+'"> Color Temp.\
             </span>\
+          <span class="alignbuttonsright" style="margin:1ex; margin-right:2ex;">\
+          BasicLight On:\
+          <div class="onoffswitch">\
+                  <input type="checkbox" class="onoffswitch-checkbox basiclight_checkbox" name="'+basiclightname+'" id="'+basiclightname+'basiconoff">\
+                  <label class="onoffswitch-label" for="'+basiclightname+'basiconoff">\
+                      <span class="onoffswitch-inner"></span>\
+                      <span class="onoffswitch-switch"></span>\
+                  </label>\
+              </div>\
+          </span>\
           </div>\
           <br/>');
   });
@@ -252,16 +263,6 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "boilerolga":"Warmwasser OLGA"
 });
 
-populatedivrfswitchboxes(document.getElementById("divbasiclightswitchboxes"), {
-"basiclight1":"Decke Leinwand",
-"basiclight2":"Decke Durchgang",
-"basiclight3":"Decke Küche",
-"basiclight4":"Decke Lasercutter",
-"basiclight5":"Decke Eingang",
-"basiclight6":"Decke Tesla",
-"basiclightAll":"All BasicLights",
-});
-
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
 "ceiling1":"Decke Leinwand",
 "ceiling2":"Decke Durchgang",
@@ -269,7 +270,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 "ceiling4":"Decke Lasercutter",
 "ceiling5":"Decke Eingang",
 "ceiling6":"Decke Tesla",
-"ceilingAll":"All FancyLights",
+"ceilingAll":"Alle Deckenlichter",
 });
 
 (function() {
@@ -289,10 +290,28 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
         return function() {  sendMQTT(topic,{Action:action});  };
       }(topic, action));
       topics_to_subscribe[topic] = lightname;
-      topics_to_subscribe[topic.replace("basiclight","ceiling")] = lightname;
     }
   }
+  $(".basiclight_checkbox").on("click",function(event){
+    var topic = mqtttopic_golightctrl(event.target.getAttribute("name"));
+    var action = "off";
+    if (event.target.checked) {
+      action = "on";
+    }
+    sendMQTT(topic,{Action:action});
+  });
   if (webSocketSupport) {
+    $(".basiclight_checkbox").each(function(elem){
+      var topic = mqtttopic_golightctrl(elem.getAttribute("name"));
+      ws.registerContext(topic, function(elem) {
+        return function(data) {
+          if (data.Action == "on" || data.Action == 1 || data.Action == "1" || data.Action == "send")
+            elem.checked = true;
+          else
+            elem.checked = false;
+          };
+        });
+    });
     Object.keys(topics_to_subscribe).forEach(function(topic) {
       var lightname = topics_to_subscribe[topic];
       ws.registerContext(topic, function(topic) {

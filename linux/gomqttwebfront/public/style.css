@@ -190,6 +190,7 @@ button.activatedbtn {
     height:3.5%;
     position: absolute;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+    text-align: left;
 }
 .onoffswitch-checkbox {
     display: none;
