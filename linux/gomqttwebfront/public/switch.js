@@ -219,9 +219,9 @@ function handleExternalActivateScript(data) {
 
 var fancycolorpicker_apply_name="ceiling1";
 function popupFancyColorPicker(event) {
-  var x = event.pageX;
-  var y = event.pageY;
-  $("#fancycolorpicker").css("left",x).css("top",y).css("visibility","visible");
+  var x = event.target.offsetLeft;
+  var y = event.target.offsetTop;
+  $("#fancycolorpicker").css("left",x+"px").css("top",y+"px").css("visibility","visible");
   fancycolorpicker_apply_name = event.target.getAttribute("name");
 }
 
