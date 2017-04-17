@@ -42,16 +42,26 @@ function handleExternalFancySetting(fancyid, data)
 {
   //save data for next color chooser popup
   fancycolorstate_[fancyid] = data;
+  //calc compound RGB from light data
   calcCompoundRGB(fancycolorstate_[fancyid]);
 
+  //set compound RGB to background-color of button
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
   var elem = $(".popupselect_trigger[name="+fancyid+"]");
   if (elem) {
     elem.css("background-color",rgbstring);
   }
+  //calculcate and set balance/intensity slider
   var cwwwslidedata = calcDayLevelFromColor(data);
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
   $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
+
+  //on ceiling.js/index.html we only have redshift script on/off buttons
+  //redshift uses triggers for each individual light and thus always has an
+  //acompaning "sq" field in json sent to lamp
+  //so it's easy to detect if redshift is on for that light or not.
+  var targetstr = fancyid.substr(fancyid.length-1,1);
+  $("input.scriptctrl_redshift_checkbox[target='"+targetstr+"']")[0].checked = (script_running_ == "redshift" && data.sq && data.sq > 0);
 }
 
 function enableRedShift(event) {
@@ -75,7 +85,9 @@ function enableRedShift(event) {
   }
 }
 
+var script_running_="off";
 function handleExternalActivateScript(data) {
+  script_running_ = data.script;
   $("#scriptctrlselect").val(data.script);
   if (data.script == "redshift") {
     // -------- Script redshift ---------

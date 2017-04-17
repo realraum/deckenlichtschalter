@@ -8,6 +8,11 @@ function mqtttopic_fancylight(fancyid) {
   return "action/"+fancyid+"/light";
 }
 
+var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor"];
+var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor"];
+var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
+var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor"];
+
 function sendMQTT_XHTTP(ctx, data) {
   var req = new XMLHttpRequest;
   req.open("POST", cgiUrl, true);

@@ -141,16 +141,32 @@ function handleExternalFancySetting(fancyid, data)
 {
   //save data for next color chooser popup
   fancycolorstate_[fancyid] = data;
+  //calc compound RGB from light data
   calcCompoundRGB(fancycolorstate_[fancyid]);
 
+  //set compound RGB to background-color of button
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
   var elem = $(".popupselect_trigger[name="+fancyid+"]");
   if (elem) {
     elem.css("background-color",rgbstring);
   }
+  //calculcate and set balance/intensity slider
   var cwwwslidedata = calcDayLevelFromColor(fancycolorstate_[fancyid]);
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
   $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
+  
+  //activate Script Buttons if detected that light is controlled by script
+  //i.e. the json includes a trigger sequence number "sq"
+  // only works for lights being used as triggers
+  var targetstr = fancyid.substr(fancyid.length-1,1);
+  if (data.sq && data.sq > 0)
+  {
+    //controlled by script
+    $("input.scriptctrl_checkbox[target='"+targetstr+"']")[0].checked=true;
+  } else if (mqtt_scriptctrl_scripts_uses_trigger_for_each_light_.indexOf(script_running_) >= 0) {
+    //redshift activated but no sq number? --> not controlled by script
+    $("input.scriptctrl_checkbox[target='"+targetstr+"']")[0].checked=false;
+  } // else we can't say for sure
 }
 
 function updateColdWarmWhiteBalanceIntensity(event)
@@ -196,8 +212,9 @@ function handleChangeScriptCtrl(event) {
   sendMQTT(mqtttopic_activatescript,{script:"off"});
 }
 
+var script_running_="off";
 function handleExternalActivateScript(data) {
-  $("#scriptctrlselect").val(data.script);
+  script_running_ = data.script;  $("#scriptctrlselect").val(data.script);
   if (data.value) {
     $("#scriptctrlfancyintensityslider").val(Math.floor(data.value*1000));
   }
@@ -310,12 +327,11 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     sendMQTT(topic,{Action:action});
   });
   if (webSocketSupport) {
+    // register MQTT Update Handler: Basiclights
     $(".basiclight_checkbox").each(function(oelem){
       var topic = mqtttopic_golightctrl(oelem.getAttribute("name"));
       ws.registerContext(topic, function(elem) {
         return function(data) {
-          console.log(data);
-          console.log(elem);
           if (data.Action == "1" || data.Action == "on" || data.Action == "send" || data.Action == 1)
             elem.checked = true;
           else
@@ -334,6 +350,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
         }
       }(oelem));
     });
+    // register MQTT Update Handler: RF433 Poweroutlets
     Object.keys(topics_to_subscribe).forEach(function(topic) {
       var lightname = topics_to_subscribe[topic];
       ws.registerContext(topic, function(topic) {
@@ -349,7 +366,9 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
       }(topic));
     });
 
+    // register MQTT Update Handler: Fancy Lights
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
+    // register MQTT Update Handler: ScriptCtrl
     ws.registerContext(mqtttopic_activatescript,handleExternalActivateScript);
   }
 
