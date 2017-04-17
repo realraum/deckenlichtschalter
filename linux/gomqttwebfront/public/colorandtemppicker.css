@@ -15,10 +15,13 @@ div.colorvalue {
 }
 
 div#cwwwrgbcolor {
-	width:9em;
-	height:4em;
+	min-height:3em;
+	text-align:right;
+	padding:0;
+	width:100%;
 	display:inline-block;
 	background-color:black;
+	margin:0;
 }
 
 div.colorpickerrow {

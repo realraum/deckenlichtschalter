@@ -128,34 +128,35 @@
 
 <div id="fancycolorpicker">
   <div class="colorpickerrow">
-  <div class="colorpickercolumn">
-    <div id="pickcolourtempcontainer" style="width:256px; height:256px;">
-      <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
-      <canvas id="pickcolourtemp" width="181" height="181" style="width:181px; height:181px; transform: translate(21%,21%) rotate(45deg);"></canvas>
-    </div>
-    <div class="colorvalue" id="WhiteTemp">Colour Temperature Balance<br/><input type="range" min="0" max="1000" step="1" disabled></div>
-  <div class="colorvalue" id="WhiteBrightness">Intensity<br/><input type="range" min="0" max="1000" step="1" disabled></div>
-  <div class="colorvalue" id="CW">CW <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(71,171,255);" class="colorlevel"></div></div></div>
-  <div class="colorvalue" id="WW">WW <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,250,202);" class="colorlevel"></div></div></div>
-  </div>
-
-  <div class="colorpickercolumn">
-  HSL with S=100%
-  <div id="pickcolourcontainer" style="width:256px; height:256px;">
-  <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
-  <canvas id="pickcolour" width="256" height="256"></canvas>
-  </div>
-  <div class="colorvalue" id="R">R: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,0,0);" class="colorlevel"></div></div></div>
-  <div class="colorvalue" id="G">G: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(0,255,0);" class="colorlevel"></div></div></div>
-  <div class="colorvalue" id="B">B: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(0,0,255);" class="colorlevel"></div></div></div>
-  </div>
-  </div>
-  <div class="colorpickerrow">
-    <div class="colorpickercolumn" id="cwwwrgbcolor"></div>
     <div class="colorpickercolumn">
-      <button id="fancycolorpicker_apply_button">Apply</button><br/>
-      <button id="fancycolorpicker_close_button">Close</button>
+      <div id="pickcolourtempcontainer" style="width:256px; height:256px;">
+        <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
+        <canvas id="pickcolourtemp" width="181" height="181" style="width:181px; height:181px; transform: translate(21%,21%) rotate(45deg);"></canvas>
+      </div>
+      <div class="colorvalue" id="WhiteTemp">Colour Temperature Balance<br/><input type="range" min="0" max="1000" step="1" disabled></div>
+      <div class="colorvalue" id="WhiteBrightness">Intensity<br/><input type="range" min="0" max="1000" step="1" disabled></div>
+      <div class="colorvalue" id="CW">CW <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(71,171,255);" class="colorlevel"></div></div></div>
+      <div class="colorvalue" id="WW">WW <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,250,202);" class="colorlevel"></div></div></div>
     </div>
+
+    <div class="colorpickercolumn">
+    HSL with S=100%
+      <div id="pickcolourcontainer" style="width:256px; height:256px;">
+        <!-- IMPORTANT: canvas Size must be set via height and width and NOT via css (otherwise canvas will be 300x150 and be scaled to css dimensions) -->
+        <canvas id="pickcolour" width="256" height="256"></canvas>
+      </div>
+      <div class="colorvalue" id="R">R: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(255,0,0);" class="colorlevel"></div></div></div>
+      <div class="colorvalue" id="G">G: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(0,255,0);" class="colorlevel"></div></div></div>
+      <div class="colorvalue" id="B">B: <input class="colortext" type="text"><div class="colorlevelcontainer"><div style="background-color:rgb(0,0,255);" class="colorlevel"></div></div></div>
+      <div class="colorpickerrow" style="width:100%; margin-right:0; margin-left:0; padding:0;">
+        <div id="cwwwrgbcolor">
+          <button id="fancycolorpicker_apply_button" style="width:51%;">Apply</button><br/>
+          <button id="fancycolorpicker_close_button" style="width:51%;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--div class="colorpickerrow">
     <div class="colorpickercolumn" style="font-size:50%;">
       <h2>Excercises left to the fellow hacker:</h2>
       <ul>
@@ -170,7 +171,7 @@
       <li>fix the colorlevel elemnts so we can reliably set min/max value </li>
       </ul>
     </div>
-  </div>
+  </div-->
 </div>
 
 <div id="fancycolorquickoptions1" class="popupselect_overlay">
