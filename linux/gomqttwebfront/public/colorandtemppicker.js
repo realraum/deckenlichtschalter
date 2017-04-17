@@ -86,8 +86,6 @@ var colortemppickerstate = {
 	compound_r:0,
 	compound_g:0,
 	compound_b:0,
-	intensity:0,
-	balance:0,
 };
 
 function drawcolourtemppicker(elemid) {
@@ -108,16 +106,16 @@ function drawcolourtemppicker(elemid) {
 	  //var untransY = event.pageY - this.offsetTop;
 	  var transX = (typeof event.offsetX == "number") ? event.offsetX : event.layerX || 0;
 	  var transY = (typeof event.offsetY == "number") ? event.offsetY : event.layerY || 0;
-	  // getting image data and RGB values
+		  // getting image data and RGB values
 	  // var CWwhole = Math.trunc((rotatedwidth - x)*1000/rotatedwidth);
 	  // var WWwhole = Math.trunc(x*1000/rotatedwidth);
-	  var squarewidth = $(canvas).width();
-	  var diamondwidth = Math.sqrt(squarewidth*squarewidth*2);
+	  var squarewidth = canvas.offsetWidth;
+	  // var diamondwidth = Math.sqrt(squarewidth*squarewidth*2);
 	  var CW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transX)   *1000/squarewidth)));
 	  var WW = Math.trunc(Math.max(0,Math.min(1000,(squarewidth - transY)   *1000/squarewidth))); //0...1000
 	  //var brightness = (diamondwidth - untransY) *1000/diamondwidth;
-	  colortemppickerstate.intensity = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
-	  colortemppickerstate.balance = WW*1000/CW/2;
+	  // colortemppickerstate.intensity = 1000 - Math.trunc(Math.sqrt(transX*transX+transY*transY)*1000/diamondwidth);
+	  // colortemppickerstate.balance =  Math.trunc(WW*1000.0/(WW+CW));
 
 	  // making the color the value of the input
 	  // var img_data = canvas2d.getImageData(transX, transY, 1, 1);
@@ -145,8 +143,10 @@ function updateColorPreview() {
 	$('#WW input').val(colortemppickerstate.ww);
 	$('#CW div.colorlevel').css("width",colortemppickerstate.cw/10+"%");
 	$('#WW div.colorlevel').css("width",colortemppickerstate.ww/10+"%");
-	$('#WhiteBrightness input').val(colortemppickerstate.brightness);
-	$('#WhiteTemp input').val(colortemppickerstate.intensity);
+	var intensity = (colortemppickerstate.ww+colortemppickerstate.cw)/2;
+	var balance =  Math.trunc(colortemppickerstate.ww*1000.0/(colortemppickerstate.ww+colortemppickerstate.cw));
+	$('#WhiteBrightness input').val(intensity);
+	$('#WhiteTemp input').val(balance);
 }
 
 var lower_black_percent = 0.95;
