@@ -13,6 +13,12 @@ var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor"];
 var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
 var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor"];
 
+var r_factor = 1;
+var g_factor = 5; //green 5 times as bright as red
+var b_factor = 10; //blue 2 times as bright as green
+var ww_factor = 44; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
+var cw_factor = 22;
+
 function sendMQTT_XHTTP(ctx, data) {
   var req = new XMLHttpRequest;
   req.open("POST", cgiUrl, true);
@@ -143,12 +149,6 @@ function calcCompoundRGB(data)
     return;
   }
 
-  var r_factor = 1;
-  var g_factor = 3; //green 3 times as bright as red
-  var b_factor = g_factor*3; //blue 2 times as bright as green
-  var ww_factor = 44; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
-  var cw_factor = 22;
-
   var r = data.r*r_factor;
   var g = data.g*g_factor;
   var b = data.b*b_factor;
@@ -183,12 +183,6 @@ function calcCompoundRGB(data)
 
 function calcCeilingValuesFrom(data,r,g,b)
 {
-  var r_factor = 1.0;
-  var g_factor = 3.0; //green 3 times as bright as red
-  var b_factor = g_factor*3; //blue 2 times as bright as green
-  var ww_factor = 44.0; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
-  var cw_factor = 22.0;
-
   var magn_orig = Math.sqrt(r*r+g*g+b*b);
 
   r = r/r_factor;
@@ -209,3 +203,4 @@ function calcCeilingValuesFrom(data,r,g,b)
   data.g = Math.trunc(g * 1000 / fitting)
   data.b = Math.trunc(b * 1000 / fitting)
 }
+
