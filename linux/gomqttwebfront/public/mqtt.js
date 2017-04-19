@@ -16,8 +16,8 @@ var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor"];
 var r_factor = 1;
 var g_factor = 5; //green 5 times as bright as red
 var b_factor = 10; //blue 2 times as bright as green
-var ww_factor = 44; //yes warmwhite is about 2 times as bright as cw and 44 times as bright as red
-var cw_factor = 22;
+var ww_factor = 22; //yes warmwhite is about 22 times as bright as red
+var cw_factor = 18;
 
 function sendMQTT_XHTTP(ctx, data) {
   var req = new XMLHttpRequest;
@@ -203,4 +203,3 @@ function calcCeilingValuesFrom(data,r,g,b)
   data.g = Math.trunc(g * 1000 / fitting)
   data.b = Math.trunc(b * 1000 / fitting)
 }
-
