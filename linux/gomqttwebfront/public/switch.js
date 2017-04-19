@@ -121,16 +121,16 @@ function remoteKeyboard( e ) {
     case 59: sendYmhButton( 'ymhtunabcde' ); break; // ;
     case 69: sendYmhButton( 'ymheffect' ); break;   // E
     case 80: sendYmhButton( 'ymhpower' ); break;    // P
-    case 48: sendYmhButton( 'ymhtest' ); break;     // 0
-    case 49: sendYmhButton( 'ymhcd' ); break;       // 1
-    case 50: sendYmhButton( 'ymhtuner' ); break;    // 2
-    case 51: sendYmhButton( 'ymhtape' ); break;     // 3
-    case 52: sendYmhButton( 'ymhwdtv' ); break;     // 4
-    case 53: sendYmhButton( 'ymhsattv' ); break;    // 5
-    case 54: sendYmhButton( 'ymhvcr' ); break;      // 6
-    case 55: sendYmhButton( 'ymh7' ); break;        // 7
-    case 56: sendYmhButton( 'ymhaux' ); break;      // 8
-    case 57: sendYmhButton( 'ymhextdec' ); break;   // 9
+//   case 48: sendYmhButton( 'ymhtest' ); break;     // 0
+//   case 49: sendYmhButton( 'ymhcd' ); break;       // 1
+//   case 50: sendYmhButton( 'ymhtuner' ); break;    // 2
+//   case 51: sendYmhButton( 'ymhtape' ); break;     // 3
+//   case 52: sendYmhButton( 'ymhwdtv' ); break;     // 4
+//   case 53: sendYmhButton( 'ymhsattv' ); break;    // 5
+//   case 54: sendYmhButton( 'ymhvcr' ); break;      // 6
+//   case 55: sendYmhButton( 'ymh7' ); break;        // 7
+//   case 56: sendYmhButton( 'ymhaux' ); break;      // 8
+//   case 57: sendYmhButton( 'ymhextdec' ); break;   // 9
   }
 }
 
