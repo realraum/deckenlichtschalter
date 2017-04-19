@@ -130,10 +130,10 @@ var buttons = {
   $(".fancylightpresetbutton").each(colorFancyLightPresent);
 
   $(".mqttrawjson").on("click",eventOnRawMqttElement);
-  $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
   $('.scriptctrl_redshift_checkbox').on("click",enableRedShift);
   popupselect.init({class_option:"popupselect_option"});
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
+  $(".fancylightpresetbutton").not(".popupselect_option").on("click",eventOnFancyLightPresent);
   $(".basiclight").on("click",function() {
       var id = this.getAttribute('id');
       var topic = mqtttopic_golightctrl(id);

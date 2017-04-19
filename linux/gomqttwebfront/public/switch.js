@@ -154,7 +154,7 @@ function handleExternalFancySetting(fancyid, data)
   var cwwwslidedata = calcDayLevelFromColor(fancycolorstate_[fancyid]);
   $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
   $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
-  
+
   //activate Script Buttons if detected that light is controlled by script
   //i.e. the json includes a trigger sequence number "sq"
   // only works for lights being used as triggers
@@ -369,8 +369,8 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $(".fancylightpresetbutton").each(colorFancyLightPresent);
 
   popupselect.init();
-  $(".fancylightpresetbutton").on("click",eventOnFancyLightPresent);
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
+  $(".fancylightpresetbutton").not(".popupselect_option").on("click",eventOnFancyLightPresent);
   $('.scriptctrl_checkbox').on("click",handleChangeScriptCtrl);
   $('#scriptctrlfancyintensityslider').on("change",handleChangeScriptCtrl);
   $("#scriptctrlselect").on("change", handleChangeScriptCtrl);
