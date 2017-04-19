@@ -60,8 +60,7 @@ function handleExternalFancySetting(fancyid, data)
   //redshift uses triggers for each individual light and thus always has an
   //acompaning "s" field in json sent to lamp
   //so it's easy to detect if redshift is on for that light or not.
-  var targetstr = fancyid.substr(fancyid.length-1,1);
-  $("input.scriptctrl_redshift_checkbox[target='"+targetstr+"']")[0].checked = (data.s && data.s == "redshift");
+  $("input.scriptctrl_redshift_checkbox[name='"+fancyid+"']")[0].checked = (data.s && data.s == "redshift");
 }
 
 function enableRedShift(event) {
@@ -69,9 +68,9 @@ function enableRedShift(event) {
   {
     $(".scriptctrl_redshift_checkbox").each(function(elem){
       if (elem.checked) {
-        var target = elem.getAttribute("target");
-        if (target != "A"){
-          participating.push(parseInt(target));
+        var lightname = elem.getAttribute("name");
+        if (lightname != "ceilingAll"){
+          participating.push(lightname);
         }
       }
     });
@@ -92,12 +91,11 @@ function handleExternalActivateScript(data) {
   if (data.script == "redshift") {
     // -------- Script redshift ---------
     if (data.participating == undefined || data.participating.length==6) {
-      data.participating=[1,2,3,4,5,6];
+      data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6"];
     }
     $(".scriptctrl_redshift_checkbox").each(function(elem) {
-      var target = elem.getAttribute("target");
-      target = parseInt(target) || target;
-      elem.checked = (-1 != data.participating.indexOf(target));
+      var lightname = elem.getAttribute("name");
+      elem.checked = (-1 != data.participating.indexOf(lightname));
     });
   } else {
     $(".scriptctrl_redshift_checkbox").each(function(elem) {

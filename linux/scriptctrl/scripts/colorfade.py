@@ -40,7 +40,7 @@ def animateSomeLightsOnce(scr, targets, duration=1000, triggerme=False):
     scr.setLight(targets[0],r=r,g=g,b=b,cw=0,ww=0,fade_duration=duration,cc=targets[1:],trigger_on_complete=triggercc)
 
 def animateAllLights(scr):
-    lst = list(range(scr.light_min, scr.light_max+1))
+    lst = scr.lightidsceiling
     random.shuffle(lst)
     lsthalf = int(len(lst)/2)
     duration = 9000

@@ -43,7 +43,6 @@ function populatedivrfswitchboxes(elem, names) {
 function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
     var basiclightname = lightname.replace("ceiling","basiclight");
-    var targetid = lightname.substr(7,1);
     var allbasic="BasicLight On:";
     if ("basiclightAll" == basiclightname) {
       allbasic='All BasicLights:\
@@ -59,7 +58,7 @@ function populatedivfancyswitchboxes(elem, names) {
             <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="'+lightname+'" style="background-color:black;"></button>\
               <div style="display:inline-block; text-align:right; padding-top:0em; padding-right:0.5em;">Script<br/>Controlled:</div>\
               <div class="onoffswitch">\
-                  <input type="checkbox" class="onoffswitch-checkbox scriptctrl_checkbox" target="'+targetid+'" id="'+lightname+'ctonoff">\
+                  <input type="checkbox" class="onoffswitch-checkbox scriptctrl_checkbox" name="'+lightname+'" id="'+lightname+'ctonoff">\
                   <label class="onoffswitch-label" for="'+lightname+'ctonoff">\
                       <span class="onoffswitch-inner"></span>\
                       <span class="onoffswitch-switch"></span>\
@@ -158,8 +157,7 @@ function handleExternalFancySetting(fancyid, data)
   //activate Script Buttons if detected that light is controlled by script
   //i.e. the json includes a trigger sequence number "sq"
   // only works for lights being used as triggers
-  var targetstr = fancyid.substr(fancyid.length-1,1);
-  $("input.scriptctrl_checkbox[target='"+targetstr+"']")[0].checked = (data.s && data.s != "off");
+  $("input.scriptctrl_checkbox[name='"+fancyid+"']")[0].checked = (data.s && data.s != "off");
 }
 
 function updateColdWarmWhiteBalanceIntensity(event)
@@ -172,17 +170,17 @@ function updateColdWarmWhiteBalanceIntensity(event)
 
 function handleChangeScriptCtrl(event) {
   var participating = Array();
-  if (event && event.target.getAttribute("target") == "A") {
+  if (event && event.target.getAttribute("name") == "ceilingAll") {
     if (event.target.checked)
-      participating=Array(1,2,3,4,5,6);
+      participating=Array("ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6");
     else
       participating = Array();
   } else {
     $(".scriptctrl_checkbox").each(function(elem){
       if (elem.checked) {
-        var target = elem.getAttribute("target");
-        if (target != "A"){
-          participating.push(parseInt(target));
+        var lightname = elem.getAttribute("name");
+        if (lightname != "ceilingAll"){
+          participating.push(lightname);
         }
       }
     });
@@ -212,21 +210,19 @@ function handleExternalActivateScript(data) {
     $("#scriptctrlfancyintensityslider").val(Math.floor(data.value*1000));
   }
   if (data.participating == undefined || data.participating.length>=6) {
-    data.participating=[1,2,3,4,5,6,"A"];
+    data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","ceilingAll"];
   }
 
   if (data.script == "redshift") {
     // -------- Script redshift ---------
     $(".scriptctrl_checkbox").each(function(elem) {
-      var target = elem.getAttribute("target");
-      target = parseInt(target) || target;
+      var target = elem.getAttribute("name");
       elem.checked = (-1 != data.participating.indexOf(target));
     });
   } else if (data.script == "randomcolor") {
     // -------- Script randomcolor ---------
     $(".scriptctrl_checkbox").each(function(elem) {
-      var target = elem.getAttribute("target");
-      target = parseInt(target) || target;
+      var target = elem.getAttribute("name");
       elem.checked = (-1 != data.participating.indexOf(target));
     });
   } else if (data.script == "colorfade") {

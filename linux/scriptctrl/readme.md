@@ -197,7 +197,7 @@ register a function ```def mycallback(scr):``` to be called when a ceiling light
 
 set a ceiling light or start a ceiling light animation
 
-* ```light```: which light to set. (int [1..6] || string "All")
+* ```light```: which light to set. (string of clientid like "ceiling1" || string "ceilingAll")
 * ```r```: value of red (int [0...1000])
 * ```g```: value of green (int [0...1000])
 * ```b```: value of blue (int [0...1000])

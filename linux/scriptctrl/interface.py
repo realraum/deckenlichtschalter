@@ -13,14 +13,11 @@ topic_presence = "realraum/metaevt/presence"
 topic_action = "action/"
 myclientid = "ceilingscripts"
 topic_scripts = "/script/"
-format_ceiling_topic = "action/ceiling%s/light"
+format_ceiling_topic = "action/%s/light"
 
 ########################################################
 class CeilingScriptClass():
     def __init__(self, ceiling, scriptname):
-        self.light_num = 6
-        self.light_min = 1
-        self.light_max = 6
         self.scriptname = scriptname
         self.ceiling = ceiling
         self.mybasetopic = topic_action+myclientid+topic_scripts+self.scriptname+"/"
@@ -30,6 +27,18 @@ class CeilingScriptClass():
         self.loopfunc = None
         self.trigger_seq_num = 0
         self.trigger_expected_seq_num = defaultdict(int)
+
+    @property
+    def lightidall(self):
+        return "ceilingAll"
+
+    @property
+    def lightids(self):
+        return list(["ceiling%d" % x for x in range(1,9)] + ["abwasch"])
+
+    @property
+    def lightidsceiling(self):
+        return list(["ceiling%d" % x for x in range(1,7)])
 
     def callcallback(self, client, trigger, msg):
         if trigger in self.triggers:
@@ -94,7 +103,7 @@ class CeilingScriptClass():
         return self
 
     def setLight(self, light,r=None,g=None,b=None,cw=None,ww=None,fade_duration=None,flash_repetitions=None,cc=[],trigger_on_complete=[], include_scriptname=True):
-        if not (light == "All" or (light >= 0 and light <= 9)):
+        if not (light == self.lightidall or light in self.lightids):
             return
         msg = {"r":r, "g":g, "b":b, "cw":cw, "ww": ww}
         ## sanity check
@@ -104,7 +113,7 @@ class CeilingScriptClass():
             else:
                 msg[k] = max(min(v,1000),0)
         if isinstance(cc, list) and len(cc) < 9:
-            cc = filter(lambda ccitem: ccitem == "All" or (ccitem >= 1 and ccitem <= 9), cc)
+            cc = filter(lambda ccitem: ccitem == self.lightidall or (ccitem in self.lightids), cc)
             cc = map(str, cc)
             cc = list([format_ceiling_topic % ccitem for ccitem in cc])
         else:
@@ -119,7 +128,7 @@ class CeilingScriptClass():
             self.trigger_seq_num = (self.trigger_seq_num + 1) % (1<<30) # ensure seq number fits in signed int32
         if include_scriptname:
             msg["s"]=self.scriptname
-        if light == "All":
+        if light == self.lightidall:
             cc=None  # we don't want to be triggerd by x lights at once
         if fade_duration != None and fade_duration >= 100 and fade_duration <= 120000:
             msg["fade"]={"duration":fade_duration, "cc":cc}
@@ -215,9 +224,9 @@ class CeilingClass():
             self._active_script = None
             self._scripts[script].deactivate()
             time.sleep(0.1)
-            self._scripts[script].setLight("All",r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000,include_scriptname=False)
+            self._scripts[script].setLight(self._scripts[script].lightidall,r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000,include_scriptname=False)
             time.sleep(0.4)
-            self._scripts[script].setLight("All",r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
+            self._scripts[script].setLight(self._scripts[script].lightidall,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
 
     def activateScript(self, script, newsettings):
         if script in self._scripts:

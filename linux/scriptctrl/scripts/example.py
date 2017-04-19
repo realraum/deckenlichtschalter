@@ -15,7 +15,7 @@ import math
 mytrigger_ = "nextanimation"
 
 def animateCeiling(scr):
-    whichlights=[1,2,3,4,5,6]
+    whichlights=scr.lightidsceiling
     scr.setLight(whichlights[0],
             r=random.randint(0,1000),
             g=random.randint(0,1000),

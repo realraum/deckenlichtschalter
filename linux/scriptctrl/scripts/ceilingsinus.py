@@ -21,7 +21,7 @@ fade_duration_=20000
 def updateList(scr):
     global cs_
     for k in cs_.values():
-        k["lst"] = list([k["offset"] + int(k["amplitude"]*math.sin(2*math.pi/scr.light_num*(i+k["phase"])%scr.light_num)) for i in range(0,scr.light_num)])
+        k["lst"] = list([k["offset"] + int(k["amplitude"]*math.sin(2*math.pi/len(scr.lightidsceiling)*(i+k["phase"])%len(scr.lightidsceiling))) for i in range(0,len(scr.lightidsceiling))])
 
 def activate(scr, newsettings):
     global cs_, fade_duration_
@@ -52,7 +52,7 @@ def triggerMeToContinue(scr):
 
 def animateAllLights(scr, initial=False):
     global phase_
-    for i in reversed(range(0, scr.light_num)):
+    for i in reversed(range(0, len(scr.lightidsceiling))):
         kwargs = {}
         if initial:
             kwargs["fade_duration"]=300
@@ -60,10 +60,10 @@ def animateAllLights(scr, initial=False):
             kwargs["fade_duration"]=fade_duration_
         if i == 0:
             kwargs["trigger_on_complete"]=[triggername_]
-        idx = (i+phase_)%scr.light_num
+        idx = (i+phase_)%len(scr.lightidsceiling)
         for k in cs_.keys():
             kwargs[k] = cs_[k]["lst"][idx]
-        scr.setLight(i+1, **kwargs)
+        scr.setLight(scr.lightidsceiling[i], **kwargs)
     phase_+=1
 
 def init(scr):

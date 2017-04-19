@@ -6,7 +6,7 @@ import datetime
 
 hsvvalue_=0.5
 fade_duration_=120000
-participating_targets_ = list(range(1, 7))
+participating_targets_ = []
 latitude_ = 47.065554
 longitude_ = 15.450435
 transition_high_ = 1.0  # SolarAltitude when light should start fading into warmwhite
@@ -23,10 +23,10 @@ def activate(scr, newsettings):
         fade_duration_= min(120000,max(600,newsettings["fadeduration"]))
     else:
         fade_duration_ = 120000
-    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all([isinstance(x,int) and x >=scr.light_min for x in newsettings["participating"]]):
+    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all((x in scr.lightids) for x in newsettings["participating"]):
         participating_targets_ = newsettings["participating"]
     else:
-        participating_targets_ = list(range(scr.light_min, scr.light_max+1))
+        participating_targets_ = scr.lightidsceiling
     if "latitude" in newsettings and isinstance(newsettings["latitude"],float):
         latitude_ = newsettings["latitude"]
     if "longitude" in newsettings and isinstance(newsettings["longitude"],float):
@@ -65,7 +65,7 @@ def calcColorFromDayLevel(day_factor, value):
     ww = max(0,1000 * value - cw - (r/3))
     return int(r), int(b), int(cw), int(ww)
 
-def redshiftLight(scr, lightnum, initial=False):
+def redshiftLight(scr, lightid, initial=False):
     solar_altitude = solar.GetAltitudeFast(latitude_, longitude_, datetime.datetime.utcnow())
     daylevel = 1.0
     if solar_altitude >= transition_high_:
@@ -77,16 +77,19 @@ def redshiftLight(scr, lightnum, initial=False):
     elif solar_altitude > transition_low_ and solar_altitude < transition_middle_:
         daylevel = -1 * (solar_altitude - transition_middle_) / (transition_low_ - transition_middle_)
     r,b,cw,ww = calcColorFromDayLevel(daylevel, hsvvalue_)
-    scr.setLight(lightnum,r=r,g=0,b=b,cw=cw,ww=ww,
+    scr.setLight(lightid,r=r,g=0,b=b,cw=cw,ww=ww,
         fade_duration=None if initial else fade_duration_,
-        trigger_on_complete=[] if initial else ["c%d" % lightnum] )
+        trigger_on_complete=[] if initial else [lightid]
+        )
 
-def redshiftLightOnTrigger(scr, lightnum):
-	if lightnum in participating_targets_:
-		redshiftLight(scr, lightnum)
+def redshiftLightOnTrigger(scr, lightid):
+	if lightid in participating_targets_:
+		redshiftLight(scr, lightid)
 
 def init(scr):
+    global participating_targets_
+    participating_targets_ = scr.lightidsceiling
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
     for t in participating_targets_:
-        scr.registerTrigger("c%d" % t,lambda scr: redshiftLightOnTrigger(scr, t))
+        scr.registerTrigger(t,lambda scr: redshiftLightOnTrigger(scr, t))
