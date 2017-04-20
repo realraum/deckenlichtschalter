@@ -25,9 +25,10 @@ const (
 type SerialLine []byte
 
 var (
-	UseFakeGPIO_ bool
-	DebugFlags_  string
-	ps_          *pubsub.PubSub
+	UseFakeGPIO_         bool
+	DebugFlags_          string
+	ps_                  *pubsub.PubSub
+	topic_lightctrl_pre_ string = r3events.TOPIC_ACTIONS + r3events.CLIENTID_LIGHTCTRL + "/"
 )
 
 func init() {
@@ -75,14 +76,13 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 				LogMain_.Printf("Main:LightCtrlMain: %+v", aon)
 				switch_name_chan_ <- aon
 			})
-			topic_lightctrl_pre := r3events.TOPIC_ACTIONS + r3events.CLIENTID_LIGHTCTRL + "/"
 			for name, _ := range actionname_map_ {
-				SubscribeAndAttachCallback(mqttc, topic_lightctrl_pre+name, func(c mqtt.Client, msg mqtt.Message) {
+				SubscribeAndAttachCallback(mqttc, topic_lightctrl_pre_+name, func(c mqtt.Client, msg mqtt.Message) {
 					var aon r3events.LightCtrlActionOnName
 					if msg.Retained() {
 						return
 					}
-					aon.Name = msg.Topic()[len(topic_lightctrl_pre):]
+					aon.Name = msg.Topic()[len(topic_lightctrl_pre_):]
 					aon.Action = string(msg.Payload())
 					LogMain_.Printf("Main:LightCtrlMain: %+v", aon)
 					switch_name_chan_ <- aon

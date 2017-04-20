@@ -4,6 +4,9 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+
+	"github.com/realraum/door_and_sensors/r3events"
 )
 
 type NameAction struct {
@@ -11,101 +14,137 @@ type NameAction struct {
 	onoff bool
 }
 
-type ButtonAction []NameAction
+var (
+	onaction  = []byte("{\"Action\":\"on\"}")
+	offaction = []byte("{\"Action\":\"off\"}")
+)
+
+var payload_off []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
+var payload_ww1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":50}")
+var payload_ww2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":500}")
+var payload_cw1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":20,\"ww\":0}")
+var payload_cw2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":500,\"ww\":0}")
+var payload_ww3 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":1000}")
+var payload_wwcw []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":1000,\"ww\":1000}")
+var payload_ww4 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":200,\"ww\":1000}")
+var payload_c1 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
+var payload_c2 []byte = []byte("{\"r\":400,\"g\":0,\"b\":40,\"cw\":0,\"ww\":0}")
+var payload_c3 []byte = []byte("{\"r\":0,\"g\":500,\"b\":0,\"cw\":0,\"ww\":0}")
+var payload_c4 []byte = []byte("{\"r\":0,\"g\":0,\"b\":300,\"cw\":0,\"ww\":0}")
+
+func fancytopic(light int) string {
+	return r3events.TOPIC_ACTIONS + fmt.Sprintf("ceiling%d/", light) + r3events.TYPE_LIGHT
+}
+
+var fancytopic_all string = r3events.TOPIC_ACTIONS + r3events.CLIENTID_CEILINGALL + "/" + r3events.TYPE_LIGHT
+
+type ButtonAction []ActionMQTTMsg
 
 var name_actions_ [][]ButtonAction = [][]ButtonAction{
 	//button0 up
 	[]ButtonAction{
-		ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3ww2", true}},
-		ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3ww4", true}},
-		ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3wwcw", true}},
-		ButtonAction{NameAction{"ceiling3", true}, NameAction{"fancy3off", true}},
-		ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3c1", true}},
-		ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3c2", true}},
-		ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3c3", true}},
-		ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3c4", true}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), onaction}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_ww4}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_wwcw}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", onaction}, ActionMQTTMsg{fancytopic(3), payload_off}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_c1}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_c2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_c3}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_c4}},
 	},
 	//button0 down
-	[]ButtonAction{ButtonAction{NameAction{"ceiling3", false}, NameAction{"fancy3off", true}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_off}}},
 	//button1 up
 	[]ButtonAction{
-		ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2ww2", true}},
-		ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2ww4", true}},
-		ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2wwcw", true}},
-		ButtonAction{NameAction{"ceiling2", true}, NameAction{"fancy2off", true}},
-		ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2c1", true}},
-		ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2c2", true}},
-		ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2c3", true}},
-		ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2c4", true}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_ww2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_ww4}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_wwcw}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", onaction}, ActionMQTTMsg{fancytopic(2), payload_off}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_c1}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_c2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_c3}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_c4}},
 	},
 	//buttion1 down
-	[]ButtonAction{ButtonAction{NameAction{"ceiling2", false}, NameAction{"fancy2off", true}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction}, ActionMQTTMsg{fancytopic(2), payload_off}}},
 	//button2 up
 	[]ButtonAction{
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1ww2", true}},
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1ww4", true}},
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1wwcw", true}},
-		ButtonAction{NameAction{"ceiling1", true}, NameAction{"fancy1off", true}},
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1c1", true}},
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1c2", true}},
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1c3", true}},
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1c4", true}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_ww2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_ww4}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_wwcw}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", onaction}, ActionMQTTMsg{fancytopic(1), payload_off}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_c1}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_c2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_c3}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_c4}},
 	},
 
 	//button2 down
-	[]ButtonAction{ButtonAction{NameAction{"ceiling1", false}, NameAction{"fancy1off", true}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction}, ActionMQTTMsg{fancytopic(1), payload_off}}},
 	//button3 up
 	[]ButtonAction{
-		ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4ww2", true}},
-		ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4ww4", true}},
-		ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4wwcw", true}},
-		ButtonAction{NameAction{"ceiling4", true}, NameAction{"fancy4off", true}},
-		ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4c1", true}},
-		ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4c2", true}},
-		ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4c3", true}},
-		ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4c4", true}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_ww2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_ww4}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_wwcw}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", onaction}, ActionMQTTMsg{fancytopic(4), payload_off}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_c1}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_c2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_c3}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_c4}},
 	},
 	//button3 down
-	[]ButtonAction{ButtonAction{NameAction{"ceiling4", false}, NameAction{"fancy4off", true}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction}, ActionMQTTMsg{fancytopic(4), payload_off}}},
 	//button4 up
 	[]ButtonAction{
-		ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5ww2", true}},
-		ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5ww4", true}},
-		ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5wwcw", true}},
-		ButtonAction{NameAction{"ceiling5", true}, NameAction{"fancy5off", true}},
-		ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5c1", true}},
-		ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5c2", true}},
-		ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5c3", true}},
-		ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5c4", true}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_ww2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_ww4}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_wwcw}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", onaction}, ActionMQTTMsg{fancytopic(5), payload_off}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_c1}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_c2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_c3}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_c4}},
 	},
 
 	//button4 down
-	[]ButtonAction{ButtonAction{NameAction{"ceiling5", false}, NameAction{"fancy5off", true}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction}, ActionMQTTMsg{fancytopic(5), payload_off}}},
 	//button5 up
 	[]ButtonAction{
-		ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6ww2", true}},
-		ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6ww4", true}},
-		ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6wwcw", true}},
-		ButtonAction{NameAction{"ceiling6", true}, NameAction{"fancy6off", true}},
-		ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6c1", true}},
-		ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6c2", true}},
-		ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6c3", true}},
-		ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6c4", true}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_ww2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_ww4}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_wwcw}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", onaction}, ActionMQTTMsg{fancytopic(6), payload_off}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_c1}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_c2}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_c3}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_c4}},
 	},
 	//button5 down
-	[]ButtonAction{ButtonAction{NameAction{"ceiling6", false}, NameAction{"fancy6off", true}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_off}}},
 	//button6
-	[]ButtonAction{ButtonAction{NameAction{"ceilingAll", false}, NameAction{"fancyalloff", true}, NameAction{"regalleinwand", false}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{fancytopic_all, payload_off}, ActionMQTTMsg{topic_lightctrl_pre_ + "regalleinwand", offaction}}},
 	//button7
 	[]ButtonAction{
-		ButtonAction{NameAction{"cxleds", true}},
-		ButtonAction{NameAction{"cxleds", false}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "cxleds", onaction}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "cxleds", offaction}},
 	},
 	//button8
 	[]ButtonAction{
-		ButtonAction{NameAction{"ceilingAll", true}, NameAction{"fancyalloff", true}},
-		ButtonAction{NameAction{"ceiling1", false}, NameAction{"ceiling2", false}, NameAction{"ceiling3", true}, NameAction{"ceiling4", false}, NameAction{"ceiling5", false}, NameAction{"ceiling6", true}, NameAction{"fancyalloff", true}, NameAction{"fancy4c2", true}, NameAction{"fancy2c2", true}},
-		ButtonAction{NameAction{"ceilingAll", false}, NameAction{"fancyvortrag", true}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", onaction}, ActionMQTTMsg{fancytopic_all, payload_off}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction},
+			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction},
+			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", onaction},
+			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction},
+			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling5", offaction},
+			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", onaction},
+			ActionMQTTMsg{fancytopic(1), payload_off},
+			ActionMQTTMsg{fancytopic(2), payload_cw2},
+			ActionMQTTMsg{fancytopic(3), payload_off},
+			ActionMQTTMsg{fancytopic(4), payload_cw2},
+			ActionMQTTMsg{fancytopic(5), payload_off},
+			ActionMQTTMsg{fancytopic(6), payload_off},
+		},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{topic_lightctrl_pre_ + "fancyvortrag", onaction}},
 	},
 }
 
@@ -130,7 +169,7 @@ func goListenForButtons(buttonchange_chan <-chan SerialLine) {
 					action_index[bidx] = 0
 				}
 				for _, na := range btn_action_list[action_index[bidx]] {
-					SwitchName(na.name, na.onoff)
+					MQTT_chan_ <- na
 				}
 				action_index[bidx]++
 			}

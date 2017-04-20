@@ -7,7 +7,6 @@ import (
 
 	"github.com/btittelbach/pubsub"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/realraum/door_and_sensors/r3events"
 )
 
 const (
@@ -21,23 +20,6 @@ const (
 	POST_RF433_MQTT_DELAY = 600 * time.Millisecond
 	POST_RF433_TTY_DELAY  = 400 * time.Millisecond
 )
-
-var payload_fancyoff []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
-var payload_fancyww1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":50}")
-var payload_fancyww2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":500}")
-var payload_fancycw1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":20,\"ww\":0}")
-var payload_fancycw2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":500,\"ww\":0}")
-var payload_fancyww3 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":1000}")
-var payload_fancywwcw []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":1000,\"ww\":1000}")
-var payload_fancyww4 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":200,\"ww\":1000}")
-var payload_fancyc1 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
-var payload_fancyc2 []byte = []byte("{\"r\":400,\"g\":0,\"b\":40,\"cw\":0,\"ww\":0}")
-var payload_fancyc3 []byte = []byte("{\"r\":0,\"g\":500,\"b\":0,\"cw\":0,\"ww\":0}")
-var payload_fancyc4 []byte = []byte("{\"r\":0,\"g\":0,\"b\":300,\"cw\":0,\"ww\":0}")
-
-func fancytopic(light int) string {
-	return r3events.TOPIC_ACTIONS + fmt.Sprintf("ceiling%d/", light) + r3events.TYPE_LIGHT
-}
 
 var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	//RF Power Outlets
@@ -53,7 +35,7 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"mashadecke": ActionRFCode{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2BOTH}, //pollin 00101 c
 	"boiler":     ActionRFCode{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
 	"spots":      ActionRFCode{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
-	"abwasch":    ActionRFCode{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2MQTT}, //alte jk16 decke vorne
+	"abwasch":    ActionRFCode{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2BOTH}, //alte jk16 decke vorne
 	//rf not to be included in any, just for resetting POEarduino
 	"olgatemp": ActionRFCode{codeon: []byte{0x00, 0xa2, 0x8a}, codeoff: []byte{0x00, 0xa2, 0x2a}, handler: RFCode2TTY}, // Funksteckdose an welcher olgafreezer.realraum.at hängt
 
@@ -102,106 +84,34 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"basiclight6": ActionBasicLight{5},
 
 	//Fancy Light
-	"fancyalloff": ActionMQTTMsg{r3events.TOPIC_ACTIONS + r3events.CLIENTID_CEILINGALL + "/" + r3events.TYPE_LIGHT, payload_fancyoff},
-	"fancy1off":   ActionMQTTMsg{fancytopic(1), payload_fancyoff},
-	"fancy2off":   ActionMQTTMsg{fancytopic(2), payload_fancyoff},
-	"fancy3off":   ActionMQTTMsg{fancytopic(3), payload_fancyoff},
-	"fancy4off":   ActionMQTTMsg{fancytopic(4), payload_fancyoff},
-	"fancy5off":   ActionMQTTMsg{fancytopic(5), payload_fancyoff},
-	"fancy6off":   ActionMQTTMsg{fancytopic(6), payload_fancyoff},
-	"fancy7off":   ActionMQTTMsg{fancytopic(7), payload_fancyoff},
-	"fancy8off":   ActionMQTTMsg{fancytopic(8), payload_fancyoff},
-	"fancy9off":   ActionMQTTMsg{fancytopic(9), payload_fancyoff},
-	"fancy1cw1":   ActionMQTTMsg{fancytopic(1), payload_fancycw1},
-	"fancy2cw1":   ActionMQTTMsg{fancytopic(2), payload_fancycw1},
-	"fancy3cw1":   ActionMQTTMsg{fancytopic(3), payload_fancycw1},
-	"fancy4cw1":   ActionMQTTMsg{fancytopic(4), payload_fancycw1},
-	"fancy5cw1":   ActionMQTTMsg{fancytopic(5), payload_fancycw1},
-	"fancy6cw1":   ActionMQTTMsg{fancytopic(6), payload_fancycw1},
-	"fancy7cw1":   ActionMQTTMsg{fancytopic(7), payload_fancycw1},
-	"fancy8cw1":   ActionMQTTMsg{fancytopic(8), payload_fancycw1},
-	"fancy9cw1":   ActionMQTTMsg{fancytopic(9), payload_fancycw1},
-	"fancy1cw2":   ActionMQTTMsg{fancytopic(1), payload_fancycw2},
-	"fancy2cw2":   ActionMQTTMsg{fancytopic(2), payload_fancycw2},
-	"fancy3cw2":   ActionMQTTMsg{fancytopic(3), payload_fancycw2},
-	"fancy4cw2":   ActionMQTTMsg{fancytopic(4), payload_fancycw2},
-	"fancy5cw2":   ActionMQTTMsg{fancytopic(5), payload_fancycw2},
-	"fancy6cw2":   ActionMQTTMsg{fancytopic(6), payload_fancycw2},
-	"fancy7cw2":   ActionMQTTMsg{fancytopic(7), payload_fancycw2},
-	"fancy8cw2":   ActionMQTTMsg{fancytopic(8), payload_fancycw2},
-	"fancy9cw2":   ActionMQTTMsg{fancytopic(9), payload_fancycw2},
-	"fancy1ww1":   ActionMQTTMsg{fancytopic(1), payload_fancyww1},
-	"fancy2ww1":   ActionMQTTMsg{fancytopic(2), payload_fancyww1},
-	"fancy3ww1":   ActionMQTTMsg{fancytopic(3), payload_fancyww1},
-	"fancy4ww1":   ActionMQTTMsg{fancytopic(4), payload_fancyww1},
-	"fancy5ww1":   ActionMQTTMsg{fancytopic(5), payload_fancyww1},
-	"fancy6ww1":   ActionMQTTMsg{fancytopic(6), payload_fancyww1},
-	"fancy7ww1":   ActionMQTTMsg{fancytopic(7), payload_fancyww1},
-	"fancy8ww1":   ActionMQTTMsg{fancytopic(8), payload_fancyww1},
-	"fancy9ww1":   ActionMQTTMsg{fancytopic(9), payload_fancyww1},
-	"fancy1ww2":   ActionMQTTMsg{fancytopic(1), payload_fancyww2},
-	"fancy2ww2":   ActionMQTTMsg{fancytopic(2), payload_fancyww2},
-	"fancy3ww2":   ActionMQTTMsg{fancytopic(3), payload_fancyww2},
-	"fancy4ww2":   ActionMQTTMsg{fancytopic(4), payload_fancyww2},
-	"fancy5ww2":   ActionMQTTMsg{fancytopic(5), payload_fancyww2},
-	"fancy6ww2":   ActionMQTTMsg{fancytopic(6), payload_fancyww2},
-	"fancy7ww2":   ActionMQTTMsg{fancytopic(7), payload_fancyww2},
-	"fancy8ww2":   ActionMQTTMsg{fancytopic(8), payload_fancyww2},
-	"fancy9ww2":   ActionMQTTMsg{fancytopic(9), payload_fancyww2},
-	"fancy1ww4":   ActionMQTTMsg{fancytopic(1), payload_fancyww4},
-	"fancy2ww4":   ActionMQTTMsg{fancytopic(2), payload_fancyww4},
-	"fancy3ww4":   ActionMQTTMsg{fancytopic(3), payload_fancyww4},
-	"fancy4ww4":   ActionMQTTMsg{fancytopic(4), payload_fancyww4},
-	"fancy5ww4":   ActionMQTTMsg{fancytopic(5), payload_fancyww4},
-	"fancy6ww4":   ActionMQTTMsg{fancytopic(6), payload_fancyww4},
-	"fancy7ww4":   ActionMQTTMsg{fancytopic(7), payload_fancyww4},
-	"fancy8ww4":   ActionMQTTMsg{fancytopic(8), payload_fancyww4},
-	"fancy9ww4":   ActionMQTTMsg{fancytopic(9), payload_fancyww4},
-	"fancy1wwcw":  ActionMQTTMsg{fancytopic(1), payload_fancywwcw},
-	"fancy2wwcw":  ActionMQTTMsg{fancytopic(2), payload_fancywwcw},
-	"fancy3wwcw":  ActionMQTTMsg{fancytopic(3), payload_fancywwcw},
-	"fancy4wwcw":  ActionMQTTMsg{fancytopic(4), payload_fancywwcw},
-	"fancy5wwcw":  ActionMQTTMsg{fancytopic(5), payload_fancywwcw},
-	"fancy6wwcw":  ActionMQTTMsg{fancytopic(6), payload_fancywwcw},
-	"fancy7wwcw":  ActionMQTTMsg{fancytopic(7), payload_fancywwcw},
-	"fancy8wwcw":  ActionMQTTMsg{fancytopic(8), payload_fancywwcw},
-	"fancy9wwcw":  ActionMQTTMsg{fancytopic(9), payload_fancywwcw},
-	"fancy1c1":    ActionMQTTMsg{fancytopic(1), payload_fancyc1},
-	"fancy2c1":    ActionMQTTMsg{fancytopic(2), payload_fancyc1},
-	"fancy3c1":    ActionMQTTMsg{fancytopic(3), payload_fancyc1},
-	"fancy4c1":    ActionMQTTMsg{fancytopic(4), payload_fancyc1},
-	"fancy5c1":    ActionMQTTMsg{fancytopic(5), payload_fancyc1},
-	"fancy6c1":    ActionMQTTMsg{fancytopic(6), payload_fancyc1},
-	"fancy7c1":    ActionMQTTMsg{fancytopic(7), payload_fancyc1},
-	"fancy8c1":    ActionMQTTMsg{fancytopic(8), payload_fancyc1},
-	"fancy9c1":    ActionMQTTMsg{fancytopic(9), payload_fancyc1},
-	"fancy1c2":    ActionMQTTMsg{fancytopic(1), payload_fancyc2},
-	"fancy2c2":    ActionMQTTMsg{fancytopic(2), payload_fancyc2},
-	"fancy3c2":    ActionMQTTMsg{fancytopic(3), payload_fancyc2},
-	"fancy4c2":    ActionMQTTMsg{fancytopic(4), payload_fancyc2},
-	"fancy5c2":    ActionMQTTMsg{fancytopic(5), payload_fancyc2},
-	"fancy6c2":    ActionMQTTMsg{fancytopic(6), payload_fancyc2},
-	"fancy7c2":    ActionMQTTMsg{fancytopic(7), payload_fancyc2},
-	"fancy8c2":    ActionMQTTMsg{fancytopic(8), payload_fancyc2},
-	"fancy9c2":    ActionMQTTMsg{fancytopic(9), payload_fancyc2},
-	"fancy1c3":    ActionMQTTMsg{fancytopic(1), payload_fancyc3},
-	"fancy2c3":    ActionMQTTMsg{fancytopic(2), payload_fancyc3},
-	"fancy3c3":    ActionMQTTMsg{fancytopic(3), payload_fancyc3},
-	"fancy4c3":    ActionMQTTMsg{fancytopic(4), payload_fancyc3},
-	"fancy5c3":    ActionMQTTMsg{fancytopic(5), payload_fancyc3},
-	"fancy6c3":    ActionMQTTMsg{fancytopic(6), payload_fancyc3},
-	"fancy7c3":    ActionMQTTMsg{fancytopic(7), payload_fancyc3},
-	"fancy8c3":    ActionMQTTMsg{fancytopic(8), payload_fancyc3},
-	"fancy9c3":    ActionMQTTMsg{fancytopic(9), payload_fancyc3},
-	"fancy1c4":    ActionMQTTMsg{fancytopic(1), payload_fancyc4},
-	"fancy2c4":    ActionMQTTMsg{fancytopic(2), payload_fancyc4},
-	"fancy3c4":    ActionMQTTMsg{fancytopic(3), payload_fancyc4},
-	"fancy4c4":    ActionMQTTMsg{fancytopic(4), payload_fancyc4},
-	"fancy5c4":    ActionMQTTMsg{fancytopic(5), payload_fancyc4},
-	"fancy6c4":    ActionMQTTMsg{fancytopic(6), payload_fancyc4},
-	"fancy7c4":    ActionMQTTMsg{fancytopic(7), payload_fancyc4},
-	"fancy8c4":    ActionMQTTMsg{fancytopic(8), payload_fancyc4},
-	"fancy9c4":    ActionMQTTMsg{fancytopic(9), payload_fancyc4},
+	"fancyalloff": ActionMQTTMsg{fancytopic_all, payload_off},
+	"fancy1off":   ActionMQTTMsg{fancytopic(1), payload_off},
+	"fancy2off":   ActionMQTTMsg{fancytopic(2), payload_off},
+	"fancy3off":   ActionMQTTMsg{fancytopic(3), payload_off},
+	"fancy4off":   ActionMQTTMsg{fancytopic(4), payload_off},
+	"fancy5off":   ActionMQTTMsg{fancytopic(5), payload_off},
+	"fancy6off":   ActionMQTTMsg{fancytopic(6), payload_off},
+	"fancy7off":   ActionMQTTMsg{fancytopic(7), payload_off},
+	"fancy8off":   ActionMQTTMsg{fancytopic(8), payload_off},
+	"fancy9off":   ActionMQTTMsg{fancytopic(9), payload_off},
+	"fancy1cw1":   ActionMQTTMsg{fancytopic(1), payload_cw1},
+	"fancy2cw1":   ActionMQTTMsg{fancytopic(2), payload_cw1},
+	"fancy3cw1":   ActionMQTTMsg{fancytopic(3), payload_cw1},
+	"fancy4cw1":   ActionMQTTMsg{fancytopic(4), payload_cw1},
+	"fancy5cw1":   ActionMQTTMsg{fancytopic(5), payload_cw1},
+	"fancy6cw1":   ActionMQTTMsg{fancytopic(6), payload_cw1},
+	"fancy7cw1":   ActionMQTTMsg{fancytopic(7), payload_cw1},
+	"fancy8cw1":   ActionMQTTMsg{fancytopic(8), payload_cw1},
+	"fancy9cw1":   ActionMQTTMsg{fancytopic(9), payload_cw1},
+	"fancy1cw2":   ActionMQTTMsg{fancytopic(1), payload_cw2},
+	"fancy2cw2":   ActionMQTTMsg{fancytopic(2), payload_cw2},
+	"fancy3cw2":   ActionMQTTMsg{fancytopic(3), payload_cw2},
+	"fancy4cw2":   ActionMQTTMsg{fancytopic(4), payload_cw2},
+	"fancy5cw2":   ActionMQTTMsg{fancytopic(5), payload_cw2},
+	"fancy6cw2":   ActionMQTTMsg{fancytopic(6), payload_cw2},
+	"fancy7cw2":   ActionMQTTMsg{fancytopic(7), payload_cw2},
+	"fancy8cw2":   ActionMQTTMsg{fancytopic(8), payload_cw2},
+	"fancy9cw2":   ActionMQTTMsg{fancytopic(9), payload_cw2},
 
 	//Meta Events
 	"ambientlights": ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
