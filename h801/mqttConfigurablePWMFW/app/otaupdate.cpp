@@ -20,7 +20,7 @@ void OtaUpdate_prepareSystem()
 }
 
 void OtaUpdate_CallBack(bool result) {
-	
+
 	//Serial.println("In callback...");
 	if(result == true) {
 		// success
@@ -38,17 +38,17 @@ void OtaUpdate_CallBack(bool result) {
 }
 
 void OtaUpdate(String rom0url, String rom1url, String spiffsurl) {
-	
+
 	uint8 slot;
 	rboot_config bootconf;
-	
+
 	// need a clean object, otherwise if run before and failed will not run again
 	if (otaUpdater) delete otaUpdater;
 	otaUpdater = new rBootHttpUpdate();
 
 	//prepare System
 	OtaUpdate_prepareSystem();
-	
+
 	// select rom slot to flash
 	bootconf = rboot_get_config();
 	slot = bootconf.current_rom;

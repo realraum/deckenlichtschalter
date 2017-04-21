@@ -56,11 +56,11 @@ inline void setArrayFromKey(JsonObject& root, uint32_t a[PWM_CHANNELS], String k
 	if (root.containsKey(key))
 	{
 		uint32_t value = (uint32_t)root[key];
-		if (value > 1000)
+		if (value > NetConfig.chan_range[pwm_channel])
 		{
 			return;
 		}
-		a[pwm_channel] = value * pwm_period / 1000;
+		a[pwm_channel] = value * pwm_period / NetConfig.chan_range[pwm_channel];
 		if (a[pwm_channel] > pwm_period)
 			a[pwm_channel] = pwm_period;
 	} else
@@ -130,11 +130,11 @@ void onMessageReceived(String topic, String message)
 	if (topic.endsWith(JSON_TOPIC3_PLEASEREPEAT))
 	{
 		JsonObject& root = jsonBuffer.createObject();
-		root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * 1000 / pwm_period;
-		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * 1000 / pwm_period;
-		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * 1000 / pwm_period;
-		root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * 1000 / pwm_period;
-		root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * 1000 / pwm_period;
+		root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * NetConfig.chan_range[CHAN_RED] / pwm_period;
+		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * NetConfig.chan_range[CHAN_GREEN] / pwm_period;
+		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * NetConfig.chan_range[CHAN_BLUE] / pwm_period;
+		root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
+		root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
 		root.printTo(message);
 		//publish to myself (where presumably everybody else also listens), the current settings
 		mqtt->publish(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);

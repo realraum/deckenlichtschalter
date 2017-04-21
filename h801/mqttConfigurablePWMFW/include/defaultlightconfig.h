@@ -15,6 +15,7 @@ const String AUTHTOKEN_SETTINGS_FILE = "authtoken.conf";
 const String FAN_SETTINGS_FILE = "fan.conf";
 const String USEDHCP_SETTINGS_FILE = "dhcp.flag";
 const String SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag";
+const String CHAN_RANGE_SETTINGS_FILE = "channelranges.conf";
 
 struct DefaultLightConfigStorage
 {
@@ -45,6 +46,7 @@ struct NetConfigStorage
 	IPAddress ip = IPAddress(192, 168, 127, 247);
 	IPAddress netmask = IPAddress(255,255,255,0);
 	IPAddress gw = IPAddress(192, 168, 127, 254);
+	uint32_t chan_range[PWM_CHANNELS] = {1000,1000,1000,1000,1000};
 	String wifi_ssid="realraum";
 	String wifi_pass="";
 	String mqtt_broker="mqtt.realraum.at";
@@ -81,6 +83,12 @@ struct NetConfigStorage
 			f = fileOpen(FAN_SETTINGS_FILE, eFO_ReadOnly);
 			fileRead(f, (void*) &fan_threshold, sizeof(uint32_t));
 			fileClose(f);
+			if (fileExist(CHAN_RANGE_SETTINGS_FILE))
+			{
+				f = fileOpen(CHAN_RANGE_SETTINGS_FILE, eFO_ReadOnly);
+				fileRead(f, (void*) chan_range, PWM_CHANNELS*sizeof(uint32_t));
+				fileClose(f);
+			}
 		}
 	}
 
@@ -107,6 +115,9 @@ struct NetConfigStorage
 			fileDelete(SIMULATE_CW_SETTINGS_FILE);
 		f = fileOpen(FAN_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 		fileWrite(f, (void*) &fan_threshold, sizeof(uint32_t));
+		fileClose(f);
+		f = fileOpen(CHAN_RANGE_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
+		fileWrite(f, (void*) chan_range, PWM_CHANNELS*sizeof(uint32_t));
 		fileClose(f);
 	}
 

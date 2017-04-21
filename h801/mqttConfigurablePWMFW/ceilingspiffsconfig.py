@@ -4,7 +4,7 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False):
+def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000]):
     NET_SETTINGS_FILE = "net.conf"
     WIFISSID_SETTINGS_FILE = "wifi.ssid.conf"
     WIFIPASS_SETTINGS_FILE = "wifi.pass.conf"
@@ -16,10 +16,13 @@ def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user
     USEDHCP_SETTINGS_FILE = "dhcp.flag"
     SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag"
     FAN_SETTINGS_FILE = "fan.conf"
+    CHAN_RANGE_SETTINGS_FILE = "channelranges.conf"
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
         fh.write(struct.pack("<I",  int(mqtt_port)))
+    with open(os.path.join(DIR, CHAN_RANGE_SETTINGS_FILE),"wb") as fh:
+        fh.write(struct.pack("<IIIII", *map(int,chan_ranges)))
     with open(os.path.join(DIR, FAN_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack("<I",  int(fan_threshold)))
     with open(os.path.join(DIR, WIFISSID_SETTINGS_FILE),"wb") as fh:
