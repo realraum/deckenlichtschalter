@@ -4,7 +4,7 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000):
+def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False):
     NET_SETTINGS_FILE = "net.conf"
     WIFISSID_SETTINGS_FILE = "wifi.ssid.conf"
     WIFIPASS_SETTINGS_FILE = "wifi.pass.conf"
@@ -14,6 +14,7 @@ def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user
     MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf"
     AUTHTOKEN_SETTINGS_FILE = "authtoken.conf"
     USEDHCP_SETTINGS_FILE = "dhcp.flag"
+    SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag"
     FAN_SETTINGS_FILE = "fan.conf"
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
@@ -41,6 +42,14 @@ def writeConfig(ip,nm,gw,wifi_ssid,wifi_pass,mqtt_broker,mqtt_clientid,mqtt_user
     else:
         try:
             os.unlink(os.path.join(DIR, USEDHCP_SETTINGS_FILE))
+        except:
+            pass
+    if simulate_cw_with_rgb:
+        with open(os.path.join(DIR, SIMULATE_CW_SETTINGS_FILE),"wb") as fh:
+            fh.write(b"true")
+    else:
+        try:
+            os.unlink(os.path.join(DIR, SIMULATE_CW_SETTINGS_FILE))
         except:
             pass
 

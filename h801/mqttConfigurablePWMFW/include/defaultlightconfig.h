@@ -14,6 +14,7 @@ const String MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf";
 const String AUTHTOKEN_SETTINGS_FILE = "authtoken.conf";
 const String FAN_SETTINGS_FILE = "fan.conf";
 const String USEDHCP_SETTINGS_FILE = "dhcp.flag";
+const String SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag";
 
 struct DefaultLightConfigStorage
 {
@@ -51,6 +52,7 @@ struct NetConfigStorage
 	String mqtt_user;
 	String mqtt_pass;
 	bool enabledhcp=true;
+	bool simulatecw_w_rgb=false;
 	uint32_t mqtt_port=1883;  //8883 for ssl
 	uint32_t fan_threshold=2500;
 	String authtoken;
@@ -75,6 +77,7 @@ struct NetConfigStorage
 			mqtt_pass = fileGetContent(MQTTPASS_SETTINGS_FILE);
 			authtoken = fileGetContent(AUTHTOKEN_SETTINGS_FILE);
 			enabledhcp = fileExist(USEDHCP_SETTINGS_FILE);
+			simulatecw_w_rgb = fileExist(SIMULATE_CW_SETTINGS_FILE);
 			f = fileOpen(FAN_SETTINGS_FILE, eFO_ReadOnly);
 			fileRead(f, (void*) &fan_threshold, sizeof(uint32_t));
 			fileClose(f);
@@ -98,6 +101,10 @@ struct NetConfigStorage
 			fileSetContent(USEDHCP_SETTINGS_FILE, "true");
 		else
 			fileDelete(USEDHCP_SETTINGS_FILE);
+		if (simulatecw_w_rgb)
+			fileSetContent(SIMULATE_CW_SETTINGS_FILE, "true");
+		else
+			fileDelete(SIMULATE_CW_SETTINGS_FILE);
 		f = fileOpen(FAN_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 		fileWrite(f, (void*) &fan_threshold, sizeof(uint32_t));
 		fileClose(f);

@@ -25,7 +25,7 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	auth_num_cmds--;
 	if (numToken != 3)
 	{
-		commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass|fan <value>");
+		commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass|fan|sim <value>");
 	}
 	else if (commandToken[1] == "ip")
 	{
@@ -94,6 +94,11 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	{
 		NetConfig.enabledhcp = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),(NetConfig.enabledhcp)?"on":"off");
+	}
+	else if (commandToken[1] == "sim")
+	{
+		NetConfig.simulatecw_w_rgb = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
+		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),(NetConfig.simulatecw_w_rgb)?"yes":"no");
 	} else {
 		commandOutput->printf("Invalid subcommand. Try %s list\r\n", commandToken[0].c_str());
 	}
@@ -116,6 +121,7 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->println("MQTT ClientID: " + NetConfig.mqtt_clientid);
 	commandOutput->println("MQTT Login: " + NetConfig.mqtt_user +"/"+ NetConfig.mqtt_pass);
 	commandOutput->println("FAN Threshold: " + String(NetConfig.fan_threshold) + "/"+String(PWM_CHANNELS*pwm_period));
+	commandOutput->println((NetConfig.simulatecw_w_rgb)?"SimCWwithRGB: yes":"SimCWwithRGB: no");
 }
 
 void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
@@ -124,9 +130,9 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	int numToken = splitString(commandLine, ' ' , commandToken);
 	if (numToken != 2)
 	{
-		commandOutput->println("Usage light on|off|info|half|flash0|fade2black");
+		commandOutput->println("Usage light on|off|info|half|default|flash0|fade2black");
 	}
-	else if (commandToken[1] == "on")
+	else if (commandToken[1] == "default")
 	{
 		uint32_t deflightconf[PWM_CHANNELS]={0,0,0,0,0};
 		DefaultLightConfig.load(deflightconf);
@@ -146,6 +152,12 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 			pwm_set_duty(pwm_period/2,i);
 		pwm_start();
 	}
+	else if (commandToken[1] == "on")
+	{
+		for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			pwm_set_duty(pwm_period,i);
+		pwm_start();
+	}
 	else if (commandToken[1] == "info")
 	{
 		uint32_t deflightconf[PWM_CHANNELS]={0,0,0,0,0};
@@ -157,7 +169,7 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	}
 	else if (commandToken[1] == "flash0")
 	{
-		flashSingleChannel(3,0);
+		flashSingleChannel(3,CHAN_BLUE);
 	}
 	else if (commandToken[1] == "fade2black")
 	{

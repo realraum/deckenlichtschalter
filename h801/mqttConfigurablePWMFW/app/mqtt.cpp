@@ -49,7 +49,7 @@ void publishMessage()
 	//mqtt->publishWithQoS("important/frameworks/sming", "Request Return Delivery", 1, false, onMessageDelivered); // or publishWithQoS
 }
 
-inline void setArrayFromKey(JsonObject& root, uint32_t a[5], String key, uint8_t pwm_channel)
+inline void setArrayFromKey(JsonObject& root, uint32_t a[PWM_CHANNELS], String key, uint8_t pwm_channel)
 {
 	//BUG: can't check type because .is is buggy and does not compile in Sming 3.0.1.
 	//if (root.containsKey(key) && root[key].is<unsigned int>())
@@ -104,6 +104,16 @@ void checkForwardInJsonAndSetCC(JsonObject& root, JsonObject& checkme)
 	}
 }
 
+void simulateCWwithRGB(uint32_t a[PWM_CHANNELS])
+{
+	if (NetConfig.simulatecw_w_rgb)
+	{
+		a[CHAN_RED] = max(a[CHAN_RED],a[CHAN_CW]);
+		a[CHAN_GREEN] = max(a[CHAN_GREEN],a[CHAN_CW]);
+		a[CHAN_BLUE] = max(a[CHAN_BLUE],a[CHAN_CW]);
+	}
+}
+
 // Callback for messages, arrived from MQTT server
 void onMessageReceived(String topic, String message)
 {
@@ -147,7 +157,7 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, effect_target_values_, JSONKEY_BLUE, CHAN_BLUE);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_WW, CHAN_WW);
-
+		simulateCWwithRGB(effect_target_values_);
 
 		//-----
 		if (root.containsKey(JSONKEY_FLASH))
@@ -184,6 +194,7 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_BLUE, CHAN_BLUE);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_WW, CHAN_WW);
+		simulateCWwithRGB(pwm_duty_default);
 		DefaultLightConfig.save(pwm_duty_default);
 		flashSingleChannel(1,CHAN_BLUE);
 	}
