@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"time"
 
 	"github.com/realraum/door_and_sensors/r3events"
 )
@@ -13,6 +14,8 @@ type NameAction struct {
 	name  string
 	onoff bool
 }
+
+const button_reset_timeout_ = time.Duration(7 * time.Second)
 
 var (
 	onaction  = []byte("{\"Action\":\"on\"}")
@@ -43,7 +46,7 @@ type ButtonAction []ActionMQTTMsg
 var name_actions_ [][]ButtonAction = [][]ButtonAction{
 	//button0 up
 	[]ButtonAction{
-		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), onaction}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_ww2}},
 		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_ww4}},
 		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", offaction}, ActionMQTTMsg{fancytopic(3), payload_wwcw}},
 		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", onaction}, ActionMQTTMsg{fancytopic(3), payload_off}},
@@ -150,6 +153,7 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 
 func goListenForButtons(buttonchange_chan <-chan SerialLine) {
 	action_index := make([]int, len(name_actions_))
+	last_button_press := time.Now()
 	for btnchange := range buttonchange_chan {
 		if len(btnchange) < 3 {
 			LogBTN_.Println("Did not get enought bytes from SerialLine: ", btnchange)
@@ -160,7 +164,16 @@ func goListenForButtons(buttonchange_chan <-chan SerialLine) {
 		err := binary.Read(buf, binary.BigEndian, &buttonbits)
 		if err != nil {
 			LogBTN_.Println("binary.Read failed:", err)
+			continue
 		}
+		// reset button press index to 0 if long time since last button press
+		if time.Now().Sub(last_button_press) > button_reset_timeout_ {
+			for idx, _ := range action_index {
+				action_index[idx] = 0
+			}
+		}
+		last_button_press = time.Now()
+		//read buttons pressed and handle
 		LogBTN_.Printf("Button State received: 0x%x", buttonbits)
 		for bidx, btn_action_list := range name_actions_ {
 			if buttonbits&(1<<uint(bidx)) > 0 {
