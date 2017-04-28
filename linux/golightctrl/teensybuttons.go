@@ -151,6 +151,8 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 	},
 }
 
+var corresponding_btn [15]int = [15]int{-1, 0, -1, 2, -1, 4, -1, 6, -1, 8, -1, 10, -1, -1, -1}
+
 func goListenForButtons(buttonchange_chan <-chan SerialLine) {
 	action_index := make([]int, len(name_actions_))
 	last_button_press := time.Now()
@@ -173,6 +175,12 @@ func goListenForButtons(buttonchange_chan <-chan SerialLine) {
 			}
 		}
 		last_button_press = time.Now()
+		//reset up botton press index to 0 if corresponding down button was pressend
+		for bidx, reset_other_button_press_index := range corresponding_btn {
+			if buttonbits&(1<<uint(bidx)) > 0 && reset_other_button_press_index >= 0 && reset_other_button_press_index < len(action_index) {
+				action_index[reset_other_button_press_index] = 0
+			}
+		}
 		//read buttons pressed and handle
 		LogBTN_.Printf("Button State received: 0x%x", buttonbits)
 		for bidx, btn_action_list := range name_actions_ {
