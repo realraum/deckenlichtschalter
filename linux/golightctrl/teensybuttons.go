@@ -24,11 +24,11 @@ var (
 
 var payload_off []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
 var payload_ww1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":50}")
-var payload_ww2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":500}")
+var payload_ww2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":800}")
 var payload_cw1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":20,\"ww\":0}")
 var payload_cw2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":500,\"ww\":0}")
 var payload_ww3 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":1000}")
-var payload_wwcw []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":1000,\"ww\":1000}")
+var payload_wwcw []byte = []byte("{\"r\":800,\"g\":0,\"b\":0,\"cw\":1000,\"ww\":1000}")
 var payload_ww4 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":200,\"ww\":1000}")
 var payload_c1 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
 var payload_c2 []byte = []byte("{\"r\":400,\"g\":0,\"b\":40,\"cw\":0,\"ww\":0}")
