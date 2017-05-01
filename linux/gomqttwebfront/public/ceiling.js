@@ -120,7 +120,6 @@ var buttons = {
 
 (function() {
   $(window).on('resize orientationchange', resizeRoomImg);
-  resizeRoomImg();
 
   webSocketSupport = hasWebSocketSupport();
 
@@ -190,4 +189,5 @@ var buttons = {
     }, 30*1000);
   }
 
+  resizeRoomImg();
 })();
