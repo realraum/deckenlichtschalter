@@ -19,7 +19,7 @@ void OtaUpdate_prepareSystem()
 	//start firmware update
 }
 
-void OtaUpdate_CallBack(bool result) {
+void OtaUpdate_CallBack(rBootHttpUpdate& client, bool result) {
 
 	//Serial.println("In callback...");
 	if(result == true) {
