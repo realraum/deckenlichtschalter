@@ -27,6 +27,8 @@ def deactivate(scr):
     pass
 
 def animateSomeLightsOnce(scr, targets, duration=1000, triggerme=False):
+    if len(targets) == 0:
+        return
     triggercc=[]
     if triggerme:
         triggercc=[mytrigger_]
@@ -41,6 +43,8 @@ def animateSomeLightsOnce(scr, targets, duration=1000, triggerme=False):
 
 def animateAllLights(scr):
     lst = scr.participating
+    if len(lst) == 0:
+        return
     random.shuffle(lst)
     lsthalf = int(len(lst)/2)
     duration = 9000
