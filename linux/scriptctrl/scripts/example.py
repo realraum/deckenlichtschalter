@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #### REMEMBER
-#### TO ADD 
+#### TO ADD
 #### YOUR SCRIPT
 #### TO __all__
 #### in __init__.py

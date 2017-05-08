@@ -6,7 +6,6 @@ import datetime
 
 hsvvalue_=0.5
 fade_duration_=120000
-participating_targets_ = []
 latitude_ = 47.065554
 longitude_ = 15.450435
 transition_high_ = 1.0  # SolarAltitude when light should start fading into warmwhite
@@ -14,7 +13,7 @@ transition_middle_ = -12.0   # Solar Altitude when light should be fully warm wh
 transition_low_ =  -20.0       # Solar Altitude when light should be warmwhite and red
 
 def activate(scr, newsettings):
-    global hsvvalue_, fade_duration_, participating_targets_, latitude_, longitude_
+    global hsvvalue_, fade_duration_, latitude_, longitude_
     if "value" in newsettings and isinstance(newsettings["value"],float) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:
@@ -23,10 +22,6 @@ def activate(scr, newsettings):
         fade_duration_= min(120000,max(600,newsettings["fadeduration"]))
     else:
         fade_duration_ = 120000
-    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all((x in scr.lightids) for x in newsettings["participating"]):
-        participating_targets_ = newsettings["participating"]
-    else:
-        participating_targets_ = scr.lightidsceiling
     if "latitude" in newsettings and isinstance(newsettings["latitude"],float):
         latitude_ = newsettings["latitude"]
     if "longitude" in newsettings and isinstance(newsettings["longitude"],float):
@@ -38,7 +33,7 @@ def activate(scr, newsettings):
     if "transition_low" in newsettings and isinstance(newsettings["transition_low"],float):
         transition_low_ = newsettings["transition_low"]
 
-    for t in participating_targets_:
+    for t in scr.participating:
         redshiftLight(scr, t, True)
         redshiftLight(scr, t)
 
@@ -83,16 +78,15 @@ def redshiftLight(scr, lightid, initial=False):
         )
 
 def redshiftLightOnTrigger(scr, lightid):
-    if lightid in participating_targets_:
+    if lightid in scr.participating:
         redshiftLight(scr, lightid)
 
 def mkTriggerClosure(lightid):
     return lambda scr: redshiftLightOnTrigger(scr, lightid)
 
 def init(scr):
-    global participating_targets_
-    participating_targets_ = scr.lightidsceiling
+    scr.setDefaultParticipating(scr.lightidsceiling)
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
-    for t in participating_targets_:
+    for t in scr.lightidsceiling:
         scr.registerTrigger(t,mkTriggerClosure(t))

@@ -52,7 +52,7 @@ def triggerMeToContinue(scr):
 
 def animateAllLights(scr, initial=False):
     global phase_
-    for i in reversed(range(0, len(scr.lightidsceiling))):
+    for i in reversed(range(0, len(scr.participating))):
         kwargs = {}
         if initial:
             kwargs["fade_duration"]=300
@@ -60,14 +60,15 @@ def animateAllLights(scr, initial=False):
             kwargs["fade_duration"]=fade_duration_
         if i == 0:
             kwargs["trigger_on_complete"]=[triggername_]
-        idx = (i+phase_)%len(scr.lightidsceiling)
+        idx = (i+phase_)%len(scr.participating)
         for k in cs_.keys():
             kwargs[k] = cs_[k]["lst"][idx]
-        scr.setLight(scr.lightidsceiling[i], **kwargs)
+        scr.setLight(scr.participating[i], **kwargs)
     phase_+=1
 
 def init(scr):
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
     #scr.registerLoop(loop)
-    scr.registerTrigger(triggername_, triggerMeToContinue)    
+    scr.setDefaultParticipating(scr.lightidsceiling)
+    scr.registerTrigger(triggername_, triggerMeToContinue)

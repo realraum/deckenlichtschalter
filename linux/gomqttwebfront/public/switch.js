@@ -213,29 +213,25 @@ function handleExternalActivateScript(data) {
     data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","ceilingAll"];
   }
 
+  $(".scriptctrl_checkbox").each(function(elem) {
+    var target = elem.getAttribute("name");
+    elem.checked = (-1 != data.participating.indexOf(target));
+  });
+
   if (data.script == "redshift") {
     // -------- Script redshift ---------
-    $(".scriptctrl_checkbox").each(function(elem) {
-      var target = elem.getAttribute("name");
-      elem.checked = (-1 != data.participating.indexOf(target));
-    });
+    //add stuff here for this script
   } else if (data.script == "randomcolor") {
     // -------- Script randomcolor ---------
-    $(".scriptctrl_checkbox").each(function(elem) {
-      var target = elem.getAttribute("name");
-      elem.checked = (-1 != data.participating.indexOf(target));
-    });
+    //add stuff here for this script
   } else if (data.script == "colorfade") {
     // -------- Script colorfade ---------
-    $(".scriptctrl_checkbox").each(function(elem) {
-      elem.checked = true;
-    });
+    //add stuff here for this script
   } else if (data.script == "ceilingsinus") {
     // -------- Script ceilingsinus ---------
-    $(".scriptctrl_checkbox").each(function(elem) {
-      elem.checked = true;
-    });
+    //add stuff here for this script
   } else {
+    // -------- Script OFF ---------
     $(".scriptctrl_checkbox").each(function(elem) {
       elem.checked = false;
     });

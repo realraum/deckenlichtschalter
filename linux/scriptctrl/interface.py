@@ -28,6 +28,8 @@ class CeilingScriptClass():
         self.loopfunc = None
         self.trigger_seq_num = 0
         self.trigger_expected_seq_num = defaultdict(int)
+        self.default__participating = self.lightids
+        self._participating = []
 
     @property
     def lightidall(self):
@@ -40,6 +42,10 @@ class CeilingScriptClass():
     @property
     def lightidsceiling(self):
         return list(["ceiling%d" % x for x in range(1,7)])
+
+    @property
+    def participating(self):
+        return list(self._participating)
 
     def callcallback(self, client, trigger, msg):
         if trigger in self.triggers:
@@ -56,6 +62,12 @@ class CeilingScriptClass():
                     self.ceiling.removeScript(self.scriptname)
 
     def activate(self, newsettings):
+        if not isinstance(newsettings, dict):
+            return
+        if "participating" in newsettings and isinstance(newsettings["participating"],list):
+            self._participating = list([x for x in newsettings["participating"] if x in self.lightids])
+        else:
+            self._participating = self.default__participating
         if self.activatefunc:
             try:
                 self.activatefunc(self, newsettings)
@@ -103,8 +115,12 @@ class CeilingScriptClass():
         self.deactivatefunc = deactivatefunc
         return self
 
+    def setDefaultParticipating(self, lst):
+        self.default__participating = lst
+        self._participating = lst
+
     def setLight(self, light,r=None,g=None,b=None,cw=None,ww=None,fade_duration=None,flash_repetitions=None,cc=[],trigger_on_complete=[], include_scriptname=True):
-        if not (light == self.lightidall or light in self.lightids):
+        if not (light == self.lightidall) and not light in self._participating:
             return
         msg = {"r":r, "g":g, "b":b, "cw":cw, "ww": ww}
         ## sanity check
@@ -207,6 +223,8 @@ class CeilingClass():
             if self._active_script:
                 self._scripts[self._active_script].loop()
         self.deactivateCurrentScript()
+        offscript = CeilingScriptClass(self,"off")
+        offscript.setLight(offscript.lightidall,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
 
     def subscribe(self, topic):
         self._subscribed_topics[topic] = True
@@ -224,9 +242,11 @@ class CeilingClass():
             self._active_script = None
             self._scripts[script].deactivate()
             time.sleep(0.1)
-            self._scripts[script].setLight(self._scripts[script].lightidall,r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000,include_scriptname=False)
+            for l in self._scripts[script].participating:
+                self._scripts[script].setLight(l,r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000,include_scriptname=False)
             time.sleep(0.4)
-            self._scripts[script].setLight(self._scripts[script].lightidall,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
+            for l in self._scripts[script].participating:
+                self._scripts[script].setLight(l,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
 
     def activateScript(self, script, newsettings):
         if script in self._scripts:

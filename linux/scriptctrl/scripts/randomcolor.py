@@ -11,11 +11,10 @@ mytrigger_ = "continue"
 hsvvalue_="random"
 fade_duration_=600
 interval_=60.0
-participating_targets_ = []
 
 
 def activate(scr, newsettings):
-    global hsvvalue_, fade_duration_, participating_targets_
+    global hsvvalue_, fade_duration_
     if "value" in newsettings and isinstance(newsettings["value"],float) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:
@@ -28,10 +27,6 @@ def activate(scr, newsettings):
         interval_= min(1200,max(fade_duration_/1000,newsettings["interval"]))
     else:
         interval_ = 60.0
-    if "participating" in newsettings and isinstance(newsettings["participating"],list) and all((x in scr.lightids) for x in newsettings["participating"]):
-        participating_targets_ = newsettings["participating"]
-    else:
-        participating_targets_ = scr.lightids
     colorAllLights(scr)
 
 def deactivate(scr):
@@ -48,8 +43,7 @@ def colorALight(scr, targets, duration=1000):
     scr.setLight(targets[0],r=r,g=g,b=b,cw=0,ww=0,fade_duration=duration,cc=targets[1:])
 
 def colorAllLights(scr):
-    lst = participating_targets_
-    for l in lst:
+    for l in scr.participating:
         colorALight(scr, [l], fade_duration_)
 
 last_run_ = 0
@@ -61,7 +55,7 @@ def loop(scr):
 
 def init(scr):
     global participating_targets_
-    participating_targets_ = scr.lightids
+    scr.setDefaultParticipating(scr.lightids)
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
-    scr.registerLoop(loop) 
+    scr.registerLoop(loop)
