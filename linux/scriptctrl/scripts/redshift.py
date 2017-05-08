@@ -83,8 +83,11 @@ def redshiftLight(scr, lightid, initial=False):
         )
 
 def redshiftLightOnTrigger(scr, lightid):
-	if lightid in participating_targets_:
-		redshiftLight(scr, lightid)
+    if lightid in participating_targets_:
+        redshiftLight(scr, lightid)
+
+def mkTriggerClosure(lightid):
+    return lambda scr: redshiftLightOnTrigger(scr, lightid)
 
 def init(scr):
     global participating_targets_
@@ -92,4 +95,4 @@ def init(scr):
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
     for t in participating_targets_:
-        scr.registerTrigger(t,lambda scr: redshiftLightOnTrigger(scr, t))
+        scr.registerTrigger(t,mkTriggerClosure(t))
