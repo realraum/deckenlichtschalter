@@ -25,11 +25,12 @@ var (
 var payload_off []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
 var payload_ww1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":50}")
 var payload_ww2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":800}")
-var payload_cw1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":20,\"ww\":0}")
-var payload_cw2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":500,\"ww\":0}")
+var payload_cw1 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":100,\"ww\":0}")
+var payload_cw2 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":650,\"ww\":0}")
 var payload_ww3 []byte = []byte("{\"r\":0,\"g\":0,\"b\":0,\"cw\":0,\"ww\":1000}")
 var payload_wwcw []byte = []byte("{\"r\":800,\"g\":0,\"b\":0,\"cw\":1000,\"ww\":1000}")
 var payload_ww4 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":200,\"ww\":1000}")
+var payload_wwcwfade []byte = []byte("{\"r\":200,\"g\":0,\"b\":0,\"cw\":1000,\"ww\":1000,\"fade\":{\"duration\":2200}}")
 var payload_c1 []byte = []byte("{\"r\":1000,\"g\":0,\"b\":0,\"cw\":0,\"ww\":0}")
 var payload_c2 []byte = []byte("{\"r\":400,\"g\":0,\"b\":40,\"cw\":0,\"ww\":0}")
 var payload_c3 []byte = []byte("{\"r\":0,\"g\":500,\"b\":0,\"cw\":0,\"ww\":0}")
@@ -37,6 +38,10 @@ var payload_c4 []byte = []byte("{\"r\":0,\"g\":0,\"b\":300,\"cw\":0,\"ww\":0}")
 
 func fancytopic(light int) string {
 	return r3events.TOPIC_ACTIONS + fmt.Sprintf("ceiling%d/", light) + r3events.TYPE_LIGHT
+}
+
+func payload_script(script string, value float64) []byte {
+	return []byte(fmt.Sprintf("{\"script\":\"%s\",\"value\":%f}", script, value))
 }
 
 var fancytopic_all string = r3events.TOPIC_ACTIONS + r3events.CLIENTID_CEILINGALL + "/" + r3events.TYPE_LIGHT
@@ -125,7 +130,7 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 	//button5 down
 	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_off}}},
 	//button6
-	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{fancytopic_all, payload_off}, ActionMQTTMsg{topic_lightctrl_pre_ + "regalleinwand", offaction}}},
+	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{fancytopic_all, payload_off}, ActionMQTTMsg{topic_lightctrl_pre_ + "regalleinwand", offaction}, ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)}}},
 	//button7
 	[]ButtonAction{
 		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "cxleds", onaction}},
@@ -133,8 +138,9 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 	},
 	//button8
 	[]ButtonAction{
-		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", onaction}, ActionMQTTMsg{fancytopic_all, payload_off}},
-		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction},
+		ButtonAction{ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)}, ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", onaction}, ActionMQTTMsg{fancytopic_all, payload_off}},
+		ButtonAction{ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)},
+			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling1", offaction},
 			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling2", offaction},
 			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling3", onaction},
 			ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling4", offaction},
@@ -147,10 +153,18 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 			ActionMQTTMsg{fancytopic(5), payload_off},
 			ActionMQTTMsg{fancytopic(6), payload_off},
 		},
-		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{topic_lightctrl_pre_ + "fancyvortrag", onaction}},
+		ButtonAction{ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)}, ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{topic_lightctrl_pre_ + "fancyvortrag", onaction}},
+		ButtonAction{ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)},
+			ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction},
+			ActionMQTTMsg{fancytopic(1), payload_off},
+			ActionMQTTMsg{fancytopic(2), payload_wwcwfade},
+			ActionMQTTMsg{fancytopic(3), payload_wwcwfade},
+			ActionMQTTMsg{fancytopic(4), payload_wwcwfade},
+			ActionMQTTMsg{fancytopic(5), payload_wwcwfade},
+			ActionMQTTMsg{fancytopic(6), payload_off},
+		},
 	},
 }
-
 var corresponding_btn [15]int = [15]int{-1, 0, -1, 2, -1, 4, -1, 6, -1, 8, -1, 10, -1, -1, -1}
 
 func goListenForButtons(buttonchange_chan <-chan SerialLine) {
