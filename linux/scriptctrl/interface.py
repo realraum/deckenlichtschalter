@@ -12,15 +12,16 @@ from collections import defaultdict
 topic_presence = "realraum/metaevt/presence"
 topic_action = "action/"
 myclientid = "ceilingscripts"
-topic_scripts = "/script/"
 format_ceiling_topic = "action/%s/light"
+topic_base_scripts_ = topic_action+myclientid+"/script/"
+
 
 ########################################################
 class CeilingScriptClass():
     def __init__(self, ceiling, scriptname):
         self.scriptname = scriptname
         self.ceiling = ceiling
-        self.mybasetopic = topic_action+myclientid+topic_scripts+self.scriptname+"/"
+        self.mybasetopic = topic_base_scripts_+self.scriptname+"/"
         self.triggers = {}
         self.deactivatefunc = None
         self.activatefunc = None
@@ -46,9 +47,9 @@ class CeilingScriptClass():
             try:
                 payload = json.loads(msg.payload.decode("utf-8"))
             except Exception as e:
-                 print("callcallback",e,file=sys.stderr)
+                 print("Exception in callcallback: ",e,file=sys.stderr)
             if "sq" in payload and self.trigger_expected_seq_num[trigger] == payload["sq"]:
-                try:                
+                try:
                     self.triggers[trigger](self)
                 except:
                     traceback.print_exc()
@@ -166,13 +167,12 @@ class CeilingClass():
             except Exception as e:
                 print("onmqttmsg json1",e,file=sys.stderr)
             return
-        if not msg.topic.startswith(topic_action+myclientid+topic_scripts):
-            return
-        script, trigger = msg.topic[len(topic_action+myclientid+topic_scripts):].split("/")
-        if script != self._active_script:
-            return
-        if script in self._scripts:
-            self._scripts[script].callcallback(client, trigger, msg)
+        if msg.topic.startswith(topic_base_scripts_):
+            script, trigger = msg.topic[len(topic_base_scripts_):].split("/")
+            if script != self._active_script:
+                return
+            if script in self._scripts:
+                self._scripts[script].callcallback(client, trigger, msg)
 
     def onmqttconnect(self, client, userdata, flags, rc):
         client.subscribe(list([(t,2) for t in self._subscribed_topics.keys()]))
