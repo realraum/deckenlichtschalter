@@ -66,7 +66,21 @@ nav a {
     padding-top: 14%;
     z-index: 10;
     cursor: pointer;
-    transition: background-color 0.5s;;
+    transition: background-color 0.5s;
+}
+
+.light.fancylight {
+    z-index:11;
+    width: 7%;
+    padding-top: 7%;
+    border:1px solid white;
+}
+
+.floatingbutton {
+    position: absolute;
+    width:8vmin;
+    height:8vmin;
+    z-index: 11;
 }
 
 .light.fancylight {
@@ -141,6 +155,11 @@ nav a {
     left:32%;
 }
 
+#presetfunctionsbutton {
+    left:56%;
+    top:1%;
+    border:1px solid black;
+}
 
 #regalleinwand {
     top: 10%;

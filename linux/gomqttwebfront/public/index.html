@@ -91,6 +91,8 @@
       <div class="light fancylight popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="ceiling8" style="background-color:black;" id="fancylight8popup"></div>
 
 
+      <button class="floatingbutton popupselect_trigger" optionsid="presetquickoptions2" style="background-color:white;" id="presetfunctionsbutton">Presets</button>
+
     </div>
 <div id="fancycolorquickoptions1" class="popupselect_overlay">
   <button class="fancylightpresetbutton popupselect_option" name="" ledr="1000" ledg="0" ledb="0" ledcw="0" ledww="0" style="background-color:rgb(255, 0, 0);"></button>
@@ -110,6 +112,18 @@
   <button class="fancylightpresetbutton popupselect_option" name="" ledr="0" ledg="0" ledb="0" ledcw="1000" ledww="1000" style="background-color: rgb(255, 251, 223);"></button>
   <button class="fancylightpresetbutton popupselect_option" name="" ledr="780" ledg="0" ledb="45" ledcw="0" ledww="20" style="background-color: rgb(245, 86, 156);"></button>
   <button class="fancylightpresetbutton popupselect_option" name="" ledr="0" ledg="1000" ledb="300" ledcw="80" ledww="0" style="background-color: rgb(85, 255, 251);"></button>
+</div>
+
+<div id="presetquickoptions2" class="popupselect_overlay">
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_BeamerTalkMode();" style="">Vortrag<br/>&nbsp;</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_BeamerTalkPauseMode();" style="" >Vortrags<br/>pause</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_BeamerMovieMode();" style="">Movie<br/>&nbsp;</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_RedShiftMost();" style="">RedShift<br/>Most</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_AllOff();" style="">All<br/>OFF</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_PurpleSinus();" style="">Purple<br/>Sinus</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_SuperFullEverything();" style="">EVERY<br/>THING</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_MostBasic();" style="">Most<br/>Basiclights</button>
+  <button class="popupselect_option presetfunctionbutton" onMouseUp="ceilingPreset_DimRandomColor();" style="">Random<br/>Color</button>
 </div>
     <script type="text/javascript" src="websocket.js"></script>
     <script type="text/javascript" src="mqtt.js"></script>

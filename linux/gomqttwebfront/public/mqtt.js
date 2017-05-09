@@ -203,3 +203,94 @@ function calcCeilingValuesFrom(data,r,g,b)
   data.g = Math.trunc(g * 1000 / fitting)
   data.b = Math.trunc(b * 1000 / fitting)
 }
+
+
+function ceilingPreset_BeamerTalkMode()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:0,g:0,b:0,ww:0,cw:700,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:0,cw:700,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+}
+
+function ceilingPreset_BeamerTalkPauseMode()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:2200}});
+  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
+  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
+  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
+  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
+  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:2200}});
+}
+
+function ceilingPreset_BeamerMovieMode()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:50,g:0,b:0,ww:100,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:50,g:0,b:0,ww:100,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+}
+
+function ceilingPreset_RedShiftMost()
+{
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:["ceiling1","ceiling2","ceiling3","ceiling4","ceiling6"]});
+}
+
+function ceilingPreset_PurpleSinus()
+{
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_activatescript, {script:"ceilingsinus",
+    r:{offset:700,amplitude:300,phase:0},
+    g:{offset:0,amplitude:0,phase:0},
+    b:{offset:150,amplitude:150,phase:3},
+    ww:{offset:500,amplitude:90,phase:2},
+    cw:{offset:200,amplitude:80,phase:5},
+  });
+}
+
+function ceilingPreset_DimRandomColor()
+{
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_activatescript, {"script":"randomcolor","value":0.3});
+}
+
+function ceilingPreset_SuperFullEverything()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"on"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:1000,g:500,b:200,ww:1000,cw:1000});
+}
+
+function ceilingPreset_MostBasic()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight1"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight2"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight3"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"on"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+}
+
+function ceilingPreset_AllOff()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+}
+
