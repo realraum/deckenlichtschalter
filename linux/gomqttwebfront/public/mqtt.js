@@ -248,17 +248,18 @@ function ceilingPreset_RedShiftMost()
   sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:["ceiling1","ceiling2","ceiling3","ceiling4","ceiling6"]});
 }
 
-function ceilingPreset_PurpleSinus()
+function ceilingPreset_AlienSky()
 {
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
-  sendMQTT(mqtttopic_activatescript, {script:"ceilingsinus",
-    r:{offset:700,amplitude:300,phase:0},
-    g:{offset:0,amplitude:0,phase:0},
-    b:{offset:150,amplitude:150,phase:3},
-    ww:{offset:500,amplitude:90,phase:2},
-    cw:{offset:200,amplitude:80,phase:5},
-  });
+  sendMQTT(mqtttopic_activatescript, {"script":"ceilingsinus",
+    "g":{"amplitude":200,"offset":200,"phase":0},
+    "ww":{"amplitude":90,"offset":100,"phase":1},
+    "r":{"amplitude":400,"offset":900,"phase":2},
+    "b":{"amplitude":150,"offset":150,"phase":4},
+    "cw":{"amplitude":80,"offset":100,"phase":4},
+    "fadeduration":3000}
+    );
 }
 
 function ceilingPreset_DimRandomColor()
