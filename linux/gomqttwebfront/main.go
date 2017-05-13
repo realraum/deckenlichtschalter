@@ -68,10 +68,11 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime() {
 					lp := make(map[string]interface{}, 10)
 					//Error check, then forward
 					if err := json.Unmarshal(msg.Payload(), &lp); err == nil {
-						webmsg := wsMessageOut{Ctx: msg.Topic(), Data: lp}
+						webmsg := wsMessage{Ctx: msg.Topic(), Data: lp}
 						ps_.Pub(webmsg, PS_WEBSOCK_ALL)
 					} else {
-						LogMain_.Println("JSON Decoding Error", err)
+						webmsg := wsMessage{Ctx: msg.Topic(), Data: string(msg.Payload())}
+						ps_.Pub(webmsg, PS_WEBSOCK_ALL)
 					}
 				}
 			}(mqttc, topic_in_chan)

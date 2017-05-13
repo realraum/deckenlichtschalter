@@ -96,6 +96,12 @@ nav a {
     padding-top: 7%;
 }
 
+.light.sonoff {
+    background: linear-gradient(-45deg, red 0%, red 50%, green 50%, green 100%);
+    width: 7%;
+    padding-top: 7%;
+}
+
 #basiclight1, #basiclight2, #basiclight3 {
     top: 21%;
 }

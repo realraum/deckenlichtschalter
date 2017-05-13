@@ -7,6 +7,9 @@ function mqtttopic_golightctrl(lightname) {
 function mqtttopic_fancylight(fancyid) {
   return "action/"+fancyid+"/light";
 }
+function mqtttopic_sonoff(name) {
+  return "action/"+name+"/power"
+}
 
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor"];
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor"];
@@ -66,6 +69,21 @@ function eventOnFancyLightPresent(event) {
   var WW = parseInt(event.target.getAttribute("ledww")) || 0;
   var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
   sendMQTT("action/"+name+"/light",settings);
+};
+
+function eventOnSonOffButton(event) {
+  var name = event.target.getAttribute("name");
+  if (!name) { return;  }
+  var power = event.target.getAttribute("power");
+  if (!power && event.target.getAttribute("type")=="checkbox")
+  {
+    if (event.target.checked)
+      power="on";
+    else
+      power="off";
+  }
+  if (power != "on" && power != "off" && power != "toggle") {return;}
+  sendMQTT(mqtttopic_sonoff(name),power);
 };
 
 function colorFancyLightPresent(elem) {

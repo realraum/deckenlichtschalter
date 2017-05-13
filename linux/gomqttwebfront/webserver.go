@@ -91,9 +91,29 @@ var (
 		"action/GoLightCtrl/ceiling5",
 		"action/GoLightCtrl/ceiling6",
 	}
+	topics_sonoff_info = []string{
+		"realraum/couchred/POWER",
+	}
+	topics_sonoff_action = []string{
+		"action/couchred/power",
+	}
 
-	ws_allowed_ctx_all                   = append(append(append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_oldbasic_ceiling...), topic_basic_ceiling_all, topic_fancy_ceiling_all, topic_oldbasic_ceiling_all)))
-	ws_allowed_ctx_sendtoclientonconnect = append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...)
+	ws_allowed_ctx_all = append(
+		append(
+			append(
+				append(
+					append(
+						append(
+							append(
+								append(topics_other, topics_fancy_ceiling...),
+								topics_basic_ceiling...),
+							topics_oldbasic_ceiling...),
+						topic_basic_ceiling_all),
+					topic_fancy_ceiling_all),
+				topic_oldbasic_ceiling_all),
+			topics_sonoff_info...),
+		topics_sonoff_action...)
+	ws_allowed_ctx_sendtoclientonconnect = append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_sonoff_action...)
 )
 
 const (
@@ -106,7 +126,7 @@ const (
 var wsupgrader = websocket.Upgrader{} // use default options with Origin Check
 
 //Atomizing because we take a CeilingAll msg and split it and send on its parts Ceiling1 .. Ceiling9
-func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessageOut) {
+func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessage) {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
 	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
 	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
@@ -115,32 +135,34 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 		case <-shutdown_chan:
 			return
 		case webmsg_i := <-msgtoall_chan:
-			if webmsg, castok := webmsg_i.(wsMessageOut); castok {
+			if webmsg, castok := webmsg_i.(wsMessage); castok {
 				switch webmsg.Ctx {
 				case topic_fancy_ceiling_all:
 					for _, tp := range topics_fancy_ceiling {
-						atomized_wsout_chan <- wsMessageOut{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+						atomized_wsout_chan <- wsMessage{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
 					}
 				case topic_basic_ceiling_all:
 					for _, tp := range topics_basic_ceiling {
-						atomized_wsout_chan <- wsMessageOut{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+						atomized_wsout_chan <- wsMessage{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
 					}
 				case topic_oldbasic_ceiling_all:
 					for _, tp := range topics_basic_ceiling { //convert oldbasic to new basic
-						atomized_wsout_chan <- wsMessageOut{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+						atomized_wsout_chan <- wsMessage{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
 					}
 				case topics_oldbasic_ceiling[0]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[0], webmsg.Data}
+					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[0], webmsg.Data}
 				case topics_oldbasic_ceiling[1]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[1], webmsg.Data}
+					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[1], webmsg.Data}
 				case topics_oldbasic_ceiling[2]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[2], webmsg.Data}
+					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[2], webmsg.Data}
 				case topics_oldbasic_ceiling[3]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[3], webmsg.Data}
+					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[3], webmsg.Data}
 				case topics_oldbasic_ceiling[4]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[4], webmsg.Data}
+					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[4], webmsg.Data}
 				case topics_oldbasic_ceiling[5]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessageOut{topics_basic_ceiling[5], webmsg.Data}
+					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[5], webmsg.Data}
+				case topics_sonoff_info[0]:
+					atomized_wsout_chan <- wsMessage{topics_sonoff_action[0], webmsg.Data}
 				default:
 					atomized_wsout_chan <- webmsg
 				}
@@ -155,10 +177,10 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 // AND so that conversion to JSON is done only once for every connected websocket
 func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFuture) {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
-	atomized_wsout_chan := make(chan wsMessageOut, 30)
+	atomized_wsout_chan := make(chan wsMessage, 30)
 	retained_json_map := make(map[string][]byte, len(ws_allowed_ctx_sendtoclientonconnect))
 
-	go goAtomizeCeilingAll(ps_, atomized_wsout_chan) //subscribes to PS_WEBSOCK_ALL and gives us possibly replaced wsMessageOut structs
+	go goAtomizeCeilingAll(ps_, atomized_wsout_chan) //subscribes to PS_WEBSOCK_ALL and gives us possibly replaced wsMessage structs
 
 	for {
 		select {

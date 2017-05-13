@@ -4,11 +4,6 @@ package main
 import "github.com/realraum/door_and_sensors/r3events"
 
 type wsMessage struct {
-	Ctx  string                 `json:"ctx"`
-	Data map[string]interface{} `json:"data"`
-}
-
-type wsMessageOut struct {
 	Ctx  string      `json:"ctx"`
 	Data interface{} `json:"data"`
 }

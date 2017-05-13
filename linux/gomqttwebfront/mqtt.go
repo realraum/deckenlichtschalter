@@ -86,6 +86,8 @@ func goSendMQTTMsgToBroker(mqttc mqtt.Client, outmsg_chan chan MQTTOutboundMsg) 
 	for outmsg := range outmsg_chan {
 		LogMQTT_.Printf("goSendMQTTMsgToBroker(%+v)", outmsg)
 		switch outpayload := outmsg.msg.(type) {
+		case string:
+			mqttc.Publish(outmsg.topic, 0, false, []byte(outpayload))
 		case []byte:
 			mqttc.Publish(outmsg.topic, 0, false, outpayload)
 		case map[string]interface{}:

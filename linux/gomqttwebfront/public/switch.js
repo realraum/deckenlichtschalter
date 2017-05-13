@@ -40,6 +40,25 @@ function populatedivrfswitchboxes(elem, names) {
   });
 }
 
+function populatedivsonfoff(elem, names) {
+  Object.keys(names).forEach(function(lightname) {
+    $(elem).append('\
+      <div class="switchbox">\
+          <span class="alignbuttonsleft">\
+            <div class="onoffswitch">\
+                <input type="checkbox" class="onoffswitch-checkbox sonoff_checkbox" name="'+lightname+'" id="'+lightname+'ctonoff">\
+                  <label class="onoffswitch-label" for="'+lightname+'ctonoff">\
+                      <span class="onoffswitch-inner"></span>\
+                      <span class="onoffswitch-switch"></span>\
+                  </label>\
+              </div>\
+          </span>\
+          <div class="switchnameright">'+names[lightname]+'</div>\
+      </div>\
+      <br>');
+  });
+}
+
 function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
     var basiclightname = lightname.replace("ceiling","basiclight");
@@ -263,7 +282,6 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "floodtesla":"TESLA Deckenfluter",
   "bluebar":"Blaue LEDs Bar",
   "abwasch":"Licht Waschbecken",
-  "couchred":"LEDs Couch Red",
   "couchwhite":"LEDS Couch White",
   "cxleds":"CX Gang LEDs",
   "mashadecke":"MaSha Werkstatt Decke",
@@ -271,6 +289,10 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "ambientlights":"Ambient Lichter",
   "boiler":"Warmwasser Küche",
   "boilerolga":"Warmwasser OLGA"
+});
+
+populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
+  "couchred":"LEDs Couch Red",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
@@ -350,11 +372,25 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
         };
       }(topic));
     });
+    $(".sonoff_checkbox").each(function(oelem){
+      var topic = mqtttopic_sonoff(oelem.getAttribute("name"));
+      ws.registerContext(topic, function(elem) {
+        return function(data) {
+          console.log(data);
+          if (data == "on")
+            elem.checked = true;
+          else if (data == "toggle")
+            elem.checked = !elem.checked;
+          else
+            elem.checked = false;
+        }
+      }(oelem));
+    });
 
     // register MQTT Update Handler: Fancy Lights
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
     // register MQTT Update Handler: ScriptCtrl
-    ws.registerContext(mqtttopic_activatescript,handleExternalActivateScript);
+    ws.registerContext(mqtttopic_activatescript, handleExternalActivateScript);
   }
 
   //set background color for fancylightpresetbuttons according to ledr=, ledb=, etc.
@@ -368,6 +404,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $("#scriptctrlselect").on("change", handleChangeScriptCtrl);
   $("input.fancyintensityslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
+  $("input.sonoff_checkbox").on("click",eventOnSonOffButton);
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
   $(document).on("click",function(event){
     if (!document.getElementById("fancycolorpicker").contains(event.target) &&

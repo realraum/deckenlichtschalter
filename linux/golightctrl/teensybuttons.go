@@ -44,6 +44,10 @@ func payload_script(script string, value float64) []byte {
 	return []byte(fmt.Sprintf("{\"script\":\"%s\",\"value\":%f}", script, value))
 }
 
+func sonofftopic(name string) string {
+	return r3events.TOPIC_ACTIONS + string + "/power"
+}
+
 var fancytopic_all string = r3events.TOPIC_ACTIONS + r3events.CLIENTID_CEILINGALL + "/" + r3events.TYPE_LIGHT
 
 type ButtonAction []ActionMQTTMsg

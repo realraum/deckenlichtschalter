@@ -139,7 +139,10 @@ button.leftalignroundedbutton {
     font-size:80%;
     position: relative; width: 85px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
-    margin:1px;
+    margin-left:1px;
+    margin-right:1px;
+    margin-top:-1ex;
+    margin-bottom:1ex;
     top:1ex;
     display: inline-block;
     text-align: left;
@@ -163,12 +166,12 @@ button.leftalignroundedbutton {
     box-sizing: border-box;
 }
 .onoffswitch-inner:before {
-    content: "Yes";
+    content: "On";
     padding-left: 20px;
     background-color: #34CC29; color: #FFFFFF;
 }
 .onoffswitch-inner:after {
-    content: "No";
+    content: "Off";
     padding-right: 20px;
     background-color: #EEEEEE; color: #999999;
     text-align: right;

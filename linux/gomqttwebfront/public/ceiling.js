@@ -185,6 +185,20 @@ var buttons = {
     });
   }
 
+  $(".sonoff").on("click",function(event) {
+      var id = this.getAttribute('id');
+      var topic = mqtttopic_sonoff(id);
+      var offset = $(this).offset();
+      var relX = (event.pageX - offset.left) / $(this).width();
+      var relY = (event.pageY - offset.top) / $(this).height();
+      var sendState = relX + relY < 1;
+      if (sendState) {
+        sendMQTT(topic, "on");
+      } else {
+        sendMQTT(topic, "off");
+      }
+  });
+
   if (webSocketSupport) {
     ws.open(webSocketUrl);
   } else {
