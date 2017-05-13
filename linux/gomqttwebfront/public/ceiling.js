@@ -130,7 +130,12 @@ var buttons = {
   $('.scriptctrl_redshift_checkbox').on("click",enableRedShift);
   popupselect.init({class_option:"popupselect_option"});
   popupselect.addSelectHandlerToAll(eventOnFancyLightPresent);
+  $(".fancylightpresetbutton.popupselect_option").each(function(e){popupselect.addSelectHandler(e, eventOnFancyLightPresent)});
   $(".fancylightpresetbutton").not(".popupselect_option").on("click",eventOnFancyLightPresent);
+  $(".presetfunctionbutton.popupselect_option").each(function(e){popupselect.addSelectHandler(e, function(event){
+    var func = event.target.getAttribute("presetfunc");
+    window[func]();
+  })});
   $(".basiclight").on("click",function() {
       var id = this.getAttribute('id');
       var topic = mqtttopic_golightctrl(id);

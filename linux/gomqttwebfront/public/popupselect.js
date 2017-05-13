@@ -11,7 +11,6 @@ var popupselect = {
 	openinprogress:false,
 	openx:-1,
 	openy:-1,
-	onselect:{},
 	options: {
 		class_triggerpopup:"popupselect_trigger",
 		class_popupoverlay:"popupselect_overlay",
@@ -58,7 +57,7 @@ var popupselect = {
 		{
 			$(popupselect.target).html(selectedbtn.html());
 			$(popupselect.target).attr("style",selectedbtn.attr("style"));
-			var fun = popupselect.onselect[event.target];
+			var fun = $(event.target).data("popupfunc");
 			if (fun) {fun(event);}
 		}
 		popupselect.openx = -1;
@@ -87,14 +86,14 @@ var popupselect = {
 	addSelectHandler:function(elem, func) {
 		if ($(elem).hasClass(this.options.class_option) && typeof(func) == "function")
 		{
-			this.onselect[elem] = func;
+			$(elem).data("popupfunc",func);
 		}
 	},
 
 	addSelectHandlerToAll:function(func) {
 		if (typeof(func) == "function")
 		{
-			$("."+this.options.class_option).each(function(elem, idx) {popupselect.onselect[elem] = func;});
+			$("."+this.options.class_option).each(function(elem, idx) {$(elem).data("popupfunc",func);});
 		}
 	},
 }
