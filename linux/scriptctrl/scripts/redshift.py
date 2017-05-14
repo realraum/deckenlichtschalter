@@ -14,7 +14,7 @@ transition_low_ =  -20.0       # Solar Altitude when light should be warmwhite a
 
 def activate(scr, newsettings):
     global hsvvalue_, fade_duration_, latitude_, longitude_
-    if "value" in newsettings and isinstance(newsettings["value"],float) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
+    if "value" in newsettings and isinstance(newsettings["value"],(int,float)) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:
         hsvvalue_ = 0.5
@@ -22,15 +22,15 @@ def activate(scr, newsettings):
         fade_duration_= min(120000,max(600,newsettings["fadeduration"]))
     else:
         fade_duration_ = 120000
-    if "latitude" in newsettings and isinstance(newsettings["latitude"],float):
+    if "latitude" in newsettings and isinstance(newsettings["latitude"],(int,float)):
         latitude_ = newsettings["latitude"]
-    if "longitude" in newsettings and isinstance(newsettings["longitude"],float):
+    if "longitude" in newsettings and isinstance(newsettings["longitude"],(int,float)):
         longitude_ = newsettings["longitude"]
-    if "transition_high" in newsettings and isinstance(newsettings["transition_high"],float):
+    if "transition_high" in newsettings and isinstance(newsettings["transition_high"],(int,float)):
         transition_high_ = newsettings["transition_high"]
-    if "transition_middle" in newsettings and isinstance(newsettings["transition_middle"],float):
+    if "transition_middle" in newsettings and isinstance(newsettings["transition_middle"],(int,float)):
         transition_middle_ = newsettings["transition_middle"]
-    if "transition_low" in newsettings and isinstance(newsettings["transition_low"],float):
+    if "transition_low" in newsettings and isinstance(newsettings["transition_low"],(int,float)):
         transition_low_ = newsettings["transition_low"]
 
     for t in scr.participating:

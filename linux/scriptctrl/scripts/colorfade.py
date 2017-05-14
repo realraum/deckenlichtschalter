@@ -13,7 +13,7 @@ fade_duration_=-1
 
 def activate(scr, newsettings):
     global hsvvalue_, fade_duration_
-    if "value" in newsettings and isinstance(newsettings["value"],float) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
+    if "value" in newsettings and isinstance(newsettings["value"],(int,float)) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:
         hsvvalue_ = "random"
