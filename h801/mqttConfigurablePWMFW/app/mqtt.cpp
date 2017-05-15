@@ -204,22 +204,30 @@ void onMessageReceived(String topic, String message)
 void startMqttClient()
 {
 	procMQTTTimer.stop();
+
+	if (0 == mqtt)
+		mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port, onMessageReceived);
+
 /*	if(!mqtt->setWill("last/will","The connection from this device is lost:(", 1, true)) {
 		debugf("Unable to set the last will and testament. Most probably there is not enough memory on the device.");
 	}
 */
-	mqtt->connect(NetConfig.mqtt_clientid, NetConfig.mqtt_user, NetConfig.mqtt_pass, true);
 	mqtt->setKeepAlive(42);
 	mqtt->setPingRepeatTime(21);
+	bool usessl=false;
 #ifdef ENABLE_SSL
+	usessl=true;
 	mqtt->addSslOptions(SSL_SERVER_VERIFY_LATER);
 
 	mqtt->setSslClientKeyCert(default_private_key, default_private_key_len,
 							  default_certificate, default_certificate_len, NULL, true);
-
 #endif
+
 	// Assign a disconnect callback function
 	mqtt->setCompleteDelegate(checkMQTTDisconnect);
+	debugf("connecting to to MQTT broker");
+	mqtt->connect(NetConfig.mqtt_clientid, NetConfig.mqtt_user, NetConfig.mqtt_pass, true);
+	debugf("connected to MQTT broker");
 	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,true));
 	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
 	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
@@ -243,7 +251,3 @@ void stopMqttClient()
 	procMQTTTimer.stop();
 }
 
-void instantinateMQTT()
-{
-	mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port, onMessageReceived);
-}

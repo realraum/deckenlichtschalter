@@ -287,6 +287,17 @@ div.popupselect_overlay {
 div.popupselect_trigger {
 }
 
+button {
+    font-size:1.5vmin;
+    padding:0;
+    overflow: hidden;
+    text-align: center;
+    width:100%;
+    border-spacing: 0;
+    border-radius: 1px;
+
+}
+
 button.popupselect_option {
     width:8vmin;
     height:8vmin;

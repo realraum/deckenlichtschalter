@@ -233,6 +233,7 @@ function ceilingPreset_BeamerTalkMode()
   sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:0,cw:700,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
 function ceilingPreset_BeamerTalkPauseMode()
@@ -245,6 +246,7 @@ function ceilingPreset_BeamerTalkPauseMode()
   sendMQTT(mqtttopic_fancylight("ceiling4"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:2200}});
+  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
 function ceilingPreset_BeamerMovieMode()
@@ -257,6 +259,7 @@ function ceilingPreset_BeamerMovieMode()
   sendMQTT(mqtttopic_fancylight("ceiling4"), {r:50,g:0,b:0,ww:100,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
 function ceilingPreset_RedShiftMost()
@@ -292,6 +295,7 @@ function ceilingPreset_SuperFullEverything()
   sendMQTT(mqtttopic_activatescript, {script:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"on"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:1000,g:500,b:200,ww:1000,cw:1000});
+  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
 }
 
 function ceilingPreset_MostBasic()
@@ -306,10 +310,29 @@ function ceilingPreset_MostBasic()
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
 }
 
+function ceilingPreset_MixedForWork()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight1"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight2"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight3"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
+  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:0,g:0,b:0,ww:1000,cw:0});
+  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:600,cw:0});
+  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:600,cw:0});
+  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0});
+}
+
 function ceilingPreset_AllOff()
 {
   sendMQTT(mqtttopic_activatescript, {script:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
