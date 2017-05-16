@@ -120,6 +120,7 @@ var buttons = {
   basiclight6: false
 };
 
+$(window).ready(resizeRoomImg);
 (function() {
   $(window).on('resize orientationchange', resizeRoomImg);
 
@@ -210,5 +211,4 @@ var buttons = {
     }, 30*1000);
   }
 
-  resizeRoomImg();
 })();
