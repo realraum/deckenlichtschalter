@@ -60,7 +60,9 @@ function handleExternalFancySetting(fancyid, data)
   //redshift uses triggers for each individual light and thus always has an
   //acompaning "s" field in json sent to lamp
   //so it's easy to detect if redshift is on for that light or not.
-  $("input.scriptctrl_redshift_checkbox[name='"+fancyid+"']")[0].checked = (data.s && data.s == "redshift");
+  var redshift_checkboxes =  $("input.scriptctrl_redshift_checkbox[name='"+fancyid+"']");
+  if (redshift_checkboxes.length > 0)
+    redshift_checkboxes[0].checked = (data.s && data.s == "redshift");
 }
 
 function enableRedShift(event) {
