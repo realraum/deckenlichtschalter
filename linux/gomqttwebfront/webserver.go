@@ -72,9 +72,9 @@ var (
 		"action/ceiling4/light",
 		"action/ceiling5/light",
 		"action/ceiling6/light",
-		"action/ceiling7/light",
-		"action/ceiling8/light",
-		"action/ceiling9/light"}
+		"action/abwasch/light",
+		"action/flooddoor/light",
+	}
 	topics_basic_ceiling = []string{
 		"action/GoLightCtrl/basiclight1",
 		"action/GoLightCtrl/basiclight2",

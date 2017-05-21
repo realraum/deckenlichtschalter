@@ -100,7 +100,7 @@ function colorFancyLightPresent(elem) {
 //takes function with signature (fancyid, data)
 //and calls it if fancy light updates externally
 function registerFunctionForFancyLightUpdate(fun) {
-  ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","ceilng7","ceiling8","ceiling9","ceilingAll"].forEach(function(fancyid) {
+  ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","ceilingAll"].forEach(function(fancyid) {
     ws.registerContext("action/"+fancyid+"/light",function(fancyid){
       return function(data) {
         fun(fancyid, data);
@@ -233,6 +233,8 @@ function ceilingPreset_BeamerTalkMode()
   sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:0,cw:700,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
+  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
@@ -246,6 +248,7 @@ function ceilingPreset_BeamerTalkPauseMode()
   sendMQTT(mqtttopic_fancylight("ceiling4"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:2200}});
+  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
@@ -259,6 +262,8 @@ function ceilingPreset_BeamerMovieMode()
   sendMQTT(mqtttopic_fancylight("ceiling4"), {r:50,g:0,b:0,ww:100,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
@@ -326,6 +331,7 @@ function ceilingPreset_MixedForWork()
   sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:600,cw:0});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:600,cw:0});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:600,cw:300});
 }
 
 function ceilingPreset_AllOff()

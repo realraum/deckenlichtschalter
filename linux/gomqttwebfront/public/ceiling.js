@@ -93,7 +93,7 @@ function handleExternalActivateScript(data) {
   if (data.script == "redshift") {
     // -------- Script redshift ---------
     if (data.participating == undefined || data.participating.length==6) {
-      data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6"];
+      data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","flooddoor"];
     }
     $(".scriptctrl_redshift_checkbox").each(function(elem) {
       var lightname = elem.getAttribute("name");

@@ -191,7 +191,7 @@ function handleChangeScriptCtrl(event) {
   var participating = Array();
   if (event && event.target.getAttribute("name") == "ceilingAll") {
     if (event.target.checked)
-      participating=Array("ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6");
+      participating=Array("ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","flooddoor");
     else
       participating = Array();
   } else {
@@ -229,7 +229,7 @@ function handleExternalActivateScript(data) {
     $("#scriptctrlfancyintensityslider").val(Math.floor(data.value*1000));
   }
   if (data.participating == undefined || data.participating.length>=6) {
-    data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","ceilingAll"];
+    data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","flooddoor","ceilingAll"];
   }
 
   $(".scriptctrl_checkbox").each(function(elem) {
@@ -303,6 +303,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 "ceiling4":"Decke Lasercutter",
 "ceiling5":"Decke Eingang",
 "ceiling6":"Decke Tesla",
+"flooddoor":"Deckenfluter Tür",
 });
 
 (function() {
