@@ -123,14 +123,14 @@ function drawcolourtemppicker(elemid) {
 	  // $('#cwwwcolor').css("background-color","rgb("+img_data.data[0]+","+img_data.data[1]+","+img_data.data[2]+")");
 	  colortemppickerstate.ww = WW;
 	  colortemppickerstate.cw = CW;
-	  updateColorPreview();
+	  updateColorPreview(colortemppicker_ledfactor_name_);
 	};
 	$(canvas).on("click",pickcolour);
 	$(canvas).on("mousemove",pickcolour);
 }
 
-function updateColorPreview() {
-	calcCompoundRGB(colortemppickerstate);
+function updateColorPreview(name) {
+	calcCompoundRGB(colortemppickerstate, name);
 	//var bi = calcDayLevelFromColor(colortemppickerstate);
 	$("#cwwwrgbcolor").css("background-color","rgb("+colortemppickerstate.compound_r+","+colortemppickerstate.compound_g+","+colortemppickerstate.compound_b+")");
 	$('#R input').val(colortemppickerstate.r);
@@ -150,6 +150,11 @@ function updateColorPreview() {
 }
 
 var lower_black_percent = 0.95;
+var colortemppicker_ledfactor_name_ = "";
+
+function colorandtempicker_set_ledfactorname(name) {
+	colortemppicker_ledfactor_name_ = name;
+}
 
 function drawcolourpicker(elemid) {
 	var canvas = document.getElementById(elemid);
@@ -181,8 +186,8 @@ function drawcolourpicker(elemid) {
 	  	var G = Math.trunc(rgb[1]);
 	  	var B = Math.trunc(rgb[2]);
 	  }
-	  calcCeilingValuesFrom(colortemppickerstate, R, G, B);
-	  updateColorPreview();
+	  calcCeilingValuesFrom(colortemppickerstate, R, G, B, colortemppicker_ledfactor_name_);
+	  updateColorPreview(colortemppicker_ledfactor_name_);
 	};
 	$(canvas).on("click",pickcolour);
 	$(canvas).on("mousemove",pickcolour);
@@ -196,7 +201,7 @@ function init_colour_temp_picker() {
 		if (this.value < 0 || this.value > 1000) {return;};
 		var variable = this.parentNode.id.toLowerCase();
 		colortemppickerstate[variable] = this.value;
-		updateColorPreview();
+		updateColorPreview(colortemppicker_ledfactor_name_);
 	}
 	$('#R input').on("change",changecolourlevel);
 	$('#G input').on("change",changecolourlevel);
@@ -210,7 +215,7 @@ function init_colour_temp_picker() {
 	  var promille = Math.trunc(Math.max(0,Math.min(1000,x*1000/this.offsetWidth)));
 	  var variable = this.parentNode.id.toLowerCase();
 	  colortemppickerstate[variable] = promille;
-	  updateColorPreview();
+	  updateColorPreview(colortemppicker_ledfactor_name_);
 	};
 	$('#R div.colorlevelcontainer').on("mousemove",changetextfromlevel);
 	$('#G div.colorlevelcontainer').on("mousemove",changetextfromlevel);
@@ -222,7 +227,7 @@ function init_colour_temp_picker() {
 	$('#B div.colorlevelcontainer').on("click",changetextfromlevel);
 	$('#WW div.colorlevelcontainer').on("click",changetextfromlevel);
 	$('#CW div.colorlevelcontainer').on("click",changetextfromlevel);
-	updateColorPreview();
+	updateColorPreview(colortemppicker_ledfactor_name_);
 }
 
 function rainbowHSLpicker(canvas,ctx) {

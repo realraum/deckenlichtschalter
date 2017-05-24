@@ -16,11 +16,79 @@ var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor"];
 var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
 var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor"];
 
-var r_factor = 1;
-var g_factor = 5; //green 5 times as bright as red
-var b_factor = 10; //blue 2 times as bright as green
-var ww_factor = 22; //yes warmwhite is about 22 times as bright as red
-var cw_factor = 18;
+var r3_led_factors_ = {
+  "_default_": {
+    r_factor:1,
+    g_factor:5, //green 5 times as bright as red
+    b_factor:10, //blue 2 times as bright as green
+    ww_factor:22, //yes warmwhite is about 22 times as bright as red
+    cw_factor:18,
+  },
+  "flooddoor": {
+    r_factor:4,
+    g_factor:4,
+    b_factor:4,
+    ww_factor:12,
+    cw_factor:12,
+  },
+  "ceiling1": {
+    r_factor:1,
+    g_factor:5, //green 5 times as bright as red
+    b_factor:10, //blue 2 times as bright as green
+    ww_factor:22, //yes warmwhite is about 22 times as bright as red
+    cw_factor:18,
+  },
+  "ceiling2": {
+    r_factor:1,
+    g_factor:5, //green 5 times as bright as red
+    b_factor:10, //blue 2 times as bright as green
+    ww_factor:22, //yes warmwhite is about 22 times as bright as red
+    cw_factor:18,
+  },
+  "ceiling3": {
+    r_factor:1,
+    g_factor:5, //green 5 times as bright as red
+    b_factor:10, //blue 2 times as bright as green
+    ww_factor:22, //yes warmwhite is about 22 times as bright as red
+    cw_factor:18,
+  },
+  "ceiling4": {
+    r_factor:1,
+    g_factor:5, //green 5 times as bright as red
+    b_factor:10, //blue 2 times as bright as green
+    ww_factor:22, //yes warmwhite is about 22 times as bright as red
+    cw_factor:18,
+  },
+  "ceiling5": {
+    r_factor:1,
+    g_factor:5, //green 5 times as bright as red
+    b_factor:10, //blue 2 times as bright as green
+    ww_factor:22, //yes warmwhite is about 22 times as bright as red
+    cw_factor:18,
+  },
+  "ceiling6": {
+    r_factor:1,
+    g_factor:5, //green 5 times as bright as red
+    b_factor:10, //blue 2 times as bright as green
+    ww_factor:22, //yes warmwhite is about 22 times as bright as red
+    cw_factor:18,
+  },
+  "abwasch": {
+    r_factor:4,
+    g_factor:4,
+    b_factor:4,
+    ww_factor:12,
+    cw_factor:12,
+  },
+};
+
+function getr3ledfactors(name) {
+  console.log(name);
+  if (r3_led_factors_[name])
+    return r3_led_factors_[name];
+  else
+    return r3_led_factors_["_default_"];
+}
 
 function sendMQTT_XHTTP(ctx, data) {
   var req = new XMLHttpRequest;
@@ -93,7 +161,8 @@ function colorFancyLightPresent(elem) {
   var CW = parseInt(elem.getAttribute("ledcw")) || 0;
   var WW = parseInt(elem.getAttribute("ledww")) || 0;
   var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
-  calcCompoundRGB(settings);
+  var name = elem.getAttribute("name");
+  calcCompoundRGB(settings, name);
   elem.style.backgroundColor="rgb("+settings.compound_r+","+settings.compound_g+","+settings.compound_b+")";
 }
 
@@ -146,7 +215,7 @@ function calcColorFromDayLevel(day_factor, value)
   return {"r":Math.trunc(r), "b":Math.trunc(b), "cw":Math.trunc(cw), "ww":Math.trunc(ww)};
 }
 
-function calcCompoundRGB(data)
+function calcCompoundRGB(data, name)
 {
   var warmwhite_representation  = [255.0/255, 250.0/255, 192/255];
   var coldwhite_representation = [220.0/255, 220.0/255, 255/255];
@@ -167,11 +236,13 @@ function calcCompoundRGB(data)
     return;
   }
 
-  var r = data.r*r_factor;
-  var g = data.g*g_factor;
-  var b = data.b*b_factor;
-  var cw = data.cw*cw_factor;
-  var ww = data.ww*ww_factor;
+  var ledfactors = getr3ledfactors(name);
+
+  var r = data.r*ledfactors["r_factor"];
+  var g = data.g*ledfactors["g_factor"];
+  var b = data.b*ledfactors["b_factor"];
+  var cw = data.cw*ledfactors["cw_factor"];
+  var ww = data.ww*ledfactors["ww_factor"];
 
   //vector magnitude
   var magn_new = Math.sqrt(r*r+g*g+b*b+cw*cw+ww*ww);
@@ -199,13 +270,15 @@ function calcCompoundRGB(data)
   data.compound_b = Math.min(255,Math.floor(b));
 }
 
-function calcCeilingValuesFrom(data,r,g,b)
+function calcCeilingValuesFrom(data,r,g,b,name)
 {
   var magn_orig = Math.sqrt(r*r+g*g+b*b);
 
-  r = r/r_factor;
-  g = g/g_factor;
-  b = b/b_factor;
+  var ledfactors = getr3ledfactors(name);
+
+  r = r/ledfactors["r_factor"];
+  g = g/ledfactors["g_factor"];
+  b = b/ledfactors["b_factor"];
   var magn_new = Math.sqrt(r*r+g*g+b*b);
 
   //scale color vector to original magnitude

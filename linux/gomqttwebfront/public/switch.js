@@ -160,7 +160,7 @@ function handleExternalFancySetting(fancyid, data)
   //save data for next color chooser popup
   fancycolorstate_[fancyid] = data;
   //calc compound RGB from light data
-  calcCompoundRGB(fancycolorstate_[fancyid]);
+  calcCompoundRGB(fancycolorstate_[fancyid], fancyid);
 
   //set compound RGB to background-color of button
   var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
@@ -263,6 +263,7 @@ function popupFancyColorPicker(event) {
   var y = event.target.offsetTop;
   $("#fancycolorpicker").css("left",x+"px").css("top",y+"px").css("visibility","visible");
   fancycolorpicker_apply_name = event.target.getAttribute("name");
+  colorandtempicker_set_ledfactorname(fancycolorpicker_apply_name);
 }
 
 
