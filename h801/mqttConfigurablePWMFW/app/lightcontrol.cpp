@@ -1,6 +1,7 @@
 #include <SmingCore/SmingCore.h>
 #include <defaultlightconfig.h>
 #include <pwmchannels.h>
+#include <spiffsconfig.h>
 #include "lightcontrol.h"
 
 //these get set from outside and should not be read or written in timer functions

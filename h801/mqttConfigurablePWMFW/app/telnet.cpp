@@ -2,6 +2,7 @@
 #include <SmingCore/SmingCore.h>
 #include <defaultlightconfig.h>
 #include <lightcontrol.h>
+#include <spiffsconfig.h>
 #include "mqtt.h"
 #include "otaupdate.h"
 #include "telnet.h"
@@ -51,12 +52,12 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	else if (commandToken[1] == "wifissid")
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
-		NetConfig.wifi_ssid = commandToken[2];
+		NetConfig.wifi_ssid[0] = commandToken[2];
 	}
 	else if (commandToken[1] == "wifipass")
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
-		NetConfig.wifi_pass = commandToken[2];
+		NetConfig.wifi_pass[0] = commandToken[2];
 	}
 	else if (commandToken[1] == "mqttbroker")
 	{
@@ -108,8 +109,8 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 {
 	commandOutput->println("You are connecting from: " + telnetServer.getRemoteIp().toString() + ":" + String(telnetServer.getRemotePort()));
 	commandOutput->println("== Dumping Configuration ==");
-	commandOutput->println("WiFi SSID: " + NetConfig.wifi_ssid + " actual: "+WifiStation.getSSID());
-	commandOutput->println("WiFi Pass: " + NetConfig.wifi_pass + " actual: "+WifiStation.getPassword());
+	commandOutput->println("WiFi0 SSID: " + NetConfig.wifi_ssid[0] + " actual: "+WifiStation.getSSID());
+	commandOutput->println("WiFi0 Pass: " + NetConfig.wifi_pass[0] + " actual: "+WifiStation.getPassword());
 	commandOutput->println("Hostname: " + WifiStation.getHostname());
 	commandOutput->println("MAC: " + WifiStation.getMAC());
 	commandOutput->println("IP: " + NetConfig.ip.toString() + " actual: "+WifiStation.getIP().toString());

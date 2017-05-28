@@ -1,6 +1,7 @@
 #include <user_config.h>
 #include <SmingCore/SmingCore.h>
 #include <defaultlightconfig.h>
+#include <spiffsconfig.h>
 #include <SmingCore/Debug.h>
 #include <pwmchannels.h>
 #include "application.h"
@@ -12,13 +13,26 @@
 	#include <ssl/cert.h>
 #endif
 
-NetConfigStorage NetConfig;
 DefaultLightConfigStorage DefaultLightConfig;
 
 
 ///////////////////////////////////////
 ///// WIFI Stuff
 ///////////////////////////////////////
+
+void configureWifi()
+{
+	WifiAccessPoint.enable(false);
+	WifiStation.enable(true);
+	Serial.println("clientid: "+NetConfig.mqtt_clientid);
+	Serial.println("SSID: "+NetConfig.getWifiSSID());
+	Serial.println("WifiPass: "+NetConfig.getWifiPASS());
+	WifiStation.setHostname(NetConfig.mqtt_clientid+".realraum.at");
+	WifiStation.config(NetConfig.getWifiSSID(), NetConfig.getWifiPASS()); // Put you SSID and Password here
+	WifiStation.enableDHCP(NetConfig.enabledhcp);
+	if (!NetConfig.enabledhcp)
+		WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
+}
 
 // Will be called when WiFi station was connected to AP
 void wifiConnectOk(IPAddress ip, IPAddress mask, IPAddress gateway)
@@ -39,21 +53,10 @@ void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t re
 	debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
 
 	flashSingleChannel(1,CHAN_RED);
+	NetConfig.nextWifi();
+	configureWifi();
 }
 
-void configureWifi()
-{
-	WifiAccessPoint.enable(false);
-	WifiStation.enable(true);
-	Serial.println("clientid: "+NetConfig.mqtt_clientid);
-	Serial.println("SSID: "+NetConfig.wifi_ssid);
-	Serial.println("WifiPass: "+NetConfig.wifi_pass);
-	WifiStation.setHostname(NetConfig.mqtt_clientid+".realraum.at");
-	WifiStation.config(NetConfig.wifi_ssid, NetConfig.wifi_pass); // Put you SSID and Password here
-	WifiStation.enableDHCP(NetConfig.enabledhcp);
-	if (!NetConfig.enabledhcp)
-		WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
-}
 
 //////////////////////////////////////
 ////// Base System Stuff  ////////////

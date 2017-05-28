@@ -1,5 +1,6 @@
 #include <SmingCore/SmingCore.h>
 #include <defaultlightconfig.h>
+#include <spiffsconfig.h>
 #include "pwmchannels.h"
 #include "lightcontrol.h"
 #include "mqtt.h"
@@ -12,6 +13,10 @@
 Timer procMQTTTimer;
 MqttClient *mqtt = 0;
 
+String getMQTTTopic(String topic3, bool all=false)
+{
+	return JSON_TOPIC1+((all) ? JSON_TOPIC2_ALL : NetConfig.mqtt_clientid)+topic3;
+}
 
 // Check for MQTT Disconnection
 void checkMQTTDisconnect(TcpClient& client, bool flag){
@@ -137,7 +142,7 @@ void onMessageReceived(String topic, String message)
 		root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
 		root.printTo(message);
 		//publish to myself (where presumably everybody else also listens), the current settings
-		mqtt->publish(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
+		mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
 		return; //return so we don't reuse the now used jsonBuffer
 	}
 
@@ -228,24 +233,24 @@ void startMqttClient()
 	debugf("connecting to to MQTT broker");
 	mqtt->connect(NetConfig.mqtt_clientid, NetConfig.mqtt_user, NetConfig.mqtt_pass, true);
 	debugf("connected to MQTT broker");
-	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,true));
-	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
-	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
-	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,false));
-	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
-	mqtt->subscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,true));
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
 
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
 }
 
 void stopMqttClient()
 {
-	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,true));
-	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
-	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
-	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_LIGHT,false));
-	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
-	mqtt->unsubscribe(NetConfig.getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,true));
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
 	mqtt->setKeepAlive(0);
 	mqtt->setPingRepeatTime(0);
 	procMQTTTimer.stop();
