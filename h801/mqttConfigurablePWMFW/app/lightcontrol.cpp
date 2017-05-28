@@ -201,7 +201,7 @@ void flashSingleChannel(uint8_t repetitions, uint8_t channel)
 	saveCurrentValues();
 	memcpy(effect_target_values_, apply_last_values_, PWM_CHANNELS*sizeof(uint32_t));
 	memcpy(effect_intermid_values_, apply_last_values_, PWM_CHANNELS*sizeof(uint32_t));
-	effect_target_values_[channel] = pwm_period/3;
+	effect_target_values_[channel] = pwm_period/5;
 	effect_intermid_values_[channel] = 0;
 	startFlash(repetitions);
 }
