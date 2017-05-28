@@ -33,7 +33,7 @@ void SpiffsConfigStorage::load()
 		netmask = IPAddress(netsettings[1]);
 		gw = IPAddress(netsettings[2]);
 		mqtt_port = (uint16_t)(netsettings[3]);
-		for (wifi_settings_num=0; wifi_settings_num<MAX_WIFI_SETS; wifi_settings_num++)
+		for (uint32_t wifi_settings_num=0; wifi_settings_num<MAX_WIFI_SETS; wifi_settings_num++)
 		{
 			if (fileExist(WIFISSID_SETTINGS_FILES[wifi_settings_num]) && fileExist(WIFIPASS_SETTINGS_FILES[wifi_settings_num])) {
 				wifi_ssid[wifi_settings_num] = fileGetContent(WIFISSID_SETTINGS_FILES[wifi_settings_num]);

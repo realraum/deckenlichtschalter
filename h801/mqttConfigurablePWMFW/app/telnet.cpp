@@ -26,7 +26,8 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	auth_num_cmds--;
 	if (numToken != 3)
 	{
-		commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass|fan|sim <value>");
+		// commandOutput->println("Usage set ip|nm|gw|dhcp|wifissid|wifipass|mqttbroker|mqttport|mqttclientid|mqttuser|mqttpass|fan|sim <value>");
+		commandOutput->println("Usage set <field> <val>");
 	}
 	else if (commandToken[1] == "ip")
 	{
@@ -107,8 +108,8 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 {
-	commandOutput->println("You are connecting from: " + telnetServer.getRemoteIp().toString() + ":" + String(telnetServer.getRemotePort()));
-	commandOutput->println("== Dumping Configuration ==");
+	// commandOutput->println("You are connecting from: " + telnetServer.getRemoteIp().toString() + ":" + String(telnetServer.getRemotePort()));
+	// commandOutput->println("== Configuration ==");
 	commandOutput->println("WiFi0 SSID: " + NetConfig.wifi_ssid[0] + " actual: "+WifiStation.getSSID());
 	commandOutput->println("WiFi0 Pass: " + NetConfig.wifi_pass[0] + " actual: "+WifiStation.getPassword());
 	commandOutput->println("Hostname: " + WifiStation.getHostname());
@@ -183,27 +184,27 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	}
 }
 
-void telnetCmdFan(String commandLine  ,CommandOutput* commandOutput)
-{
-	Vector<String> commandToken;
-	int numToken = splitString(commandLine, ' ' , commandToken);
-	if (numToken != 2)
-	{
-		commandOutput->println("Usage fan on|off|auto");
-	}
-	else if (commandToken[1] == "on")
-	{
-		enableFan(true);
-	}
-	else if (commandToken[1] == "off")
-	{
-		enableFan(false);
-	}
-	else if (commandToken[1] == "auto")
-	{
-		checkFanNeeded();
-	}
-}
+// void telnetCmdFan(String commandLine  ,CommandOutput* commandOutput)
+// {
+// 	Vector<String> commandToken;
+// 	int numToken = splitString(commandLine, ' ' , commandToken);
+// 	if (numToken != 2)
+// 	{
+// 		commandOutput->println("Usage fan on|off|auto");
+// 	}
+// 	else if (commandToken[1] == "on")
+// 	{
+// 		enableFan(true);
+// 	}
+// 	else if (commandToken[1] == "off")
+// 	{
+// 		enableFan(false);
+// 	}
+// 	else if (commandToken[1] == "auto")
+// 	{
+// 		checkFanNeeded();
+// 	}
+// }
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
@@ -300,7 +301,7 @@ void telnetAuth(String commandLine  ,CommandOutput* commandOutput)
 	if (commandLine == "auth prevents mistakes "+NetConfig.authtoken)
 	{
 		auth_num_cmds = 3;
-		commandOutput->println("go ahead, use your 3 commands wisely (if you break it, you fix it)");
+		commandOutput->println("go ahead, use your 3 commands wisely");
 	} else {
 		auth_num_cmds = 0;
 		commandOutput->println("no dice");
@@ -322,15 +323,15 @@ void startTelnetServer()
 
 void telnetRegisterCmdsWithCommandHandler()
 {
-	commandHandler.registerCommand(CommandDelegate("set","Change settings","configGroup", telnetCmdNetSettings));
-	commandHandler.registerCommand(CommandDelegate("save","Save settings","configGroup", telnetCmdSave));
-	commandHandler.registerCommand(CommandDelegate("load","Load settings","configGroup", telnetCmdLoad));
-	commandHandler.registerCommand(CommandDelegate("show","Show settings","configGroup", telnetCmdPrint));
-	commandHandler.registerCommand(CommandDelegate("ls","List files","configGroup", telnetCmdLs));
-	commandHandler.registerCommand(CommandDelegate("cat","Cat file contents","configGroup", telnetCmdCatFile));
-	commandHandler.registerCommand(CommandDelegate("light","Test light","systemGroup", telnetCmdLight));
-	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","systemGroup", telnetCmdReboot));
-	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","systemGroup", telnetAirUpdate));
-	commandHandler.registerCommand(CommandDelegate("auth","auth token","systemGroup", telnetAuth));
-	commandHandler.registerCommand(CommandDelegate("fan","fanctrl","systemGroup", telnetCmdFan));
+	commandHandler.registerCommand(CommandDelegate("set","Change settings","cG", telnetCmdNetSettings));
+	commandHandler.registerCommand(CommandDelegate("save","Save settings","cG", telnetCmdSave));
+	commandHandler.registerCommand(CommandDelegate("load","Load settings","cG", telnetCmdLoad));
+	commandHandler.registerCommand(CommandDelegate("show","Show settings","cG", telnetCmdPrint));
+	commandHandler.registerCommand(CommandDelegate("ls","List files","cG", telnetCmdLs));
+	commandHandler.registerCommand(CommandDelegate("cat","Cat file contents","cG", telnetCmdCatFile));
+	commandHandler.registerCommand(CommandDelegate("light","Test light","sG", telnetCmdLight));
+	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","sG", telnetCmdReboot));
+	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","sG", telnetAirUpdate));
+	commandHandler.registerCommand(CommandDelegate("auth","auth token","sG", telnetAuth));
+	// commandHandler.registerCommand(CommandDelegate("fan","fanctrl","sG", telnetCmdFan));
 }

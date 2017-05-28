@@ -18,6 +18,8 @@ String getMQTTTopic(String topic3, bool all=false)
 	return JSON_TOPIC1+((all) ? JSON_TOPIC2_ALL : NetConfig.mqtt_clientid)+topic3;
 }
 
+extern bool button_used_;
+
 // Check for MQTT Disconnection
 void checkMQTTDisconnect(TcpClient& client, bool flag){
 
@@ -30,7 +32,8 @@ void checkMQTTDisconnect(TcpClient& client, bool flag){
 	else
 	{
 		//Serial.println("MQTT Broker Unreachable!!");
-		flashSingleChannel(3,CHAN_RED);
+		if (!button_used_)
+			flashSingleChannel(3,CHAN_RED);
 	}
 
 	// Restart connection attempt after few seconds
@@ -122,8 +125,8 @@ void simulateCWwithRGB(uint32_t a[PWM_CHANNELS])
 // Callback for messages, arrived from MQTT server
 void onMessageReceived(String topic, String message)
 {
-	debugf("topic: %s",topic.c_str());
-	debugf("msg: %s",message.c_str());
+	// debugf("topic: %s",topic.c_str());
+	// debugf("msg: %s",message.c_str());
 	//GRML BUG :-( It would be really nice to filter out retained messages,
 	//             to avoid the light powering up, going into defaultlight settings, then getting wifi and switching to a retained /light setting
 	//GRML :-( unfortunately we can't distinguish between retained and fresh messages here
@@ -230,9 +233,9 @@ void startMqttClient()
 
 	// Assign a disconnect callback function
 	mqtt->setCompleteDelegate(checkMQTTDisconnect);
-	debugf("connecting to to MQTT broker");
+	// debugf("connecting to to MQTT broker");
 	mqtt->connect(NetConfig.mqtt_clientid, NetConfig.mqtt_user, NetConfig.mqtt_pass, true);
-	debugf("connected to MQTT broker");
+	// debugf("connected to MQTT broker");
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,true));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));

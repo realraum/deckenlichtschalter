@@ -10,11 +10,10 @@ public:
 	IPAddress ip = IPAddress(192, 168, 127, 242);
 	IPAddress netmask = IPAddress(255,255,255,0);
 	IPAddress gw = IPAddress(192, 168, 127, 254);
-	uint32_t wifi_settings_num = 1;
-	String wifi_ssid[MAX_WIFI_SETS]={"realraum","realstuff",""};
+	String wifi_ssid[MAX_WIFI_SETS]={"","",""};
 	String wifi_pass[MAX_WIFI_SETS]={"","",""};
 	String mqtt_broker="mqtt.realraum.at";
-	String mqtt_clientid="ceiling9";
+	String mqtt_clientid="test";
 	String mqtt_user;
 	String mqtt_pass;
 	bool enabledhcp=true;
@@ -34,7 +33,7 @@ public:
 
 	String getWifiSSID() {return wifi_ssid[wifi_settings_idx];}
 	String getWifiPASS() {return wifi_pass[wifi_settings_idx];}
-	void nextWifi() {wifi_settings_idx++; if (wifi_ssid[wifi_settings_idx].length() == 0) {wifi_settings_idx=0;}}
+	void nextWifi() {wifi_settings_idx++; wifi_settings_idx %= MAX_WIFI_SETS; if (wifi_ssid[wifi_settings_idx].length() == 0) {wifi_settings_idx=0;}}
 
 private:
 	uint32_t wifi_settings_idx = 0;

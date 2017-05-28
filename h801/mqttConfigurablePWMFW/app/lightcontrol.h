@@ -13,7 +13,7 @@ const uint32_t DEFAULT_FLASH_PERIOD_ = 800; //ms
 
 enum FLASHFLAGS {FLASH_INTERMED_USERSET, FLASH_INTERMED_DARK, FLASH_INTERMED_ORIG};
 
-const uint32_t pwm_period = 5000; // * 200ns ^= 1 kHz
+const uint32_t pwm_period	 = 5000; // * 200ns ^= 1 kHz
 
 extern uint32_t effect_target_values_[PWM_CHANNELS];
 extern uint32_t effect_intermid_values_[PWM_CHANNELS];
