@@ -37,11 +37,11 @@ class CeilingScriptClass():
 
     @property
     def lightids(self):
-        return list(["ceiling%d" % x for x in range(1,9)] + ["abwasch"])
+        return list(["ceiling%d" % x for x in range(1,9)] + ["abwasch","flooddoor"])
 
     @property
     def lightidsceiling(self):
-        return list(["ceiling%d" % x for x in range(1,7)])
+        return list(["ceiling%d" % x for x in range(1,5)]+["flooddoor"]+["ceiling%d" % x for x in range(5,7)])
 
     @property
     def participating(self):
