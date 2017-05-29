@@ -93,9 +93,15 @@ var (
 	}
 	topics_sonoff_info = []string{
 		"realraum/couchred/POWER",
+		"realraum/tesla/POWER",
+		"realraum/boilerolga/POWER",
+		"realraum/boilerlothr/POWER",
 	}
 	topics_sonoff_action = []string{
 		"action/couchred/power",
+		"action/tesla/power",
+		"action/boilerolga/power",
+		"action/boilerlothr/power",
 	}
 
 	ws_allowed_ctx_all = append(

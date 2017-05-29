@@ -279,7 +279,6 @@ var webSocketSupport = null;
 
 populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "regalleinwand":"LEDs Regal Leinwand",
-  "labortisch":"TESLA Labortisch",
   "floodtesla":"TESLA Deckenfluter",
   "bluebar":"Blaue LEDs Bar",
   "abwasch":"Licht Waschbecken",
@@ -294,6 +293,7 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "couchred":"LEDs Couch Red",
+  "tesla":"TESLA Labortisch",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
