@@ -20,7 +20,7 @@ public:
 	uint16_t mqtt_port=1883;  //8883 for ssl
 	uint32_t publish_interval=8000;
 	String authtoken;
-	
+
 	uint32_t debounce_interval=300;
 
 	uint32_t fan_threshold=2500;

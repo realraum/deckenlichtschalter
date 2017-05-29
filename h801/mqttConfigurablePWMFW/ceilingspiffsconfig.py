@@ -4,14 +4,14 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid=None,wifi1_pass=None,wifi2_ssid=None,wifi2_pass=None):
+def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid="",wifi1_pass="",wifi2_ssid="",wifi2_pass=""):
     NET_SETTINGS_FILE = "net.conf"
-    WIFISSID0_SETTINGS_FILE = "wifi0.ssid.conf"
-    WIFIPASS0_SETTINGS_FILE = "wifi0.pass.conf"
-    WIFISSID1_SETTINGS_FILE = "wifi1.ssid.conf"
-    WIFIPASS1_SETTINGS_FILE = "wifi1.pass.conf"
-    WIFISSID2_SETTINGS_FILE = "wifi2.ssid.conf"
-    WIFIPASS2_SETTINGS_FILE = "wifi2.pass.conf"
+    WIFISSID0_SETTINGS_FILE = "wifi0.ssid"
+    WIFIPASS0_SETTINGS_FILE = "wifi0.pass"
+    WIFISSID1_SETTINGS_FILE = "wifi1.ssid"
+    WIFIPASS1_SETTINGS_FILE = "wifi1.pass"
+    WIFISSID2_SETTINGS_FILE = "wifi2.ssid"
+    WIFIPASS2_SETTINGS_FILE = "wifi2.pass"
     MQTTCLIENT_SETTINGS_FILE = "mqtt.clientid.conf"
     MQTTUSER_SETTINGS_FILE = "mqtt.user.conf"
     MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf"
@@ -33,16 +33,14 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
         fh.write(wifi0_ssid)
     with open(os.path.join(DIR, WIFIPASS0_SETTINGS_FILE),"wb") as fh:
         fh.write(wifi0_pass)
-    if wifi1_ssid != None and wifi1_pass != None:
-        with open(os.path.join(DIR, WIFISSID1_SETTINGS_FILE),"wb") as fh:
-            fh.write(wifi1_ssid)
-        with open(os.path.join(DIR, WIFIPASS1_SETTINGS_FILE),"wb") as fh:
-            fh.write(wifi1_pass)
-    if wifi2_ssid != None and wifi2_pass != None:
-        with open(os.path.join(DIR, WIFISSID2_SETTINGS_FILE),"wb") as fh:
-            fh.write(wifi2_ssid)
-        with open(os.path.join(DIR, WIFIPASS2_SETTINGS_FILE),"wb") as fh:
-            fh.write(wifi2_pass)
+    with open(os.path.join(DIR, WIFISSID1_SETTINGS_FILE),"wb") as fh:
+        fh.write(wifi1_ssid)
+    with open(os.path.join(DIR, WIFIPASS1_SETTINGS_FILE),"wb") as fh:
+        fh.write(wifi1_pass)
+    with open(os.path.join(DIR, WIFISSID2_SETTINGS_FILE),"wb") as fh:
+        fh.write(wifi2_ssid)
+    with open(os.path.join(DIR, WIFIPASS2_SETTINGS_FILE),"wb") as fh:
+        fh.write(wifi2_pass)
     with open(os.path.join(DIR, MQTTBROKER_SETTINGS_FILE),"wb") as fh:
         fh.write(mqtt_broker)
     with open(os.path.join(DIR, MQTTCLIENT_SETTINGS_FILE),"wb") as fh:

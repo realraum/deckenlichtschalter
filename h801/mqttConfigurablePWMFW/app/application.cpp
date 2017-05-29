@@ -19,6 +19,7 @@ DefaultLightConfigStorage DefaultLightConfig;
 Timer BtnTimer;
 DebouncedButton *button = nullptr;
 bool button_used_ = false;
+uint8_t wifi_fail_count_ = 0;
 
 
 ///////////////////////////////////////
@@ -59,8 +60,13 @@ void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t re
 
 	if (!button_used_)
 		flashSingleChannel(1,CHAN_RED);
-	NetConfig.nextWifi();
-	configureWifi();
+	wifi_fail_count_++;
+	if (wifi_fail_count_ > 2)
+	{
+		NetConfig.nextWifi();
+		configureWifi();
+		wifi_fail_count_ = 0;
+	}
 }
 
 //////////////////////////////////////
@@ -83,6 +89,7 @@ void handleButton()
 		return;
 	if (button->isLongPressed())
 	{
+		debugf("btn longpress");
 		for (uint8_t i=0;i<PWM_CHANNELS;i++)
 		{
 			button_on_values[i]=0;
@@ -91,6 +98,7 @@ void handleButton()
 		applyValues(button_on_values);
 		button_color=(button_color+1)%(PWM_CHANNELS*levels_pro_color);
 	} else if (button->wasPressed()) {
+		debugf("btn press");
 		button_used_ = true;
 		if (pwm_get_duty(CHAN_RED)+pwm_get_duty(CHAN_GREEN)+pwm_get_duty(CHAN_BLUE)+pwm_get_duty(CHAN_WW)+pwm_get_duty(CHAN_CW) > 0)
 		{
@@ -135,7 +143,7 @@ void init()
 #endif
 	setupPWM(); //Init PWM with spiffs saved default settings
 	telnetRegisterCmdsWithCommandHandler();
-	commandHandler.registerSystemCommands();
+	//commandHandler.registerSystemCommands();
 	// configure stuff that needs to be done before system is ready
 	NetConfig.load(); //loads netsettings from fs
 

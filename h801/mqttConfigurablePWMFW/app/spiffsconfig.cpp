@@ -6,8 +6,8 @@ SpiffsConfigStorage NetConfig;
 
 const String DEFAULTLIGHT_SETTINGS_FILE = "defaultlight.conf";
 const String NET_SETTINGS_FILE = "net.conf";
-const String WIFISSID_SETTINGS_FILES[MAX_WIFI_SETS] = {"wifi0.ssid.conf","wifi1.ssid.conf","wifi2.ssid.conf"};
-const String WIFIPASS_SETTINGS_FILES[MAX_WIFI_SETS] = {"wifi0.pass.conf","wifi1.pass.conf","wifi2.pass.conf"};
+const String WIFISSID_SETTINGS_FILES[MAX_WIFI_SETS] = {"wifi0.ssid","wifi1.ssid","wifi2.ssid"};
+const String WIFIPASS_SETTINGS_FILES[MAX_WIFI_SETS] = {"wifi0.pass","wifi1.pass","wifi2.pass"};
 const String MQTTCLIENT_SETTINGS_FILE = "mqtt.clientid.conf";
 const String MQTTUSER_SETTINGS_FILE = "mqtt.user.conf";
 const String MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf";
@@ -35,12 +35,8 @@ void SpiffsConfigStorage::load()
 		mqtt_port = (uint16_t)(netsettings[3]);
 		for (uint32_t wifi_settings_num=0; wifi_settings_num<MAX_WIFI_SETS; wifi_settings_num++)
 		{
-			if (fileExist(WIFISSID_SETTINGS_FILES[wifi_settings_num]) && fileExist(WIFIPASS_SETTINGS_FILES[wifi_settings_num])) {
-				wifi_ssid[wifi_settings_num] = fileGetContent(WIFISSID_SETTINGS_FILES[wifi_settings_num]);
-				wifi_pass[wifi_settings_num] = fileGetContent(WIFIPASS_SETTINGS_FILES[wifi_settings_num]);
-			} else {
-				break;
-			}
+			wifi_ssid[wifi_settings_num] = fileGetContent(WIFISSID_SETTINGS_FILES[wifi_settings_num]);
+			wifi_pass[wifi_settings_num] = fileGetContent(WIFIPASS_SETTINGS_FILES[wifi_settings_num]);
 		}
 		mqtt_broker = fileGetContent(MQTTBROKER_SETTINGS_FILE);
 		mqtt_clientid = fileGetContent(MQTTCLIENT_SETTINGS_FILE);
@@ -65,7 +61,7 @@ void SpiffsConfigStorage::load()
 			f = fileOpen(CHAN_RANGE_SETTINGS_FILE, eFO_ReadOnly);
 			fileRead(f, (void*) chan_range, PWM_CHANNELS*sizeof(uint32_t));
 			fileClose(f);
-		}		
+		}
 	}
 }
 
