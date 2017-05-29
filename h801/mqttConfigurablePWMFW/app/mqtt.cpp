@@ -112,13 +112,24 @@ void checkForwardInJsonAndSetCC(JsonObject& root, JsonObject& checkme)
 	}
 }
 
-void simulateCWwithRGB(uint32_t a[PWM_CHANNELS])
+void simulateCWwithRGB(JsonObject& root, uint32_t a[PWM_CHANNELS])
 {
 	if (NetConfig.simulatecw_w_rgb)
 	{
-		a[CHAN_RED] = max(a[CHAN_RED],a[CHAN_CW]);
-		a[CHAN_GREEN] = max(a[CHAN_GREEN],a[CHAN_CW]);
-		a[CHAN_BLUE] = max(a[CHAN_BLUE],a[CHAN_CW]);
+		if (root.containsKey(JSONKEY_CW))
+		{
+			uint32_t value = (uint32_t)root[JSONKEY_CW];
+			if (value > NetConfig.chan_range[CHAN_BLUE])
+			{
+				return;
+			}
+			value = value * pwm_period / NetConfig.chan_range[CHAN_BLUE];
+			if (value > pwm_period)
+				value = pwm_period;
+			a[CHAN_RED] = max(a[CHAN_RED],value);
+			a[CHAN_GREEN] = max(a[CHAN_GREEN],value);
+			a[CHAN_BLUE] = max(a[CHAN_BLUE],value);
+		}
 	}
 }
 
@@ -141,7 +152,7 @@ void onMessageReceived(String topic, String message)
 		root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * NetConfig.chan_range[CHAN_RED] / pwm_period;
 		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * NetConfig.chan_range[CHAN_GREEN] / pwm_period;
 		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * NetConfig.chan_range[CHAN_BLUE] / pwm_period;
-		root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
+		root[JSONKEY_CW] = effect_target_values_[CHAN_UV] * NetConfig.chan_range[CHAN_UV] / pwm_period;
 		root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
 		root.printTo(message);
 		//publish to myself (where presumably everybody else also listens), the current settings
@@ -163,9 +174,9 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, effect_target_values_, JSONKEY_RED, CHAN_RED);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_BLUE, CHAN_BLUE);
-		setArrayFromKey(root, effect_target_values_, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_WW, CHAN_WW);
-		simulateCWwithRGB(effect_target_values_);
+		setArrayFromKey(root, effect_target_values_, JSONKEY_UV, CHAN_UV);
+		simulateCWwithRGB(root, effect_target_values_);
 
 		//-----
 		if (root.containsKey(JSONKEY_FLASH))
@@ -200,9 +211,9 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_RED, CHAN_RED);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_BLUE, CHAN_BLUE);
-		setArrayFromKey(root, pwm_duty_default, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_WW, CHAN_WW);
-		simulateCWwithRGB(pwm_duty_default);
+		setArrayFromKey(root, pwm_duty_default, JSONKEY_UV, CHAN_UV);
+		simulateCWwithRGB(root, pwm_duty_default);
 		DefaultLightConfig.save(pwm_duty_default);
 		flashSingleChannel(1,CHAN_BLUE);
 	}

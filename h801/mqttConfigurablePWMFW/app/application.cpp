@@ -100,7 +100,7 @@ void handleButton()
 	} else if (button->wasPressed()) {
 		debugf("btn press");
 		button_used_ = true;
-		if (pwm_get_duty(CHAN_RED)+pwm_get_duty(CHAN_GREEN)+pwm_get_duty(CHAN_BLUE)+pwm_get_duty(CHAN_WW)+pwm_get_duty(CHAN_CW) > 0)
+		if (pwm_get_duty(CHAN_RED)+pwm_get_duty(CHAN_GREEN)+pwm_get_duty(CHAN_BLUE)+pwm_get_duty(CHAN_WW)+pwm_get_duty(CHAN_UV) > 0)
 		{
 			applyValues(button_off_values);
 		} else {
