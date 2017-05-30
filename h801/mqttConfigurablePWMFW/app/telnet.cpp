@@ -14,13 +14,15 @@
 TelnetServer telnetServer;
 int16_t auth_num_cmds=0;
 
+const char* telnet_prev_mistakes_msg = "Prevent Mistakes, give auth token";
+
 void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 {
 	Vector<String> commandToken;
 	int numToken = splitString(commandLine, ' ' , commandToken);
 	if (auth_num_cmds <= 0)
 	{
-		commandOutput->println("Prevent Mistakes, give auth token");
+		commandOutput->println(telnet_prev_mistakes_msg);
 		return;
 	}
 	auth_num_cmds--;
@@ -32,77 +34,77 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	else if (commandToken[1] == "ip")
 	{
 		IPAddress newip(commandToken[2]);
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),newip.toString().c_str());
 		if (!newip.isNull())
 			NetConfig.ip = newip;
 	}
 	else if (commandToken[1] == "nm")
 	{
 		IPAddress newip(commandToken[2]);
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),newip.toString().c_str());
 		if (!newip.isNull())
 			NetConfig.netmask = newip;
 	}
 	else if (commandToken[1] == "gw")
 	{
 		IPAddress newip(commandToken[2]);
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),newip.toString().c_str());
 		if (!newip.isNull())
 			NetConfig.gw = newip;
 	}
 	else if (commandToken[1] == "wifissid")
 	{
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
 		NetConfig.wifi_ssid[0] = commandToken[2];
 	}
 	else if (commandToken[1] == "wifipass")
 	{
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
 		NetConfig.wifi_pass[0] = commandToken[2];
 	}
 	else if (commandToken[1] == "mqttbroker")
 	{
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
 		NetConfig.mqtt_broker = commandToken[2];
 	}
 	else if (commandToken[1] == "mqttport")
 	{
 		uint32_t newport = commandToken[2].toInt();
-		commandOutput->printf("%s: '%d'\r\n",commandToken[1].c_str(),newport);
 		if (newport > 0 && newport < 65536)
 			NetConfig.mqtt_port = newport;
 	}
-	else if (commandToken[1] == "fan")
+/*	else if (commandToken[1] == "fan")
 	{
 		NetConfig.fan_threshold = commandToken[2].toInt();
 		commandOutput->printf("%s: '%d'\r\n",commandToken[1].c_str(),NetConfig.fan_threshold);
 	}
+*/	else if (commandToken[1] == "btn1")
+	{
+		NetConfig.debounce_interval = commandToken[2].toInt();
+	}
+	else if (commandToken[1] == "btn2")
+	{
+		NetConfig.debounce_interval_longpress = commandToken[2].toInt();
+	}
+	else if (commandToken[1] == "btn3")
+	{
+		NetConfig.debounce_button_timer_interval = commandToken[2].toInt();
+	}
 	else if (commandToken[1] == "mqttclientid")
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
-		NetConfig.mqtt_clientid = commandToken[2];
 	}
 	else if (commandToken[1] == "mqttuser")
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
-		NetConfig.mqtt_user = commandToken[2];
 	}
 	else if (commandToken[1] == "mqttpass")
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
-		NetConfig.mqtt_pass = commandToken[2];
 	}
 	else if (commandToken[1] == "dhcp")
 	{
 		NetConfig.enabledhcp = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),(NetConfig.enabledhcp)?"on":"off");
 	}
 	else if (commandToken[1] == "sim")
 	{
 		NetConfig.simulatecw_w_rgb = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
-		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),(NetConfig.simulatecw_w_rgb)?"yes":"no");
 	} else {
-		commandOutput->printf("Invalid subcommand. Try %s list\r\n", commandToken[0].c_str());
+		commandOutput->printf("Invalid subcommand");
 	}
 }
 
@@ -123,7 +125,7 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->println("MQTT ClientID: " + NetConfig.mqtt_clientid);
 	commandOutput->println("MQTT Login: " + NetConfig.mqtt_user +"/"+ NetConfig.mqtt_pass);
 	commandOutput->println("FAN Threshold: " + String(NetConfig.fan_threshold) + "/"+String(PWM_CHANNELS*pwm_period));
-	commandOutput->println((NetConfig.simulatecw_w_rgb)?"SimCWwithRGB: yes":"SimCWwithRGB: no");
+	commandOutput->println("Button Values: " + String(NetConfig.debounce_interval) + ","+String(NetConfig.debounce_interval_longpress) + ","+String(NetConfig.debounce_button_timer_interval));
 }
 
 void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
@@ -184,33 +186,11 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	}
 }
 
-// void telnetCmdFan(String commandLine  ,CommandOutput* commandOutput)
-// {
-// 	Vector<String> commandToken;
-// 	int numToken = splitString(commandLine, ' ' , commandToken);
-// 	if (numToken != 2)
-// 	{
-// 		commandOutput->println("Usage fan on|off|auto");
-// 	}
-// 	else if (commandToken[1] == "on")
-// 	{
-// 		enableFan(true);
-// 	}
-// 	else if (commandToken[1] == "off")
-// 	{
-// 		enableFan(false);
-// 	}
-// 	else if (commandToken[1] == "auto")
-// 	{
-// 		checkFanNeeded();
-// 	}
-// }
-
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
 	if (auth_num_cmds <= 0)
 	{
-		commandOutput->println("Prevent Mistakes, give auth token");
+		commandOutput->println(telnet_prev_mistakes_msg);
 		return;
 	}
 	auth_num_cmds--;
@@ -229,7 +209,7 @@ void telnetCmdCatFile(String commandLine  ,CommandOutput* commandOutput)
 {
 	if (auth_num_cmds <= 0)
 	{
-		commandOutput->println("Prevent Mistakes, give auth token");
+		commandOutput->println(telnet_prev_mistakes_msg);
 		return;
 	}
 	auth_num_cmds--;
@@ -252,7 +232,7 @@ void telnetCmdCatFile(String commandLine  ,CommandOutput* commandOutput)
 
 void telnetCmdLoad(String commandLine  ,CommandOutput* commandOutput)
 {
-	commandOutput->printf("OK, reloading values...\r\n");
+	commandOutput->printf("OK, loading values...\r\n");
 	NetConfig.load();
 }
 
@@ -271,14 +251,14 @@ void telnetAirUpdate(String commandLine  ,CommandOutput* commandOutput)
 
 	if (auth_num_cmds <= 0)
 	{
-		commandOutput->println("Prevent Mistakes, give auth token");
+		commandOutput->println(telnet_prev_mistakes_msg);
 		return;
 	}
 	auth_num_cmds--;
 
 	if (2 != numToken )
 	{
-		commandOutput->println("Usage: update <url dir to files>");
+		commandOutput->println("Usage: update <url to files>");
 		return;
 	} else
 	{

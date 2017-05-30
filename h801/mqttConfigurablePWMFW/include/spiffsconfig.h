@@ -21,7 +21,9 @@ public:
 	uint32_t publish_interval=8000;
 	String authtoken;
 
-	uint32_t debounce_interval=300;
+	uint32_t debounce_interval=30;
+	uint32_t debounce_interval_longpress=700;
+	uint32_t debounce_button_timer_interval=800;
 
 	uint32_t fan_threshold=2500;
 	bool simulatecw_w_rgb=false;

@@ -156,8 +156,8 @@ void init()
 	NetConfig.load(); //loads netsettings from fs
 
 	button_on_values_[CHAN_WW] = pwm_period/2;
-	button = new DebouncedButton(FUNC_GPIO0, 30, 700, true);
-	BtnTimer.initializeMs(800, handleButton).start();
+	button = new DebouncedButton(FUNC_GPIO0, NetConfig.debounce_interval, NetConfig.debounce_interval_longpress, true);
+	BtnTimer.initializeMs(NetConfig.debounce_button_timer_interval, handleButton).start();
 
 	configureWifi();
 	// Set system ready callback method

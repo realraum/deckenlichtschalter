@@ -4,7 +4,7 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid="",wifi1_pass="",wifi2_ssid="",wifi2_pass=""):
+def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid="",wifi1_pass="",wifi2_ssid="",wifi2_pass="",debounce_interval=30,debounce_interval_longpress=700,debounce_button_timer_interval=800):
     NET_SETTINGS_FILE = "net.conf"
     WIFISSID0_SETTINGS_FILE = "wifi0.ssid"
     WIFIPASS0_SETTINGS_FILE = "wifi0.pass"
@@ -21,6 +21,7 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
     SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag"
     FAN_SETTINGS_FILE = "fan.conf"
     CHAN_RANGE_SETTINGS_FILE = "channelranges.conf"
+    DEBOUNCE_INTERVAL_SETTINGS_FILE = "debounceinterval.conf"
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
@@ -49,6 +50,8 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
         fh.write(mqtt_user)
     with open(os.path.join(DIR, MQTTPASS_SETTINGS_FILE),"wb") as fh:
         fh.write(mqtt_pass)
+    with open(os.path.join(DIR, DEBOUNCE_INTERVAL_SETTINGS_FILE),"wb") as fh:
+        fh.write(struct.pack("<III", int(debounce_interval), int(debounce_interval_longpress), int(debounce_button_timer_interval)))
     with open(os.path.join(DIR, AUTHTOKEN_SETTINGS_FILE),"wb") as fh:
         fh.write(authtoken)
     if dhcp:

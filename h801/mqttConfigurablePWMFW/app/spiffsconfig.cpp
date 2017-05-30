@@ -3,7 +3,6 @@
 
 SpiffsConfigStorage NetConfig;
 
-
 const String DEFAULTLIGHT_SETTINGS_FILE = "defaultlight.conf";
 const String NET_SETTINGS_FILE = "net.conf";
 const String WIFISSID_SETTINGS_FILES[MAX_WIFI_SETS] = {"wifi0.ssid","wifi1.ssid","wifi2.ssid"};
@@ -50,6 +49,8 @@ void SpiffsConfigStorage::load()
 
 		f = fileOpen(DEBOUNCE_INTERVAL_SETTINGS_FILE, eFO_ReadOnly);
 		fileRead(f, (void*) &debounce_interval, sizeof(uint32_t));
+		fileRead(f, (void*) &debounce_interval_longpress, sizeof(uint32_t));
+		fileRead(f, (void*) &debounce_button_timer_interval, sizeof(uint32_t));
 		fileClose(f);
 
 		simulatecw_w_rgb = fileExist(SIMULATE_CW_SETTINGS_FILE);
