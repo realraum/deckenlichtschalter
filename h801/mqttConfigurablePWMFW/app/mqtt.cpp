@@ -11,7 +11,7 @@
 
 
 Timer procMQTTTimer;
-MqttClient *mqtt = 0;
+MqttClient *mqtt = nullptr;
 
 String getMQTTTopic(String topic3, bool all=false)
 {
@@ -224,7 +224,7 @@ void startMqttClient()
 {
 	procMQTTTimer.stop();
 
-	if (0 == mqtt)
+	if (nullptr == mqtt)
 		mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port, onMessageReceived);
 
 /*	if(!mqtt->setWill("last/will","The connection from this device is lost:(", 1, true)) {
