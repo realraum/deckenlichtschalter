@@ -133,6 +133,29 @@ void simulateCWwithRGB(JsonObject& root, uint32_t a[PWM_CHANNELS])
 	}
 }
 
+void publishCurrentLightSetting(StaticJsonBuffer<1024> &jsonBuffer, String &message)
+{
+	if (nullptr == mqtt)
+		return;
+	JsonObject& root = jsonBuffer.createObject();
+	root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * NetConfig.chan_range[CHAN_RED] / pwm_period;
+	root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * NetConfig.chan_range[CHAN_GREEN] / pwm_period;
+	root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * NetConfig.chan_range[CHAN_BLUE] / pwm_period;
+	// root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
+	root[JSONKEY_UV] = effect_target_values_[CHAN_UV] * NetConfig.chan_range[CHAN_UV] / pwm_period;
+	root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
+	root.printTo(message);
+	//publish to myself (where presumably everybody else also listens), the current settings
+	mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);	
+}
+
+void mqttPublishCurrentLightSetting()
+{
+	StaticJsonBuffer<1024> jsonBuffer;
+	String message;
+	publishCurrentLightSetting(jsonBuffer, message);
+}
+
 // Callback for messages, arrived from MQTT server
 void onMessageReceived(String topic, String message)
 {
@@ -148,15 +171,7 @@ void onMessageReceived(String topic, String message)
 	// (as JsonBuffer should not be reused) This allows us to use that buffer for sending a message ourselves
 	if (topic.endsWith(JSON_TOPIC3_PLEASEREPEAT))
 	{
-		JsonObject& root = jsonBuffer.createObject();
-		root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * NetConfig.chan_range[CHAN_RED] / pwm_period;
-		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * NetConfig.chan_range[CHAN_GREEN] / pwm_period;
-		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * NetConfig.chan_range[CHAN_BLUE] / pwm_period;
-		root[JSONKEY_CW] = effect_target_values_[CHAN_UV] * NetConfig.chan_range[CHAN_UV] / pwm_period;
-		root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
-		root.printTo(message);
-		//publish to myself (where presumably everybody else also listens), the current settings
-		mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
+		publishCurrentLightSetting(jsonBuffer, message);
 		return; //return so we don't reuse the now used jsonBuffer
 	}
 
