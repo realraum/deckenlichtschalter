@@ -14,7 +14,8 @@
 	#include <ssl/cert.h>
 #endif
 
-DefaultLightConfigStorage DefaultLightConfig;
+DefaultLightConfigStorage DefaultLightConfig("defaultlight.conf");
+DefaultLightConfigStorage ButtonLightConfig("btnlight.conf");
 
 Timer BtnTimer;
 DebouncedButton *button = nullptr;
@@ -99,7 +100,6 @@ void handleButton()
 			//Switch OFF: save current values
 			for (uint8_t i=0;i<PWM_CHANNELS;i++)
 			{
-				button_on_values_[i] = effect_target_values_[i];
 				effect_target_values_[i]=0;
 			}
 		} else {
@@ -156,6 +156,7 @@ void init()
 	NetConfig.load(); //loads netsettings from fs
 
 	button_on_values_[CHAN_WW] = pwm_period/2;
+	ButtonLightConfig.load(button_on_values_);
 	button = new DebouncedButton(FUNC_GPIO0, NetConfig.debounce_interval, NetConfig.debounce_interval_longpress, true);
 	BtnTimer.initializeMs(NetConfig.debounce_button_timer_interval, handleButton).start();
 

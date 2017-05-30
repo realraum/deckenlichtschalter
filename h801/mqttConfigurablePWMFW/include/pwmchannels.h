@@ -30,6 +30,7 @@ const String JSON_TOPIC2_ALL ="ceilingAll";
 const String JSON_TOPIC3_LIGHT = "/light";
 const String JSON_TOPIC3_DEFAULTLIGHT = "/defaultlight";
 const String JSON_TOPIC3_PLEASEREPEAT = "/pleaserepeat";
+const String JSON_TOPIC3_BUTTONONLIGHT = "/btnlight";
 
 const uint32_t TELNET_PORT_ = 2323;
 

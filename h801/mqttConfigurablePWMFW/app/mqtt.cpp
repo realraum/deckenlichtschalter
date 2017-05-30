@@ -231,6 +231,15 @@ void onMessageReceived(String topic, String message)
 		simulateCWwithRGB(root, pwm_duty_default);
 		DefaultLightConfig.save(pwm_duty_default);
 		flashSingleChannel(1,CHAN_BLUE);
+	} else if (topic.endsWith(JSON_TOPIC3_BUTTONONLIGHT))
+	{
+		setArrayFromKey(root, button_on_values_, JSONKEY_RED, CHAN_RED);
+		setArrayFromKey(root, button_on_values_, JSONKEY_GREEN, CHAN_GREEN);
+		setArrayFromKey(root, button_on_values_, JSONKEY_BLUE, CHAN_BLUE);
+		setArrayFromKey(root, button_on_values_, JSONKEY_WW, CHAN_WW);
+		setArrayFromKey(root, button_on_values_, JSONKEY_UV, CHAN_UV);
+		simulateCWwithRGB(root, button_on_values_);
+		ButtonLightConfig.save(button_on_values_);
 	}
 }
 
@@ -268,6 +277,7 @@ void startMqttClient()
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
 
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
 }
@@ -280,6 +290,7 @@ void stopMqttClient()
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
 	mqtt->setKeepAlive(0);
 	mqtt->setPingRepeatTime(0);
 	procMQTTTimer.stop();
