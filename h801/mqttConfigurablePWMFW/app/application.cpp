@@ -57,7 +57,7 @@ void wifiConnectOk(IPAddress ip, IPAddress mask, IPAddress gateway)
 void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t reason)
 {
 	// The different reason codes can be found in user_interface.h. in your SDK.
-	debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
+	// debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
 
 	if (!button_used_)
 		flashSingleChannel(1,CHAN_RED);
