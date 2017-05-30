@@ -28,7 +28,7 @@ bool DebouncedButton::isPressed()
 
 bool DebouncedButton::isLongPressed()
 {
-	if (((digitalRead(button_pin_) == HIGH) ^ button_pulls_to_ground_) && millis() - last_button_event_time_ >= longpress_duration_ms_)
+	if (isPressed() && millis() - last_button_event_time_ >= longpress_duration_ms_)
 	{
 		return true;
 	}
@@ -37,6 +37,7 @@ bool DebouncedButton::isLongPressed()
 
 void IRAM_ATTR DebouncedButton::buttonInterruptHandler()
 {
+	noInterrupts();
 	if (isPressed())
 		last_button_event_time_ = millis();
 	else {
@@ -46,6 +47,7 @@ void IRAM_ATTR DebouncedButton::buttonInterruptHandler()
 			button_event_ctr_++;
 		}
 	}
+	interrupts();
 }
 
 bool DebouncedButton::wasPressed()
@@ -56,7 +58,7 @@ bool DebouncedButton::wasPressed()
 		last_read_button_event_ctr_ = button_event_ctr_ + 1; //ignore next button press, we reported the one currently in progress
 		return true;
 	} else */
-	if (button_event_ctr_ > last_read_button_event_ctr_)
+	if (button_event_ctr_ != last_read_button_event_ctr_)
 	{
 		last_read_button_event_ctr_ = button_event_ctr_;
 		return true;

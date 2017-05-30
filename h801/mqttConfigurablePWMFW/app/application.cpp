@@ -79,7 +79,7 @@ bool button_longpress_inprogress_ = false;
 
 void handleButton()
 {
-	const uint32_t levels_pro_color = 3;
+	const uint32_t levels_pro_color = 5;
 	if (button == nullptr)
 		return;
 	if (button->isLongPressed())
@@ -88,7 +88,7 @@ void handleButton()
 		{
 			effect_target_values_[i]=0;
 		}
-		effect_target_values_[button_color_/levels_pro_color] = pwm_period/(levels_pro_color-button_color_%levels_pro_color);
+		effect_target_values_[button_color_/levels_pro_color] = (button_color_%levels_pro_color) * pwm_period/ levels_pro_color;
 		applyValues(effect_target_values_);
 		button_color_=(button_color_+1)%(PWM_CHANNELS*levels_pro_color);
 		button_longpress_inprogress_ = true; //publish results later

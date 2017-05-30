@@ -4,7 +4,7 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid="",wifi1_pass="",wifi2_ssid="",wifi2_pass="",debounce_interval=30,debounce_interval_longpress=700,debounce_button_timer_interval=800):
+def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid="",wifi1_pass="",wifi2_ssid="",wifi2_pass="",debounce_interval=15,debounce_interval_longpress=700,debounce_button_timer_interval=500):
     NET_SETTINGS_FILE = "net.conf"
     WIFISSID0_SETTINGS_FILE = "wifi0.ssid"
     WIFIPASS0_SETTINGS_FILE = "wifi0.pass"
