@@ -76,7 +76,6 @@ void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t re
 
 uint32_t button_color_ = 0;
 bool button_longpress_inprogress_ = false;
-uint32_t button_on_values_[PWM_CHANNELS] = {0,0,0,0,0};
 
 void handleButton()
 {
@@ -155,13 +154,14 @@ void init()
 	// configure stuff that needs to be done before system is ready
 	NetConfig.load(); //loads netsettings from fs
 
+	//INIT Button
 	button_on_values_[CHAN_WW] = pwm_period/2;
 	ButtonLightConfig.load(button_on_values_);
 	button = new DebouncedButton(FUNC_GPIO0, NetConfig.debounce_interval, NetConfig.debounce_interval_longpress, true);
 	BtnTimer.initializeMs(NetConfig.debounce_button_timer_interval, handleButton).start();
 
+	//INIT WIFI
 	configureWifi();
-	// Set system ready callback method
 	WifiEvents.onStationGotIP(wifiConnectOk);
 	WifiEvents.onStationDisconnect(wifiConnectFail);
 }
