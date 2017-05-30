@@ -128,6 +128,8 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->println("Button Values: " + String(NetConfig.debounce_interval) + ","+String(NetConfig.debounce_interval_longpress) + ","+String(NetConfig.debounce_button_timer_interval));
 }
 
+#ifdef TELNET_CMD_LIGHTTEST
+
 void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 {
 	Vector<String> commandToken;
@@ -185,6 +187,8 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 		startFade(2000);
 	}
 }
+
+#endif
 
 void telnetCmdSave(String commandLine  ,CommandOutput* commandOutput)
 {
@@ -309,7 +313,9 @@ void telnetRegisterCmdsWithCommandHandler()
 	commandHandler.registerCommand(CommandDelegate("show","Show settings","cG", telnetCmdPrint));
 	commandHandler.registerCommand(CommandDelegate("ls","List files","cG", telnetCmdLs));
 	commandHandler.registerCommand(CommandDelegate("cat","Cat file contents","cG", telnetCmdCatFile));
+#ifdef TELNET_CMD_LIGHTTEST	
 	commandHandler.registerCommand(CommandDelegate("light","Test light","sG", telnetCmdLight));
+#endif	
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","sG", telnetCmdReboot));
 	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","sG", telnetAirUpdate));
 	commandHandler.registerCommand(CommandDelegate("auth","auth token","sG", telnetAuth));
