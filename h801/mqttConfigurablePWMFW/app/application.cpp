@@ -73,14 +73,9 @@ void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t re
 ////// Button             ////////////
 //////////////////////////////////////
 
-uint32_t button_color = 0;
-uint32_t button_off_values[PWM_CHANNELS] = {0,0,0,0,0};
-uint32_t button_on_values[PWM_CHANNELS] = {0,0,0,pwm_period/2,pwm_period/2};
-
-void setupButton()
-{
-	button = new DebouncedButton(FUNC_GPIO0, 100, true);
-}
+uint32_t button_color_ = 0;
+bool button_longpress_inprogress_ = false;
+uint32_t button_on_values_[PWM_CHANNELS] = {0,0,0,0,0};
 
 void handleButton()
 {
@@ -89,23 +84,36 @@ void handleButton()
 		return;
 	if (button->isLongPressed())
 	{
-		debugf("btn longpress");
 		for (uint8_t i=0;i<PWM_CHANNELS;i++)
 		{
-			button_on_values[i]=0;
+			effect_target_values_[i]=0;
 		}
-		button_on_values[button_color/levels_pro_color] = pwm_period/(levels_pro_color-button_color%levels_pro_color);
-		applyValues(button_on_values);
-		button_color=(button_color+1)%(PWM_CHANNELS*levels_pro_color);
+		effect_target_values_[button_color_/levels_pro_color] = pwm_period/(levels_pro_color-button_color_%levels_pro_color);
+		applyValues(effect_target_values_);
+		button_color_=(button_color_+1)%(PWM_CHANNELS*levels_pro_color);
+		button_longpress_inprogress_ = true; //publish results later
 	} else if (button->wasPressed()) {
-		debugf("btn press");
 		button_used_ = true;
-		if (pwm_get_duty(CHAN_RED)+pwm_get_duty(CHAN_GREEN)+pwm_get_duty(CHAN_BLUE)+pwm_get_duty(CHAN_WW)+pwm_get_duty(CHAN_UV) > 0)
+		if (effect_target_values_[CHAN_RED] | effect_target_values_[CHAN_GREEN] | effect_target_values_[CHAN_BLUE] | effect_target_values_[CHAN_WW] | effect_target_values_[CHAN_UV] > 0)
 		{
-			applyValues(button_off_values);
+			//Switch OFF: save current values
+			for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			{
+				button_on_values_[i] = effect_target_values_[i];
+				effect_target_values_[i]=0;
+			}
 		} else {
-			applyValues(button_on_values);
+			//Switch ON: restore last saved values
+			for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			{
+				effect_target_values_[i]=button_on_values_[i];
+			}			
 		}
+		applyValues(effect_target_values_);
+		mqttPublishCurrentLightSetting();
+	} else if (button_longpress_inprogress_) {
+		button_longpress_inprogress_ = false;
+		mqttPublishCurrentLightSetting();
 	}
 }
 
@@ -147,8 +155,9 @@ void init()
 	// configure stuff that needs to be done before system is ready
 	NetConfig.load(); //loads netsettings from fs
 
-	setupButton();
-	BtnTimer.initializeMs(600, handleButton).start();
+	button_on_values_[CHAN_WW] = pwm_period/2;
+	button = new DebouncedButton(FUNC_GPIO0, 30, 700, true);
+	BtnTimer.initializeMs(800, handleButton).start();
 
 	configureWifi();
 	// Set system ready callback method
