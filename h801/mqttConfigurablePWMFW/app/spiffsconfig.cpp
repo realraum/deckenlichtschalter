@@ -13,7 +13,7 @@ const String MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf";
 const String MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf";
 const String AUTHTOKEN_SETTINGS_FILE = "authtoken.conf";
 const String UPDATE_INTERVAL_SETTINGS_FILE = "updateinterval.conf";
-const String DEBOUNCE_INTERVAL_SETTINGS_FILE = "debounceinterval.conf";
+const String BUTTON_SETTINGS_FILE = "btn.conf";
 const String USEDHCP_SETTINGS_FILE = "dhcp.flag";
 const String FAN_SETTINGS_FILE = "fan.conf";
 const String SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag";
@@ -47,7 +47,7 @@ void SpiffsConfigStorage::load()
 		fileRead(f, (void*) &publish_interval, sizeof(uint32_t));
 		fileClose(f);
 
-		f = fileOpen(DEBOUNCE_INTERVAL_SETTINGS_FILE, eFO_ReadOnly);
+		f = fileOpen(BUTTON_SETTINGS_FILE, eFO_ReadOnly);
 		fileRead(f, (void*) &debounce_interval, sizeof(uint32_t));
 		fileRead(f, (void*) &debounce_interval_longpress, sizeof(uint32_t));
 		fileRead(f, (void*) &debounce_button_timer_interval, sizeof(uint32_t));
@@ -91,8 +91,10 @@ void SpiffsConfigStorage::save()
 	f = fileOpen(UPDATE_INTERVAL_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 	fileWrite(f, (void*) &publish_interval, sizeof(uint32_t));
 	fileClose(f);
-	f = fileOpen(DEBOUNCE_INTERVAL_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
+	f = fileOpen(BUTTON_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 	fileWrite(f, (void*) &debounce_interval, sizeof(uint32_t));
+	fileWrite(f, (void*) &debounce_interval_longpress, sizeof(uint32_t));
+	fileWrite(f, (void*) &debounce_button_timer_interval, sizeof(uint32_t));
 	fileClose(f);
 
 	if (simulatecw_w_rgb)

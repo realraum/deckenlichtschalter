@@ -21,7 +21,7 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
     SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag"
     FAN_SETTINGS_FILE = "fan.conf"
     CHAN_RANGE_SETTINGS_FILE = "channelranges.conf"
-    DEBOUNCE_INTERVAL_SETTINGS_FILE = "debounceinterval.conf"
+    BUTTON_SETTINGS_FILE = "btn.conf"
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
@@ -50,7 +50,7 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
         fh.write(mqtt_user)
     with open(os.path.join(DIR, MQTTPASS_SETTINGS_FILE),"wb") as fh:
         fh.write(mqtt_pass)
-    with open(os.path.join(DIR, DEBOUNCE_INTERVAL_SETTINGS_FILE),"wb") as fh:
+    with open(os.path.join(DIR, BUTTON_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack("<III", int(debounce_interval), int(debounce_interval_longpress), int(debounce_button_timer_interval)))
     with open(os.path.join(DIR, AUTHTOKEN_SETTINGS_FILE),"wb") as fh:
         fh.write(authtoken)
