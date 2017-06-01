@@ -168,7 +168,10 @@ function handleExternalFancySetting(fancyid, data)
 {
   //save data for next color chooser popup
   //note that not all fields my be set so we use keep previous data
-  $.extend(fancycolorstate_[fancyid], data);
+  if (fancycolorstate_[fancyid])
+    $.extend(fancycolorstate_[fancyid], data);
+  else
+    fancycolorstate_[fancyid] = data;
 
   //calc compound RGB from light data
   calcCompoundRGB(fancycolorstate_[fancyid], fancyid);
