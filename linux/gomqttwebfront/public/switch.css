@@ -230,7 +230,7 @@ button.popupselect_option:hover {
     margin:0em;
 }
 
-#scriptctrlfancyintensityslider,input.fancyintensityslider, input.fancybalanceslider {
+#scriptctrlfancyintensityslider,input.fancyintensityslider, input.fancybalanceslider, input.fancyuvslider {
     width:190px;
 }
 

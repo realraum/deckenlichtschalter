@@ -61,17 +61,35 @@ function populatedivsonfoff(elem, names) {
 
 function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
-    var basiclightname = lightname.replace("ceiling","basiclight");
-    var allbasic="BasicLight On:";
-    if ("basiclightAll" == basiclightname) {
-      allbasic='All BasicLights:\
+    var extrahtml="";
+    if (names[lightname].hasbasic) {
+      var basiclightname = lightname.replace("ceiling","basiclight");
+      extrahtml += '\
+      <span class="alignbuttonsright" style="margin:1ex; margin-right:2ex;">\
+        BasicLight On: <div class="onoffswitch">\
+            <input type="checkbox" class="onoffswitch-checkbox basiclight_checkbox" name="'+basiclightname+'" id="'+basiclightname+'basiconoff">\
+            <label class="onoffswitch-label" for="'+basiclightname+'basiconoff">\
+               <span class="onoffswitch-inner"></span>\
+               <span class="onoffswitch-switch"></span>\
+            </label>\
+        </div>\
+      </span>';
+    }
+    if (names[lightname].allbasic) {
+      extrahtml += '<span class="alignbuttonsright" style="margin:1ex; margin-right:2ex;">\
+        All BasicLights:\
           <button class="onbutton" lightname="'+basiclightname+'" action="on">On</button>\
           <button class="offbutton" lightname="'+basiclightname+'" action="off">Off</button>\
-          '
+      </span>';
+    }
+    if (names[lightname].uv) {
+      extrahtml += '<span class="alignbuttonsleft">\
+      <input type="range" min="0" max="1000" step="1" value="0" class="fancyuvslider" name="'+lightname+'"> UV Intensity\
+      </span>';
     }
 
     $(elem).append('<div class="switchbox">\
-            <div style="width:100%; font-weight: bold; color:white; background-color: black;">'+names[lightname]+'</div>\
+            <div style="width:100%; font-weight: bold; color:white; background-color: black;">'+names[lightname].desc+'</div>\
             <span class="alignbuttonsleft">\
             <button class="fancylightcolourtempselectorbutton leftalignroundedbutton" name="'+lightname+'">PickColor</button>\
             <button class="popupselect_trigger" optionsid="fancycolorquickoptions1" optionscopyattr="name" name="'+lightname+'" style="background-color:black;"></button>\
@@ -90,16 +108,7 @@ function populatedivfancyswitchboxes(elem, names) {
             <span class="alignbuttonsleft">\
               <input type="range" min="0" max="1000" step="1" value="500" class="fancybalanceslider" name="'+lightname+'"> Color Temp.\
             </span>\
-          <span class="alignbuttonsright" style="margin:1ex; margin-right:2ex;">\
-          '+allbasic+'\
-          <div class="onoffswitch">\
-                  <input type="checkbox" class="onoffswitch-checkbox basiclight_checkbox" name="'+basiclightname+'" id="'+basiclightname+'basiconoff">\
-                  <label class="onoffswitch-label" for="'+basiclightname+'basiconoff">\
-                      <span class="onoffswitch-inner"></span>\
-                      <span class="onoffswitch-switch"></span>\
-                  </label>\
-              </div>\
-          </span>\
+          '+extrahtml+'\
           </div>\
           <br/>');
   });
@@ -158,7 +167,9 @@ var fancycolorstate_={};
 function handleExternalFancySetting(fancyid, data)
 {
   //save data for next color chooser popup
-  fancycolorstate_[fancyid] = data;
+  //note that not all fields my be set so we use keep previous data
+  $.extend(fancycolorstate_[fancyid], data);
+
   //calc compound RGB from light data
   calcCompoundRGB(fancycolorstate_[fancyid], fancyid);
 
@@ -177,6 +188,10 @@ function handleExternalFancySetting(fancyid, data)
   //i.e. the json includes a trigger sequence number "sq"
   // only works for lights being used as triggers
   $("input.scriptctrl_checkbox[name='"+fancyid+"']")[0].checked = (data.s && data.s != "off");
+
+  //set UV slider if data present
+  if (data.uv && data.uv >= 0 && data.uv <= 1000)
+    $("input.fancyuvslider[name="+fancyid+"]").val(data.uv);
 }
 
 function updateColdWarmWhiteBalanceIntensity(event)
@@ -186,6 +201,15 @@ function updateColdWarmWhiteBalanceIntensity(event)
   var balance = (1000 - parseInt($("input.fancybalanceslider[name="+fancyid+"]")[0].value,10)*2) / 1000.0;
   sendMQTT(mqtttopic_fancylight(fancyid),calcColorFromDayLevel(balance, intensity));
 }
+
+function updateUVIntensity(event)
+{
+  var fancyid = event.target.getAttribute("name");
+  var uv = parseInt($("input.fancyuvslider[name="+fancyid+"]")[0].value,10);
+  sendMQTT(mqtttopic_fancylight(fancyid),{uv:uv});
+}
+
+
 
 function handleChangeScriptCtrl(event) {
   var participating = Array();
@@ -297,14 +321,15 @@ populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
-"ceilingAll":"Alle Deckenlichter",
-"ceiling1":"Decke Leinwand",
-"ceiling2":"Decke Durchgang",
-"ceiling3":"Decke Küche",
-"ceiling4":"Decke Lasercutter",
-"ceiling5":"Decke Eingang",
-"ceiling6":"Decke Tesla",
-"flooddoor":"Deckenfluter Tür",
+"ceilingAll":{desc:"Alle Deckenlichter", hasbasic:false, allbasic:true, uv:false},
+"ceiling1":{desc:"Decke Leinwand", hasbasic:true, allbasic:false, uv:false},
+"ceiling2":{desc:"Decke Durchgang", hasbasic:true, allbasic:false, uv:false},
+"ceiling3":{desc:"Decke Küche", hasbasic:true, allbasic:false, uv:false},
+"ceiling4":{desc:"Decke Lasercutter", hasbasic:true, allbasic:false, uv:false},
+"ceiling5":{desc:"Decke Eingang", hasbasic:true, allbasic:false, uv:false},
+"ceiling6":{desc:"Decke Tesla", hasbasic:true, allbasic:false, uv:false},
+"flooddoor":{desc:"Deckenfluter Tür", hasbasic:false, allbasic:false, uv:false},
+"abwasch":{desc:"Abwasch/Bar", hasbasic:false, allbasic:false, uv:true},
 });
 
 (function() {
@@ -406,6 +431,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $("#scriptctrlselect").on("change", handleChangeScriptCtrl);
   $("input.fancyintensityslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
+  $("input.fancyuvslider").on("change",updateUVIntensity)
   $("input.sonoff_checkbox").on("click",eventOnSonOffButton);
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
   $(document).on("click",function(event){
