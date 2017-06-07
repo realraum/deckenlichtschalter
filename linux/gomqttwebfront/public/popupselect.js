@@ -23,8 +23,14 @@ var popupselect = {
 		{return;}
 		popupselect.openinprogress=true;
 		popupselect.target = event.target;
-		var x = event.pageX;
-		var y = event.pageY;
+		var x,y;
+		try {
+			x = event.touches[0].pageX;
+			y = event.touches[0].pageY;
+		} catch (e) {
+			x = event.pageX;
+			y = event.pageY;
+		}
 		popupselect.openx=x;
 		popupselect.openy=y;
 		var optionselementid = event.target.getAttribute("optionsid");
@@ -78,7 +84,7 @@ var popupselect = {
 		}
 		$("."+this.options.class_triggerpopup).on("touchstart",this.popupselectOpen);
 		$("."+this.options.class_triggerpopup).on("click",this.popupselectOpen);
-		$("."+this.options.class_option).on("click",this.popupselectSelect);
+		//$("."+this.options.class_option).on("click",this.popupselectSelect);
 		$(document).on("touchend",this.popupselectSelect);
 		$(document).on("mouseup",this.popupselectSelect);
 	},
