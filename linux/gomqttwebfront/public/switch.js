@@ -78,8 +78,8 @@ function populatedivfancyswitchboxes(elem, names) {
     if (names[lightname].allbasic) {
       extrahtml += '<span class="alignbuttonsright" style="margin:1ex; margin-right:2ex;">\
         All BasicLights:\
-          <button class="onbutton" lightname="'+basiclightname+'" action="on">On</button>\
-          <button class="offbutton" lightname="'+basiclightname+'" action="off">Off</button>\
+          <button class="onbutton" lightname="basiclightAll" action="on">On</button>\
+          <button class="offbutton" lightname="basiclightAll" action="off">Off</button>\
       </span>';
     }
     if (names[lightname].uv) {
@@ -308,7 +308,6 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "regalleinwand":"LEDs Regal Leinwand",
   "floodtesla":"TESLA Deckenfluter",
   "bluebar":"Blaue LEDs Bar",
-  "abwasch":"Licht Waschbecken",
   "couchwhite":"LEDS Couch White",
   "cxleds":"CX Gang LEDs",
   "mashadecke":"MaSha Werkstatt Decke",
