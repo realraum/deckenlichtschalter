@@ -299,30 +299,41 @@ function calcCeilingValuesFrom(data,r,g,b,name)
 function ceilingPreset_BeamerTalkMode()
 {
   sendMQTT(mqtttopic_activatescript, {script:"off"});
-  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
-  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
-  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
-  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:0,g:0,b:0,ww:0,cw:700,fade:{}});
-  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:0,cw:700,fade:{}});
-  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
-  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
-  sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:0,b:0,ww:0,cw:100,fade:{}});
-  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_golightctrl("basiclight1"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight2"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight3"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:900,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:0,g:0,b:0,ww:0,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:0,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:900,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:660,b:0,ww:500,cw:500,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:800,cw:800,fade:{duration:8000}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
 function ceilingPreset_BeamerTalkPauseMode()
 {
   sendMQTT(mqtttopic_activatescript, {script:"off"});
-  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
-  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:2200}});
-  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
-  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
-  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
-  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
-  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:2200}});
-  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:2200}});
-  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight1"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight2"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight3"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:500,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling3"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:500,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:1000,b:0,ww:1000,cw:800,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("flooddoor"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
 }
 
 function ceilingPreset_BeamerMovieMode()
