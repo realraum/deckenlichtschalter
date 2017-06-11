@@ -313,13 +313,13 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "mashadecke":"MaSha Werkstatt Decke",
   "allrf":"Alle Funksteckdosen",
   "ambientlights":"Ambient Lichter",
-  "boiler":"Warmwasser Küche",
   "boilerolga":"Warmwasser OLGA"
 });
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "couchred":"LEDs Couch Red",
   "tesla":"TESLA Labortisch",
+  "lothrboiler":"Warmwasser LoTHR",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {

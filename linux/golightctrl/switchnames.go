@@ -26,15 +26,14 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"regalleinwand": ActionRFCode{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote B 1
 	"bluebar":       ActionRFCode{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote C 1
 	"labortisch":    ActionRFCode{codeon: []byte{0xa2, 0xa2, 0x8a}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH}, //polling 01000 a
-	"boilerolga":    ActionRFCode{codeon: []byte{0xa2, 0x8a, 0x8a}, codeoff: []byte{0xa2, 0x8a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 b
 	// "??":            ActionNameHandler{codeon: []byte{0xa2, 0x2a, 0x8a}, codeoff: []byte{0xa2, 0x2a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 c
 	"floodtesla": ActionRFCode{codeon: []byte{0xa2, 0xaa, 0x88}, codeoff: []byte{0xa2, 0xaa, 0x28}, handler: RFCode2BOTH}, //polling 01000 b
 	// "couchred":   ActionRFCode{codeon: []byte{0x8a, 0xa0, 0x8a}, codeoff: []byte{0x8a, 0xa0, 0x2a}, handler: RFCode2TTY},  //pollin 00101 a
-	"couchred":   ActionMQTTMsg{sonofftopic("couchred"), "off"},
+	"couchred":   ActionMQTTMsg{sonofftopic("couchred"), []byte("off")},
 	"cxleds":     ActionRFCode{codeon: []byte{0x8a, 0x88, 0x8a}, codeoff: []byte{0x8a, 0x88, 0x2a}, handler: RFCode2TTY},  //pollin 00101 b
 	"couchwhite": ActionRFCode{codeon: []byte{0x8a, 0xa8, 0x88}, codeoff: []byte{0x8a, 0xa8, 0x28}, handler: RFCode2TTY},  //pollin 00101 d
 	"mashadecke": ActionRFCode{codeon: []byte{0x8a, 0x28, 0x8a}, codeoff: []byte{0x8a, 0x28, 0x2a}, handler: RFCode2BOTH}, //pollin 00101 c
-	"boiler":     ActionRFCode{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
+	"boilerolga": ActionRFCode{codeon: []byte{0xa0, 0xa2, 0xa8}, codeoff: []byte{0xa0, 0xa2, 0x28}, handler: RFCode2BOTH}, //white remote A 2
 	"spots":      ActionRFCode{codeon: []byte{0x00, 0xaa, 0x88}, codeoff: []byte{0x00, 0xaa, 0x28}, handler: RFCode2TTY},  //polling 11110 d
 	"abwasch":    ActionRFCode{codeon: []byte{0xaa, 0xa2, 0xa8}, codeoff: []byte{0xaa, 0xa2, 0x28}, handler: RFCode2BOTH}, //alte jk16 decke vorne
 	//rf not to be included in any, just for resetting POEarduino

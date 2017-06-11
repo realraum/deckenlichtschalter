@@ -59,7 +59,6 @@ var (
 		"action/GoLightCtrl/labortisch",
 		"action/GoLightCtrl/floodtesla",
 		"action/GoLightCtrl/boilerolga",
-		"action/GoLightCtrl/boiler",
 		"action/GoLightCtrl/fancyvortrag",
 		"action/ceilingscripts/activatescript"}
 	topic_fancy_ceiling_all    = "action/ceilingAll/light"
@@ -94,14 +93,14 @@ var (
 	topics_sonoff_info = []string{
 		"realraum/couchred/POWER",
 		"realraum/tesla/POWER",
-		"realraum/boilerolga/POWER",
-		"realraum/boilerlothr/POWER",
+		"realraum/olgaboiler/POWER",
+		"realraum/lothrboiler/POWER",
 	}
 	topics_sonoff_action = []string{
 		"action/couchred/power",
 		"action/tesla/power",
-		"action/boilerolga/power",
-		"action/boilerlothr/power",
+		"action/olgaboiler/power",
+		"action/lothrboiler/power",
 	}
 
 	ws_allowed_ctx_all = append(

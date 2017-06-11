@@ -45,7 +45,7 @@ func payload_script(script string, value float64) []byte {
 }
 
 func sonofftopic(name string) string {
-	return r3events.TOPIC_ACTIONS + string + "/power"
+	return r3events.TOPIC_ACTIONS + name + "/power"
 }
 
 var fancytopic_all string = r3events.TOPIC_ACTIONS + r3events.CLIENTID_CEILINGALL + "/" + r3events.TYPE_LIGHT
