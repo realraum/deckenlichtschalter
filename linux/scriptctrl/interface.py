@@ -11,7 +11,7 @@ from collections import defaultdict
 
 topic_presence = "realraum/metaevt/presence"
 topic_action = "action/"
-myclientid = "ceilingscriptsTEST"
+myclientid = "ceilingscripts"
 format_ceiling_topic = "action/%s/light"
 topic_base_scripts_ = topic_action+myclientid+"/script/"
 
@@ -241,12 +241,12 @@ class CeilingClass():
             script = self._active_script
             self._active_script = None
             self._scripts[script].deactivate()
-            time.sleep(0.1)
-            for l in self._scripts[script].participating:
-                self._scripts[script].setLight(l,r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000,include_scriptname=False)
-            time.sleep(0.4)
-            for l in self._scripts[script].participating:
-                self._scripts[script].setLight(l,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
+            # time.sleep(0.1)
+            # for l in self._scripts[script].participating:
+            #     self._scripts[script].setLight(l,r=0,g=0,b=0,cw=0,ww=0,fade_duration=1000,include_scriptname=False)
+            # time.sleep(0.4)
+            # for l in self._scripts[script].participating:
+            #     self._scripts[script].setLight(l,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
 
     def activateScript(self, script, newsettings):
         if script in self._scripts:
