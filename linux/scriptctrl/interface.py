@@ -11,7 +11,7 @@ from collections import defaultdict
 
 topic_presence = "realraum/metaevt/presence"
 topic_action = "action/"
-myclientid = "ceilingscripts"
+myclientid = "ceilingscriptsTEST"
 format_ceiling_topic = "action/%s/light"
 topic_base_scripts_ = topic_action+myclientid+"/script/"
 
