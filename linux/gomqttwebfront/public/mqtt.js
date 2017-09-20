@@ -11,7 +11,7 @@ function mqtttopic_sonoff(name) {
   return "action/"+name+"/power"
 }
 
-var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor"];
+var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave"];
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor"];
 var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
 var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor"];
@@ -399,6 +399,18 @@ function ceilingPreset_MostBasic()
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
 }
 
+function ceilingPreset_MostBasic()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight1"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight2"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight3"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"on"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+}
+
 function ceilingPreset_MixedForWork()
 {
   sendMQTT(mqtttopic_activatescript, {script:"off"});
@@ -426,3 +438,16 @@ function ceilingPreset_AllOff()
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
 }
 
+function ceilingPreset_ColorWave()
+{
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});  
+  sendMQTT(mqtttopic_activatescript, {"script":"wave","colourlist":[
+      {r:1000,g:0,b:0,ww:0,cw:0},
+      {r:800,g:0,b:100,ww:0,cw:0},
+      {r:0,g:0,b:300,ww:0,cw:0},
+      {r:0,g:500,b:100,ww:0,cw:0},
+      {r:0,g:800,b:0,ww:0,cw:0},
+      {r:800,g:200,b:0,ww:0,cw:0},
+    ], "fadeduration":5000}
+    );
+}
