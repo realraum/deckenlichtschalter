@@ -323,6 +323,7 @@ populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "couchred":"LEDs Couch Red",
   "tesla":"TESLA Labortisch",
   "lothrboiler":"Warmwasser LoTHR",
+  "druckerstrom":"Laserjet8000",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {

@@ -95,12 +95,14 @@ var (
 		"realraum/tesla/POWER",
 		"realraum/olgaboiler/POWER",
 		"realraum/lothrboiler/POWER",
+		"realraum/druckerstrom/POWER",
 	}
 	topics_sonoff_action = []string{
 		"action/couchred/power",
 		"action/tesla/power",
 		"action/olgaboiler/power",
 		"action/lothrboiler/power",
+		"action/druckerstrom/power",
 	}
 
 	ws_allowed_ctx_all = append(
