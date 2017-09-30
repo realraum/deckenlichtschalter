@@ -65,6 +65,12 @@ current light values as default.
 			"minimum": 0,
 			"maximum": 1000,
 		},
+		"uv": {
+			"description": "set ultraviolet LED light default intensity on lights supporting UV",
+			"type": "integer",
+			"minimum": 0,
+			"maximum": 1000,
+		},
 	}
 
 ### Example: Saving current light values as default
@@ -115,6 +121,12 @@ Unset values will remain unchanged.
 		},
 		"ww": {
 			"description": "change warm white LED light intensity",
+			"type": "integer",
+			"minimum": 0,
+			"maximum": 1000,
+		},
+		"uv": {
+			"description": "change ultraviolet LED light intensity on lights supporting UV",
 			"type": "integer",
 			"minimum": 0,
 			"maximum": 1000,
