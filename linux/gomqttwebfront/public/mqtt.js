@@ -295,6 +295,13 @@ function calcCeilingValuesFrom(data,r,g,b,name)
   data.b = Math.trunc(b * 1000 / fitting)
 }
 
+function ShowWaitingForConnection() {
+    $("div.waitingoverlay").css("display","initial");
+}
+
+function ShowConnectionEstablished() {
+  $("div.waitingoverlay").css("display","none");
+}
 
 function ceilingPreset_BeamerTalkMode()
 {
@@ -440,7 +447,7 @@ function ceilingPreset_AllOff()
 
 function ceilingPreset_ColorWave()
 {
-  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});  
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_activatescript, {"script":"wave","colourlist":[
       {r:1000,g:0,b:0,ww:0,cw:0},
       {r:800,g:0,b:100,ww:0,cw:0},

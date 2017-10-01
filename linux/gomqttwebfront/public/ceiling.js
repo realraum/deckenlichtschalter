@@ -203,6 +203,8 @@ $(window).ready(resizeRoomImg);
   });
 
   if (webSocketSupport) {
+    ws.onopen = ShowConnectionEstablished;
+    ws.ondisconnect = ShowWaitingForConnection;
     ws.open(webSocketUrl);
   } else {
     sendMQTT_XHTTP("","");

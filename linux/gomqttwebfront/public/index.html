@@ -12,6 +12,9 @@
     <title>realraum light control</title>
   </head>
   <body>
+    <div class="waitingoverlay">
+      <div id="loading-img"></div>
+    </div>
     <nav>
       <ul>
         <li><a href="index.html" class="active">Ceiling Lights</a></li>
@@ -27,7 +30,7 @@
       <div class="light basiclight" id="basiclight4"></div>
       <div class="light basiclight" id="basiclight5"></div>
       <div class="light basiclight" id="basiclight6"></div>
-      
+
       <!--div class="light fancylight mqttrawjson" topic="action/ceiling1/light" payload='{"r":0,"g":0,"b":0,"cw":0,"ww":0}' ></div-->
       <div class="onoffswitch" id="fancylight1redshift">
         <input type="checkbox" class="onoffswitch-checkbox scriptctrl_redshift_checkbox" name="ceiling1" id="redshift1ctonoff">

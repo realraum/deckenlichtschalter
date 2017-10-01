@@ -483,6 +483,8 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   });
 
   if (webSocketSupport) {
+    ws.onopen = ShowConnectionEstablished;
+    ws.ondisconnect = ShowWaitingForConnection;
     ws.open(webSocketUrl);
   } else {
     updateButtons("/cgi-bin/mswitch.cgi");
