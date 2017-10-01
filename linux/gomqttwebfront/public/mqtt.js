@@ -296,7 +296,7 @@ function calcCeilingValuesFrom(data,r,g,b,name)
 }
 
 function ShowWaitingForConnection() {
-    $("div.waitingoverlay").css("display","initial");
+  $("div.waitingoverlay").css("display","initial");
 }
 
 function ShowConnectionEstablished() {

@@ -241,13 +241,15 @@ button.popupselect_option:hover {
 #loading-img {
     background: url(/imgs/loading.gif) center center no-repeat;
     background-size: cover;
-    height: 100%;
-    width: 100%;
+    margin-top:40vh;
+    margin-left:40vw;
+    height: 20vh;
+    width: 20vw;
     z-index: 50;
 }
 
 .waitingoverlay {
-    background: #e9e9e9;
+    background: darkgray;
     /*display: none;*/
     position: absolute;
     top: 0;
