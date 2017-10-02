@@ -218,7 +218,7 @@ function handleChangeScriptCtrl(event) {
   var participating = Array();
   if (event && event.target.getAttribute("name") == "ceilingAll") {
     if (event.target.checked)
-      participating=Array("ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","flooddoor");
+      participating=mqtt_fancylights_all.slice();
     else
       participating = Array();
   } else {
@@ -255,8 +255,8 @@ function handleExternalActivateScript(data) {
   if (data.value) {
     $("#scriptctrlfancyintensityslider").val(Math.floor(data.value*1000));
   }
-  if (data.participating == undefined || data.participating.length>=6) {
-    data.participating=["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","flooddoor","ceilingAll"];
+  if (data.participating == undefined || data.participating.length>=mqtt_fancylights_all.length) {
+    data.participating=mqtt_fancylights_all.slice(); //copy array
   }
 
   $(".scriptctrl_checkbox").each(function(elem) {

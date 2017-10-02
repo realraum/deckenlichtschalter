@@ -14,7 +14,11 @@ function mqtttopic_sonoff(name) {
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave"];
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor"];
 var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
-var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor"];
+var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor","wave","colorfade","ceilingsinus"];
+var mqtt_fancylights_all = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor"]
+var mqtt_fancylights_all_with_ceilingall = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","ceilingAll"]
+var mqtt_fancylights_ceilingonly = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6"]
+
 
 var r3_led_factors_ = {
   "_default_": {
@@ -362,7 +366,7 @@ function ceilingPreset_RedShiftMost()
 {
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
-  sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:["ceiling1","ceiling2","ceiling3","ceiling4","ceiling6"]});
+  sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:mqtt_fancylights_ceilingonly});
 }
 
 function ceilingPreset_AlienSky()
