@@ -19,6 +19,7 @@ var popupselect = {
 	},
 
 	popupselectOpen:function(event) {
+		event.stopPropagation();
 		if (popupselect.openinprogress==true)
 		{return;}
 		popupselect.openinprogress=true;
@@ -47,6 +48,7 @@ var popupselect = {
 	},
 
 	popupselectSelect:function(event) {
+		event.stopPropagation();
 		if (event.pageX == popupselect.openx && event.pageY == popupselect.openy)
 		{	//only close if mouse x/y is not exactly the same as open
 			popupselect.openx = -1;
