@@ -366,7 +366,7 @@ function ceilingPreset_RedShiftMost()
 {
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
-  sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:mqtt_fancylights_ceilingonly});
+  sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:["ceiling1","ceiling2","ceiling3","ceiling6"],"value":1.0});
 }
 
 function ceilingPreset_AlienSky()
@@ -396,18 +396,6 @@ function ceilingPreset_SuperFullEverything()
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"on"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:1000,g:500,b:200,ww:1000,cw:1000});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
-}
-
-function ceilingPreset_MostBasic()
-{
-  sendMQTT(mqtttopic_activatescript, {script:"off"});
-  sendMQTT(mqtttopic_golightctrl("basiclight1"), {Action:"on"});
-  sendMQTT(mqtttopic_golightctrl("basiclight2"), {Action:"on"});
-  sendMQTT(mqtttopic_golightctrl("basiclight3"), {Action:"on"});
-  sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"off"});
-  sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
-  sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"on"});
-  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
 }
 
 function ceilingPreset_MostBasic()
@@ -460,5 +448,26 @@ function ceilingPreset_ColorWave()
       {r:0,g:800,b:0,ww:0,cw:0},
       {r:800,g:200,b:0,ww:0,cw:0},
     ], "fadeduration":5000}
+    );
+}
+
+function ceilingPreset_BlueWave()
+{
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_activatescript, {"script":"wave","colourlist":[
+      {"r":200,"g":0,"b":1000,"cw":0,"ww":0},
+      {"r":0,"g":0,"b":0,"cw":50,"ww":50},
+      {"r":0,"g":0,"b":0,"cw":50,"ww":50},
+    ], "fadeduration":2000,
+      "reversed":1}
+    );
+}
+
+function ceilingPreset_SkyWithClouds()
+{
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_activatescript, {"script":"ceilingsinus","value":1.0}
     );
 }

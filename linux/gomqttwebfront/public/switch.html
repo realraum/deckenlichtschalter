@@ -76,7 +76,7 @@
               <option value="randomcolor">RandomColor</option>
               <option value="wave">Wave</option>
             </select><br/>
-            <input type="range" min="0" max="1000" step="1" value="800" id="scriptctrlfancyintensityslider"> Light Intensity
+            <input type="range" min="0" max="1000" step="1" value="900" id="scriptctrlfancyintensityslider"> Light Intensity
             </span>
         </div>
         <br/>
@@ -106,15 +106,15 @@
           <button class="textsendbutton ledpipepresetbutton" pipepattern="plasma" pipespeed="150">Plasma</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="circles" pipespeed="150">Circles</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="uspol" pipespeed="150">USPolice</button><br/>
-          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="1">1 Spot</button><br/>
-          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="3">3 Spots</button><br/>
-          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="5">5 Spots</button><br/>
-          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="8">8 Spots</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="1" pipespeed="255" pipehue="-1">1 Spot</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="3" pipehue="-1">3 Spots</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="5" pipehue="-1">5 Spots</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="movingspots" pipearg="8" pipehue="-1">8 Spots</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="rstrobo">Strobo</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="huefade" pipespeed="150">Hue Fade</button><br/>
-          <button class="textsendbutton ledpipepresetbutton" pipepattern="white" pipebrightness="80" pipespeed="1" >White</button><br/>
-          <button class="textsendbutton ledpipepresetbutton" pipepattern="hue" pipehue="205" pipespeed="1">Fixed Hue</button><br/>
-          <button class="textsendbutton ledpipepresetbutton" pipepattern="twinkle" pipespeed="150" pipehue="-1"pipearg="8">Twinkle</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="white" pipebrightness="80" pipespeed="255" >White</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="hue" pipehue="205" pipespeed="255">Fixed Hue</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="twinkle" pipespeed="150" pipehue="-1" pipearg="8">Twinkle</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="hypersparkle" pipehue="190" pipearg="10" pipebrightness="10">HyperSparkle</button><br/>
           <div class="pipeslider">Brightness:
             <input id="pipebrightness" type="range" min="0" max="100" step="1" value="30" onchange="setLedPipePattern({brightness:parseInt(this.value)});" />
