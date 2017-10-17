@@ -116,6 +116,8 @@
           <button class="textsendbutton ledpipepresetbutton" pipepattern="hue" pipehue="205" pipespeed="255">Fixed Hue</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="twinkle" pipespeed="150" pipehue="-1" pipearg="8">Twinkle</button><br/>
           <button class="textsendbutton ledpipepresetbutton" pipepattern="hypersparkle" pipehue="190" pipearg="10" pipebrightness="10">HyperSparkle</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="huetwist" pipespeed="160" pipearg="-1" pipearg1="14" pipebrightness="50">HueTwist Fade</button><br/>
+          <button class="textsendbutton ledpipepresetbutton" pipepattern="huetwist" pipehue="-1" pipespeed="20" pipearg="1" piearg1="12" pipebrightness="50">HueTwist Static</button><br/>
           <div class="pipeslider">Brightness:
             <input id="pipebrightness" type="range" min="0" max="100" step="1" value="30" onchange="setLedPipePattern({brightness:parseInt(this.value)});" />
           </div>
