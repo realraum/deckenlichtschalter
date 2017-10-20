@@ -459,6 +459,7 @@ function ceilingPreset_BlueWave()
       {"r":200,"g":0,"b":1000,"cw":0,"ww":0},
       {"r":0,"g":0,"b":0,"cw":50,"ww":50},
       {"r":0,"g":0,"b":0,"cw":50,"ww":50},
+      {"r":0,"g":0,"b":0,"cw":50,"ww":50},
     ], "fadeduration":2000,
       "reversed":1}
     );
