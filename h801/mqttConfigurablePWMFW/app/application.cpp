@@ -49,8 +49,8 @@ void configureWifi()
 void wifiConnectOk(IPAddress ip, IPAddress mask, IPAddress gateway)
 {
 	// debugf("WiFi CONNECTED");
-	Serial.println(ip.toString());
-	// Serial.println(WifiStation.getIP().toString());
+	// Serial.println(ip.toString());
+	Serial.println(WifiStation.getIP().toString());
 	startTelnetServer();
 	startMqttClient();
 	// Start publishing loop (also needed for mqtt reconnect)
@@ -61,7 +61,7 @@ void wifiConnectOk(IPAddress ip, IPAddress mask, IPAddress gateway)
 void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t reason)
 {
 	// The different reason codes can be found in user_interface.h. in your SDK.
-	// debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
+	debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
 
 #ifdef ENABLE_BUTTON
 	if (!button_used_)
