@@ -8,17 +8,22 @@
 #include "lightcontrol.h"
 #include "telnet.h"
 #include "mqtt.h"
+#ifdef ENABLE_BUTTON
 #include "button.h"
+#endif
 #ifdef ENABLE_SSL
 	#include <ssl/private_key.h>
 	#include <ssl/cert.h>
 #endif
 
-DefaultLightConfigStorage DefaultLightConfig;
+DefaultLightConfigStorage DefaultLightConfig("defaultlight.conf");
+DefaultLightConfigStorage ButtonLightConfig("btnlight.conf");
 
+#ifdef ENABLE_BUTTON
 Timer BtnTimer;
 DebouncedButton *button = nullptr;
 bool button_used_ = false;
+#endif
 uint8_t wifi_fail_count_ = 0;
 
 
@@ -56,10 +61,12 @@ void wifiConnectOk(IPAddress ip, IPAddress mask, IPAddress gateway)
 void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t reason)
 {
 	// The different reason codes can be found in user_interface.h. in your SDK.
-	debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
+	// debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
 
+#ifdef ENABLE_BUTTON
 	if (!button_used_)
 		flashSingleChannel(1,CHAN_RED);
+#endif
 	wifi_fail_count_++;
 	if (wifi_fail_count_ > 2)
 	{
@@ -69,45 +76,53 @@ void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t re
 	}
 }
 
+#ifdef ENABLE_BUTTON
 //////////////////////////////////////
 ////// Button             ////////////
 //////////////////////////////////////
 
-uint32_t button_color = 0;
-uint32_t button_off_values[PWM_CHANNELS] = {0,0,0,0,0};
-uint32_t button_on_values[PWM_CHANNELS] = {0,0,0,pwm_period/2,pwm_period/2};
-
-void setupButton()
-{
-	button = new DebouncedButton(FUNC_GPIO0, 100, true);
-}
+uint32_t button_color_ = 0;
+bool button_longpress_inprogress_ = false;
 
 void handleButton()
 {
-	const uint32_t levels_pro_color = 3;
+	const uint32_t levels_pro_color = 5;
 	if (button == nullptr)
 		return;
 	if (button->isLongPressed())
 	{
-		debugf("btn longpress");
 		for (uint8_t i=0;i<PWM_CHANNELS;i++)
 		{
-			button_on_values[i]=0;
+			effect_target_values_[i]=0;
 		}
-		button_on_values[button_color/levels_pro_color] = pwm_period/(levels_pro_color-button_color%levels_pro_color);
-		applyValues(button_on_values);
-		button_color=(button_color+1)%(PWM_CHANNELS*levels_pro_color);
+		effect_target_values_[button_color_/levels_pro_color] = (button_color_%levels_pro_color) * pwm_period/ levels_pro_color;
+		applyValues(effect_target_values_);
+		button_color_=(button_color_+1)%(PWM_CHANNELS*levels_pro_color);
+		button_longpress_inprogress_ = true; //publish results later
 	} else if (button->wasPressed()) {
-		debugf("btn press");
 		button_used_ = true;
-		if (pwm_get_duty(CHAN_RED)+pwm_get_duty(CHAN_GREEN)+pwm_get_duty(CHAN_BLUE)+pwm_get_duty(CHAN_WW)+pwm_get_duty(CHAN_CW) > 0)
+		if (effect_target_values_[CHAN_RED] | effect_target_values_[CHAN_GREEN] | effect_target_values_[CHAN_BLUE] | effect_target_values_[CHAN_WW] | effect_target_values_[CHAN_UV] > 0)
 		{
-			applyValues(button_off_values);
+			//Switch OFF: save current values
+			for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			{
+				effect_target_values_[i]=0;
+			}
 		} else {
-			applyValues(button_on_values);
+			//Switch ON: restore last saved values
+			for (uint8_t i=0;i<PWM_CHANNELS;i++)
+			{
+				effect_target_values_[i]=button_on_values_[i];
+			}
 		}
+		applyValues(effect_target_values_);
+		mqttPublishCurrentLightSetting();
+	} else if (button_longpress_inprogress_) {
+		button_longpress_inprogress_ = false;
+		mqttPublishCurrentLightSetting();
 	}
 }
+#endif
 
 //////////////////////////////////////
 ////// Base System Stuff  ////////////
@@ -123,23 +138,23 @@ void init()
 #ifndef DISABLE_SPIFFS
 	if (slot == 0) {
 #ifdef RBOOT_SPIFFS_0
-		debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_0, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_0, SPIFF_SIZE);
 		spiffs_mount_manual(RBOOT_SPIFFS_0, SPIFF_SIZE);
 #else
-		debugf("trying to mount spiffs at %x, length %d", 0x100000, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at %x, length %d", 0x100000, SPIFF_SIZE);
 		spiffs_mount_manual(0x100000, SPIFF_SIZE);
 #endif
 	} else {
 #ifdef RBOOT_SPIFFS_1
-		debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_1, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_1, SPIFF_SIZE);
 		spiffs_mount_manual(RBOOT_SPIFFS_1, SPIFF_SIZE);
 #else
-		debugf("trying to mount spiffs at %x, length %d", 0x300000, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at %x, length %d", 0x300000, SPIFF_SIZE);
 		spiffs_mount_manual(0x300000, SPIFF_SIZE);
 #endif
 	}
 #else
-	debugf("spiffs disabled");
+	// debugf("spiffs disabled");
 #endif
 	setupPWM(); //Init PWM with spiffs saved default settings
 	telnetRegisterCmdsWithCommandHandler();
@@ -147,11 +162,16 @@ void init()
 	// configure stuff that needs to be done before system is ready
 	NetConfig.load(); //loads netsettings from fs
 
-	setupButton();
-	BtnTimer.initializeMs(600, handleButton).start();
+#ifdef ENABLE_BUTTON
+	//INIT Button
+	button_on_values_[CHAN_WW] = pwm_period/2;
+	ButtonLightConfig.load(button_on_values_);
+	button = new DebouncedButton(FUNC_GPIO0, NetConfig.debounce_interval, NetConfig.debounce_interval_longpress, true);
+	BtnTimer.initializeMs(NetConfig.debounce_button_timer_interval, handleButton).start();
+#endif
 
+	//INIT WIFI
 	configureWifi();
-	// Set system ready callback method
 	WifiEvents.onStationGotIP(wifiConnectOk);
 	WifiEvents.onStationDisconnect(wifiConnectFail);
 }

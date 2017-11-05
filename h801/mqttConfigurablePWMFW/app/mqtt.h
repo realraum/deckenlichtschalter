@@ -9,5 +9,6 @@ void onMessageReceived(String topic, String message);
 void startMqttClient();
 void stopMqttClient();
 void instantinateMQTT();
+void mqttPublishCurrentLightSetting();
 
 #endif

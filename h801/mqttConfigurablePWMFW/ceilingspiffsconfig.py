@@ -4,7 +4,7 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid=b"",wifi1_pass=b"",wifi2_ssid=b"",wifi2_pass=b""):
+def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid=b"",wifi1_pass=b"",wifi2_ssid=b"",wifi2_pass=b"",debounce_interval=15,debounce_interval_longpress=700,debounce_button_timer_interval=500):
     NET_SETTINGS_FILE = "net.conf"
     WIFISSID0_SETTINGS_FILE = "wifi0.ssid"
     WIFIPASS0_SETTINGS_FILE = "wifi0.pass"
@@ -12,15 +12,16 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
     WIFIPASS1_SETTINGS_FILE = "wifi1.pass"
     WIFISSID2_SETTINGS_FILE = "wifi2.ssid"
     WIFIPASS2_SETTINGS_FILE = "wifi2.pass"
-    MQTTCLIENT_SETTINGS_FILE = "mqtt.clientid.conf"
-    MQTTUSER_SETTINGS_FILE = "mqtt.user.conf"
-    MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf"
-    MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf"
-    AUTHTOKEN_SETTINGS_FILE = "authtoken.conf"
+    MQTTCLIENT_SETTINGS_FILE = "mqtt.client"
+    MQTTUSER_SETTINGS_FILE = "mqtt.user"
+    MQTTPASS_SETTINGS_FILE = "mqtt.pass"
+    MQTTBROKER_SETTINGS_FILE = "mqttbrkr.conf"
+    AUTHTOKEN_SETTINGS_FILE = "authtoken"
     USEDHCP_SETTINGS_FILE = "dhcp.flag"
-    SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag"
+    SIMULATE_CW_SETTINGS_FILE = "simcw.flag"
     FAN_SETTINGS_FILE = "fan.conf"
-    CHAN_RANGE_SETTINGS_FILE = "channelranges.conf"
+    CHAN_RANGE_SETTINGS_FILE = "chanranges.conf"
+    BUTTON_SETTINGS_FILE = "btn.conf"
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
@@ -49,6 +50,8 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
         fh.write(mqtt_user)
     with open(os.path.join(DIR, MQTTPASS_SETTINGS_FILE),"wb") as fh:
         fh.write(mqtt_pass)
+    with open(os.path.join(DIR, BUTTON_SETTINGS_FILE),"wb") as fh:
+        fh.write(struct.pack("<III", int(debounce_interval), int(debounce_interval_longpress), int(debounce_button_timer_interval)))
     with open(os.path.join(DIR, AUTHTOKEN_SETTINGS_FILE),"wb") as fh:
         fh.write(authtoken)
     if dhcp:

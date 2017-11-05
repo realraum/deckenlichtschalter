@@ -3,22 +3,19 @@
 
 SpiffsConfigStorage NetConfig;
 
-
-const String DEFAULTLIGHT_SETTINGS_FILE = "defaultlight.conf";
 const String NET_SETTINGS_FILE = "net.conf";
 const String WIFISSID_SETTINGS_FILES[MAX_WIFI_SETS] = {"wifi0.ssid","wifi1.ssid","wifi2.ssid"};
 const String WIFIPASS_SETTINGS_FILES[MAX_WIFI_SETS] = {"wifi0.pass","wifi1.pass","wifi2.pass"};
-const String MQTTCLIENT_SETTINGS_FILE = "mqtt.clientid.conf";
-const String MQTTUSER_SETTINGS_FILE = "mqtt.user.conf";
-const String MQTTPASS_SETTINGS_FILE = "mqtt.pass.conf";
-const String MQTTBROKER_SETTINGS_FILE = "mqttbroker.conf";
-const String AUTHTOKEN_SETTINGS_FILE = "authtoken.conf";
-const String UPDATE_INTERVAL_SETTINGS_FILE = "updateinterval.conf";
-const String DEBOUNCE_INTERVAL_SETTINGS_FILE = "debounceinterval.conf";
+const String MQTTCLIENT_SETTINGS_FILE = "mqtt.client";
+const String MQTTUSER_SETTINGS_FILE = "mqtt.user";
+const String MQTTPASS_SETTINGS_FILE = "mqtt.pass";
+const String MQTTBROKER_SETTINGS_FILE = "mqttbrkr.conf";
+const String AUTHTOKEN_SETTINGS_FILE = "authtoken";
+const String BUTTON_SETTINGS_FILE = "btn.conf";
 const String USEDHCP_SETTINGS_FILE = "dhcp.flag";
 const String FAN_SETTINGS_FILE = "fan.conf";
-const String SIMULATE_CW_SETTINGS_FILE = "simulatecw.flag";
-const String CHAN_RANGE_SETTINGS_FILE = "channelranges.conf";
+const String SIMULATE_CW_SETTINGS_FILE = "simcw.flag";
+const String CHAN_RANGE_SETTINGS_FILE = "chanranges.conf";
 
 
 void SpiffsConfigStorage::load()
@@ -44,12 +41,11 @@ void SpiffsConfigStorage::load()
 		mqtt_pass = fileGetContent(MQTTPASS_SETTINGS_FILE);
 		authtoken = fileGetContent(AUTHTOKEN_SETTINGS_FILE);
 		enabledhcp = fileExist(USEDHCP_SETTINGS_FILE);
-		f = fileOpen(UPDATE_INTERVAL_SETTINGS_FILE, eFO_ReadOnly);
-		fileRead(f, (void*) &publish_interval, sizeof(uint32_t));
-		fileClose(f);
 
-		f = fileOpen(DEBOUNCE_INTERVAL_SETTINGS_FILE, eFO_ReadOnly);
+		f = fileOpen(BUTTON_SETTINGS_FILE, eFO_ReadOnly);
 		fileRead(f, (void*) &debounce_interval, sizeof(uint32_t));
+		fileRead(f, (void*) &debounce_interval_longpress, sizeof(uint32_t));
+		fileRead(f, (void*) &debounce_button_timer_interval, sizeof(uint32_t));
 		fileClose(f);
 
 		simulatecw_w_rgb = fileExist(SIMULATE_CW_SETTINGS_FILE);
@@ -87,11 +83,10 @@ void SpiffsConfigStorage::save()
 		fileSetContent(USEDHCP_SETTINGS_FILE, "true");
 	else
 		fileDelete(USEDHCP_SETTINGS_FILE);
-	f = fileOpen(UPDATE_INTERVAL_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
-	fileWrite(f, (void*) &publish_interval, sizeof(uint32_t));
-	fileClose(f);
-	f = fileOpen(DEBOUNCE_INTERVAL_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
+	f = fileOpen(BUTTON_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 	fileWrite(f, (void*) &debounce_interval, sizeof(uint32_t));
+	fileWrite(f, (void*) &debounce_interval_longpress, sizeof(uint32_t));
+	fileWrite(f, (void*) &debounce_button_timer_interval, sizeof(uint32_t));
 	fileClose(f);
 
 	if (simulatecw_w_rgb)

@@ -11,14 +11,16 @@
 
 
 Timer procMQTTTimer;
-MqttClient *mqtt = 0;
+MqttClient *mqtt = nullptr;
 
 String getMQTTTopic(String topic3, bool all=false)
 {
 	return JSON_TOPIC1+((all) ? JSON_TOPIC2_ALL : NetConfig.mqtt_clientid)+topic3;
 }
 
+#ifdef ENABLE_BUTTON
 extern bool button_used_;
+#endif
 
 // Check for MQTT Disconnection
 void checkMQTTDisconnect(TcpClient& client, bool flag){
@@ -29,12 +31,14 @@ void checkMQTTDisconnect(TcpClient& client, bool flag){
 		//Serial.println("MQTT Broker Disconnected!!");
 		flashSingleChannel(2,CHAN_RED);
 	}
+#ifdef ENABLE_BUTTON
 	else
 	{
 		//Serial.println("MQTT Broker Unreachable!!");
 		if (!button_used_)
 			flashSingleChannel(3,CHAN_RED);
 	}
+#endif
 
 	// Restart connection attempt after few seconds
 	// changes procMQTTTimer callback function
@@ -112,14 +116,54 @@ void checkForwardInJsonAndSetCC(JsonObject& root, JsonObject& checkme)
 	}
 }
 
-void simulateCWwithRGB(uint32_t a[PWM_CHANNELS])
+#ifdef REPLACE_CW_WITH_UV
+void simulateCWwithRGB(JsonObject& root, uint32_t a[PWM_CHANNELS])
 {
 	if (NetConfig.simulatecw_w_rgb)
 	{
-		a[CHAN_RED] = max(a[CHAN_RED],a[CHAN_CW]);
-		a[CHAN_GREEN] = max(a[CHAN_GREEN],a[CHAN_CW]);
-		a[CHAN_BLUE] = max(a[CHAN_BLUE],a[CHAN_CW]);
+		if (root.containsKey(JSONKEY_CW))
+		{
+			uint32_t value = (uint32_t)root[JSONKEY_CW];
+			if (value > NetConfig.chan_range[CHAN_BLUE])
+			{
+				return;
+			}
+			value = value * pwm_period / NetConfig.chan_range[CHAN_BLUE];
+			if (value > pwm_period)
+				value = pwm_period;
+			a[CHAN_RED] = max(a[CHAN_RED],value);
+			a[CHAN_GREEN] = max(a[CHAN_GREEN],value);
+			a[CHAN_BLUE] = max(a[CHAN_BLUE],value);
+		}
 	}
+}
+#endif
+
+void publishCurrentLightSetting(StaticJsonBuffer<1024> &jsonBuffer, String &message)
+{
+	if (nullptr == mqtt)
+		return;
+	JsonObject& root = jsonBuffer.createObject();
+	root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * NetConfig.chan_range[CHAN_RED] / pwm_period;
+	root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * NetConfig.chan_range[CHAN_GREEN] / pwm_period;
+	root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * NetConfig.chan_range[CHAN_BLUE] / pwm_period;
+	// root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
+#ifdef REPLACE_CW_WITH_UV
+	root[JSONKEY_UV] = effect_target_values_[CHAN_UV] * NetConfig.chan_range[CHAN_UV] / pwm_period;
+#else
+	root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
+#endif
+	root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
+	root.printTo(message);
+	//publish to myself (where presumably everybody else also listens), the current settings
+	mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
+}
+
+void mqttPublishCurrentLightSetting()
+{
+	StaticJsonBuffer<1024> jsonBuffer;
+	String message;
+	publishCurrentLightSetting(jsonBuffer, message);
 }
 
 // Callback for messages, arrived from MQTT server
@@ -137,15 +181,7 @@ void onMessageReceived(String topic, String message)
 	// (as JsonBuffer should not be reused) This allows us to use that buffer for sending a message ourselves
 	if (topic.endsWith(JSON_TOPIC3_PLEASEREPEAT))
 	{
-		JsonObject& root = jsonBuffer.createObject();
-		root[JSONKEY_RED] = effect_target_values_[CHAN_RED] * NetConfig.chan_range[CHAN_RED] / pwm_period;
-		root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * NetConfig.chan_range[CHAN_GREEN] / pwm_period;
-		root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * NetConfig.chan_range[CHAN_BLUE] / pwm_period;
-		root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
-		root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
-		root.printTo(message);
-		//publish to myself (where presumably everybody else also listens), the current settings
-		mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
+		publishCurrentLightSetting(jsonBuffer, message);
 		return; //return so we don't reuse the now used jsonBuffer
 	}
 
@@ -163,10 +199,13 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, effect_target_values_, JSONKEY_RED, CHAN_RED);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_BLUE, CHAN_BLUE);
-		setArrayFromKey(root, effect_target_values_, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_WW, CHAN_WW);
-		simulateCWwithRGB(effect_target_values_);
-
+#ifdef REPLACE_CW_WITH_UV
+		setArrayFromKey(root, effect_target_values_, JSONKEY_UV, CHAN_UV);
+		simulateCWwithRGB(root, effect_target_values_);
+#else
+		setArrayFromKey(root, effect_target_values_, JSONKEY_CW, CHAN_CW);
+#endif
 		//-----
 		if (root.containsKey(JSONKEY_FLASH))
 		{
@@ -200,11 +239,28 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_RED, CHAN_RED);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_BLUE, CHAN_BLUE);
-		setArrayFromKey(root, pwm_duty_default, JSONKEY_CW, CHAN_CW);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_WW, CHAN_WW);
-		simulateCWwithRGB(pwm_duty_default);
+#ifdef REPLACE_CW_WITH_UV
+		setArrayFromKey(root, pwm_duty_default, JSONKEY_UV, CHAN_UV);
+		simulateCWwithRGB(root, pwm_duty_default);
+#else
+		setArrayFromKey(root, pwm_duty_default, JSONKEY_CW, CHAN_CW);
+#endif
 		DefaultLightConfig.save(pwm_duty_default);
 		flashSingleChannel(1,CHAN_BLUE);
+	} else if (topic.endsWith(JSON_TOPIC3_BUTTONONLIGHT))
+	{
+		setArrayFromKey(root, button_on_values_, JSONKEY_RED, CHAN_RED);
+		setArrayFromKey(root, button_on_values_, JSONKEY_GREEN, CHAN_GREEN);
+		setArrayFromKey(root, button_on_values_, JSONKEY_BLUE, CHAN_BLUE);
+		setArrayFromKey(root, button_on_values_, JSONKEY_WW, CHAN_WW);
+#ifdef REPLACE_CW_WITH_UV
+		setArrayFromKey(root, button_on_values_, JSONKEY_UV, CHAN_UV);
+		simulateCWwithRGB(root, button_on_values_);
+#else
+		setArrayFromKey(root, button_on_values_, JSONKEY_CW, CHAN_CW);
+#endif
+		ButtonLightConfig.save(button_on_values_);
 	}
 }
 
@@ -213,7 +269,7 @@ void startMqttClient()
 {
 	procMQTTTimer.stop();
 
-	if (0 == mqtt)
+	if (nullptr == mqtt)
 		mqtt = new MqttClient(NetConfig.mqtt_broker, NetConfig.mqtt_port, onMessageReceived);
 
 /*	if(!mqtt->setWill("last/will","The connection from this device is lost:(", 1, true)) {
@@ -242,6 +298,9 @@ void startMqttClient()
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+#ifdef ENABLE_BUTTON
+	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
+#endif
 
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
 }
@@ -254,6 +313,9 @@ void stopMqttClient()
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+#ifdef ENABLE_BUTTON
+	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
+#endif
 	mqtt->setKeepAlive(0);
 	mqtt->setPingRepeatTime(0);
 	procMQTTTimer.stop();

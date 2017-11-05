@@ -17,6 +17,7 @@ const uint32_t pwm_period	 = 5000; // * 200ns ^= 1 kHz
 
 extern uint32_t effect_target_values_[PWM_CHANNELS];
 extern uint32_t effect_intermid_values_[PWM_CHANNELS];
+extern uint32_t button_on_values_[PWM_CHANNELS];
 extern String mqtt_forward_to_;
 extern String mqtt_payload_;
 

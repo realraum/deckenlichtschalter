@@ -7,6 +7,7 @@
 //these get set from outside and should not be read or written in timer functions
 uint32_t effect_target_values_[PWM_CHANNELS]={0,0,0,0,0};
 uint32_t effect_intermid_values_[PWM_CHANNELS]={0,0,0,0,0};
+uint32_t button_on_values_[PWM_CHANNELS]={0,0,0,0,0};
 
 //these get set from outside and are only used at the end (TODO)
 String mqtt_forward_to_;
