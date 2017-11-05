@@ -113,7 +113,7 @@ void handleButton()
 			for (uint8_t i=0;i<PWM_CHANNELS;i++)
 			{
 				effect_target_values_[i]=button_on_values_[i];
-			}			
+			}
 		}
 		applyValues(effect_target_values_);
 		mqttPublishCurrentLightSetting();

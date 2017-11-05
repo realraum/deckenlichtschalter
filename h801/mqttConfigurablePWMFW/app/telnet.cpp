@@ -168,10 +168,17 @@ void telnetCmdLight(String commandLine  ,CommandOutput* commandOutput)
 	{
 		uint32_t deflightconf[PWM_CHANNELS]={0,0,0,0,0};
 		DefaultLightConfig.load(deflightconf);
+#ifdef REPLACE_CW_WITH_UV
 		commandOutput->println("Current: r:"+String(pwm_get_duty(CHAN_RED))+" g:"+String(pwm_get_duty(CHAN_GREEN))+" b:"+String(pwm_get_duty(CHAN_BLUE))+" cw:"+String(pwm_get_duty(CHAN_UV))+" ww:"+String(pwm_get_duty(CHAN_WW)));
 		commandOutput->println("Default: r:"+String(deflightconf[CHAN_RED])+" g:"+String(deflightconf[CHAN_GREEN])+" b:"+String(deflightconf[CHAN_BLUE])+" cw:"+String(deflightconf[CHAN_UV])+" ww:"+String(deflightconf[CHAN_WW]));
 		commandOutput->println("effect_target_values_: r:"+String(effect_target_values_[CHAN_RED])+" g:"+String(effect_target_values_[CHAN_GREEN])+" b:"+String(effect_target_values_[CHAN_BLUE])+" cw:"+String(effect_target_values_[CHAN_UV])+" ww:"+String(effect_target_values_[CHAN_WW]));
 		commandOutput->println("effect_intermid_values_: r:"+String(effect_intermid_values_[CHAN_RED])+" g:"+String(effect_intermid_values_[CHAN_GREEN])+" b:"+String(effect_intermid_values_[CHAN_BLUE])+" cw:"+String(effect_intermid_values_[CHAN_UV])+" ww:"+String(effect_intermid_values_[CHAN_WW]));
+#else
+		commandOutput->println("Current: r:"+String(pwm_get_duty(CHAN_RED))+" g:"+String(pwm_get_duty(CHAN_GREEN))+" b:"+String(pwm_get_duty(CHAN_BLUE))+" cw:"+String(pwm_get_duty(CHAN_CW))+" ww:"+String(pwm_get_duty(CHAN_WW)));
+		commandOutput->println("Default: r:"+String(deflightconf[CHAN_RED])+" g:"+String(deflightconf[CHAN_GREEN])+" b:"+String(deflightconf[CHAN_BLUE])+" cw:"+String(deflightconf[CHAN_CW])+" ww:"+String(deflightconf[CHAN_WW]));
+		commandOutput->println("effect_target_values_: r:"+String(effect_target_values_[CHAN_RED])+" g:"+String(effect_target_values_[CHAN_GREEN])+" b:"+String(effect_target_values_[CHAN_BLUE])+" cw:"+String(effect_target_values_[CHAN_CW])+" ww:"+String(effect_target_values_[CHAN_WW]));
+		commandOutput->println("effect_intermid_values_: r:"+String(effect_intermid_values_[CHAN_RED])+" g:"+String(effect_intermid_values_[CHAN_GREEN])+" b:"+String(effect_intermid_values_[CHAN_BLUE])+" cw:"+String(effect_intermid_values_[CHAN_CW])+" ww:"+String(effect_intermid_values_[CHAN_WW]));
+#endif
 	}
 	else if (commandToken[1] == "flash0")
 	{
@@ -313,9 +320,9 @@ void telnetRegisterCmdsWithCommandHandler()
 	commandHandler.registerCommand(CommandDelegate("show","Show settings","cG", telnetCmdPrint));
 	commandHandler.registerCommand(CommandDelegate("ls","List files","cG", telnetCmdLs));
 	commandHandler.registerCommand(CommandDelegate("cat","Cat file contents","cG", telnetCmdCatFile));
-#ifdef TELNET_CMD_LIGHTTEST	
+#ifdef TELNET_CMD_LIGHTTEST
 	commandHandler.registerCommand(CommandDelegate("light","Test light","sG", telnetCmdLight));
-#endif	
+#endif
 	commandHandler.registerCommand(CommandDelegate("restart","restart ESP8266","sG", telnetCmdReboot));
 	commandHandler.registerCommand(CommandDelegate("update","OTA Firmware update","sG", telnetAirUpdate));
 	commandHandler.registerCommand(CommandDelegate("auth","auth token","sG", telnetAuth));

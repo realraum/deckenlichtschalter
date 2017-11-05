@@ -116,6 +116,7 @@ void checkForwardInJsonAndSetCC(JsonObject& root, JsonObject& checkme)
 	}
 }
 
+#ifdef REPLACE_CW_WITH_UV
 void simulateCWwithRGB(JsonObject& root, uint32_t a[PWM_CHANNELS])
 {
 	if (NetConfig.simulatecw_w_rgb)
@@ -136,6 +137,7 @@ void simulateCWwithRGB(JsonObject& root, uint32_t a[PWM_CHANNELS])
 		}
 	}
 }
+#endif
 
 void publishCurrentLightSetting(StaticJsonBuffer<1024> &jsonBuffer, String &message)
 {
@@ -146,11 +148,15 @@ void publishCurrentLightSetting(StaticJsonBuffer<1024> &jsonBuffer, String &mess
 	root[JSONKEY_GREEN] = effect_target_values_[CHAN_GREEN] * NetConfig.chan_range[CHAN_GREEN] / pwm_period;
 	root[JSONKEY_BLUE] = effect_target_values_[CHAN_BLUE] * NetConfig.chan_range[CHAN_BLUE] / pwm_period;
 	// root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
+#ifdef REPLACE_CW_WITH_UV
 	root[JSONKEY_UV] = effect_target_values_[CHAN_UV] * NetConfig.chan_range[CHAN_UV] / pwm_period;
+#else
+	root[JSONKEY_CW] = effect_target_values_[CHAN_CW] * NetConfig.chan_range[CHAN_CW] / pwm_period;
+#endif
 	root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
 	root.printTo(message);
 	//publish to myself (where presumably everybody else also listens), the current settings
-	mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);	
+	mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
 }
 
 void mqttPublishCurrentLightSetting()
@@ -194,9 +200,12 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, effect_target_values_, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_BLUE, CHAN_BLUE);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_WW, CHAN_WW);
+#ifdef REPLACE_CW_WITH_UV
 		setArrayFromKey(root, effect_target_values_, JSONKEY_UV, CHAN_UV);
 		simulateCWwithRGB(root, effect_target_values_);
-
+#else
+		setArrayFromKey(root, effect_target_values_, JSONKEY_CW, CHAN_CW);
+#endif
 		//-----
 		if (root.containsKey(JSONKEY_FLASH))
 		{
@@ -231,8 +240,12 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_BLUE, CHAN_BLUE);
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_WW, CHAN_WW);
+#ifdef REPLACE_CW_WITH_UV
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_UV, CHAN_UV);
 		simulateCWwithRGB(root, pwm_duty_default);
+#else
+		setArrayFromKey(root, pwm_duty_default, JSONKEY_CW, CHAN_CW);
+#endif
 		DefaultLightConfig.save(pwm_duty_default);
 		flashSingleChannel(1,CHAN_BLUE);
 	} else if (topic.endsWith(JSON_TOPIC3_BUTTONONLIGHT))
@@ -241,8 +254,12 @@ void onMessageReceived(String topic, String message)
 		setArrayFromKey(root, button_on_values_, JSONKEY_GREEN, CHAN_GREEN);
 		setArrayFromKey(root, button_on_values_, JSONKEY_BLUE, CHAN_BLUE);
 		setArrayFromKey(root, button_on_values_, JSONKEY_WW, CHAN_WW);
+#ifdef REPLACE_CW_WITH_UV
 		setArrayFromKey(root, button_on_values_, JSONKEY_UV, CHAN_UV);
 		simulateCWwithRGB(root, button_on_values_);
+#else
+		setArrayFromKey(root, button_on_values_, JSONKEY_CW, CHAN_CW);
+#endif
 		ButtonLightConfig.save(button_on_values_);
 	}
 }
@@ -281,7 +298,9 @@ void startMqttClient()
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+#ifdef ENABLE_BUTTON
 	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
+#endif
 
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
 }
@@ -294,7 +313,9 @@ void stopMqttClient()
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+#ifdef ENABLE_BUTTON
 	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
+#endif
 	mqtt->setKeepAlive(0);
 	mqtt->setPingRepeatTime(0);
 	procMQTTTimer.stop();
