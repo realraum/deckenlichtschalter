@@ -18,7 +18,9 @@ String getMQTTTopic(String topic3, bool all=false)
 	return JSON_TOPIC1+((all) ? JSON_TOPIC2_ALL : NetConfig.mqtt_clientid)+topic3;
 }
 
+#ifdef ENABLE_BUTTON
 extern bool button_used_;
+#endif
 
 // Check for MQTT Disconnection
 void checkMQTTDisconnect(TcpClient& client, bool flag){
@@ -29,12 +31,14 @@ void checkMQTTDisconnect(TcpClient& client, bool flag){
 		//Serial.println("MQTT Broker Disconnected!!");
 		flashSingleChannel(2,CHAN_RED);
 	}
+#ifdef ENABLE_BUTTON
 	else
 	{
 		//Serial.println("MQTT Broker Unreachable!!");
 		if (!button_used_)
 			flashSingleChannel(3,CHAN_RED);
 	}
+#endif
 
 	// Restart connection attempt after few seconds
 	// changes procMQTTTimer callback function

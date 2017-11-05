@@ -1,3 +1,5 @@
+#ifdef ENABLE_BUTTON
+
 #include <user_config.h>
 #include <SmingCore/SmingCore.h>
 #include "button.h"
@@ -66,3 +68,5 @@ bool DebouncedButton::wasPressed()
 	return false;
 }
 
+
+#endif

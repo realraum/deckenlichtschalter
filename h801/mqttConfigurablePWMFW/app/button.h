@@ -1,6 +1,8 @@
 #ifndef BUTTON_H_INCLUDED
 #define BUTTON_H_INCLUDED
 
+#ifdef ENABLE_BUTTON
+
 typedef Delegate<void()> ButtonInterruptDelegate;
 
 class DebouncedButton
@@ -27,5 +29,5 @@ private:
 };
 
 
-
+#endif
 #endif

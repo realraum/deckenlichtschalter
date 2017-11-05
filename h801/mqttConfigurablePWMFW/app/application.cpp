@@ -8,7 +8,9 @@
 #include "lightcontrol.h"
 #include "telnet.h"
 #include "mqtt.h"
+#ifdef ENABLE_BUTTON
 #include "button.h"
+#endif
 #ifdef ENABLE_SSL
 	#include <ssl/private_key.h>
 	#include <ssl/cert.h>
@@ -17,9 +19,11 @@
 DefaultLightConfigStorage DefaultLightConfig("defaultlight.conf");
 DefaultLightConfigStorage ButtonLightConfig("btnlight.conf");
 
+#ifdef ENABLE_BUTTON
 Timer BtnTimer;
 DebouncedButton *button = nullptr;
 bool button_used_ = false;
+#endif
 uint8_t wifi_fail_count_ = 0;
 
 
@@ -59,8 +63,10 @@ void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t re
 	// The different reason codes can be found in user_interface.h. in your SDK.
 	// debugf("Disconnected from %s. Reason: %d", ssid.c_str(), reason);
 
+#ifdef ENABLE_BUTTON
 	if (!button_used_)
 		flashSingleChannel(1,CHAN_RED);
+#endif
 	wifi_fail_count_++;
 	if (wifi_fail_count_ > 2)
 	{
@@ -70,6 +76,7 @@ void wifiConnectFail(String ssid, uint8_t ssidLength, uint8_t *bssid, uint8_t re
 	}
 }
 
+#ifdef ENABLE_BUTTON
 //////////////////////////////////////
 ////// Button             ////////////
 //////////////////////////////////////
@@ -115,6 +122,7 @@ void handleButton()
 		mqttPublishCurrentLightSetting();
 	}
 }
+#endif
 
 //////////////////////////////////////
 ////// Base System Stuff  ////////////
@@ -154,11 +162,13 @@ void init()
 	// configure stuff that needs to be done before system is ready
 	NetConfig.load(); //loads netsettings from fs
 
+#ifdef ENABLE_BUTTON
 	//INIT Button
 	button_on_values_[CHAN_WW] = pwm_period/2;
 	ButtonLightConfig.load(button_on_values_);
 	button = new DebouncedButton(FUNC_GPIO0, NetConfig.debounce_interval, NetConfig.debounce_interval_longpress, true);
 	BtnTimer.initializeMs(NetConfig.debounce_button_timer_interval, handleButton).start();
+#endif
 
 	//INIT WIFI
 	configureWifi();

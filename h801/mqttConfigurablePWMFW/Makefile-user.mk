@@ -51,7 +51,8 @@ SHELL=/bin/zsh
 RBOOT_SPIFFS_0   ?= $(shell echo $$((  0x80000 - $(SPIFF_SIZE) )) )
 RBOOT_SPIFFS_1   ?= $(shell echo $$(( 0x100000 - $(SPIFF_SIZE) )) )
 
-
+## Compile Options
+ENABLE_BUTTON=1
 
 ENABLE_CUSTOM_PWM=1
 ENABLE_SSL=0
