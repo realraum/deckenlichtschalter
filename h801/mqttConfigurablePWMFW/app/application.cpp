@@ -40,8 +40,8 @@ void configureWifi()
 	// Serial.println("WifiPass: "+NetConfig.getWifiPASS());
 	WifiStation.setHostname(NetConfig.mqtt_clientid+".realraum.at");
 	WifiStation.config(NetConfig.getWifiSSID(), NetConfig.getWifiPASS()); // Put you SSID and Password here
-	WifiStation.enableDHCP(NetConfig.enabledhcp);
-	if (!NetConfig.enabledhcp)
+	WifiStation.enableDHCP(NetConfig.getEnableDHCP());
+	if (!NetConfig.getEnableDHCP())
 		WifiStation.setIP(NetConfig.ip,NetConfig.netmask,NetConfig.gw);
 }
 

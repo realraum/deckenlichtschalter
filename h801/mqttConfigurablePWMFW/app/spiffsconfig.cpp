@@ -12,7 +12,7 @@ const String MQTTPASS_SETTINGS_FILE = "mqtt.pass";
 const String MQTTBROKER_SETTINGS_FILE = "mqttbrkr.conf";
 const String AUTHTOKEN_SETTINGS_FILE = "authtoken";
 const String BUTTON_SETTINGS_FILE = "btn.conf";
-const String USEDHCP_SETTINGS_FILE = "dhcp.flag";
+const String USEDHCP_SETTINGS_FILE[MAX_WIFI_SETS] = {"dhcp0.flag","dhcp1.flag","dhcp2.flag"};
 const String FAN_SETTINGS_FILE = "fan.conf";
 const String SIMULATE_CW_SETTINGS_FILE = "simcw.flag";
 const String CHAN_RANGE_SETTINGS_FILE = "chanranges.conf";
@@ -34,13 +34,13 @@ void SpiffsConfigStorage::load()
 		{
 			wifi_ssid[wifi_settings_num] = fileGetContent(WIFISSID_SETTINGS_FILES[wifi_settings_num]);
 			wifi_pass[wifi_settings_num] = fileGetContent(WIFIPASS_SETTINGS_FILES[wifi_settings_num]);
+			enabledhcp[wifi_settings_num] = fileExist(USEDHCP_SETTINGS_FILE[wifi_settings_num]);
 		}
 		mqtt_broker = fileGetContent(MQTTBROKER_SETTINGS_FILE);
 		mqtt_clientid = fileGetContent(MQTTCLIENT_SETTINGS_FILE);
 		mqtt_user = fileGetContent(MQTTUSER_SETTINGS_FILE);
 		mqtt_pass = fileGetContent(MQTTPASS_SETTINGS_FILE);
 		authtoken = fileGetContent(AUTHTOKEN_SETTINGS_FILE);
-		enabledhcp = fileExist(USEDHCP_SETTINGS_FILE);
 
 		f = fileOpen(BUTTON_SETTINGS_FILE, eFO_ReadOnly);
 		fileRead(f, (void*) &debounce_interval, sizeof(uint32_t));
@@ -73,16 +73,16 @@ void SpiffsConfigStorage::save()
 			fileSetContent(WIFISSID_SETTINGS_FILES[ws], wifi_ssid[ws]);
 			fileSetContent(WIFIPASS_SETTINGS_FILES[ws], wifi_pass[ws]);
 		}
+		if (enabledhcp[ws])
+			fileSetContent(USEDHCP_SETTINGS_FILE[ws], "true");
+		else
+			fileDelete(USEDHCP_SETTINGS_FILE[ws]);
 	}
 	fileSetContent(MQTTBROKER_SETTINGS_FILE, mqtt_broker);
 	fileSetContent(MQTTCLIENT_SETTINGS_FILE, mqtt_clientid);
 	fileSetContent(MQTTUSER_SETTINGS_FILE, mqtt_user);
 	fileSetContent(MQTTPASS_SETTINGS_FILE, mqtt_pass);
 	fileSetContent(AUTHTOKEN_SETTINGS_FILE, authtoken);
-	if (enabledhcp)
-		fileSetContent(USEDHCP_SETTINGS_FILE, "true");
-	else
-		fileDelete(USEDHCP_SETTINGS_FILE);
 	f = fileOpen(BUTTON_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 	fileWrite(f, (void*) &debounce_interval, sizeof(uint32_t));
 	fileWrite(f, (void*) &debounce_interval_longpress, sizeof(uint32_t));

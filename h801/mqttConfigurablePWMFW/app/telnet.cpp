@@ -98,7 +98,7 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	}
 	else if (commandToken[1] == "dhcp")
 	{
-		NetConfig.enabledhcp = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
+		NetConfig.enabledhcp[0] = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
 	}
 	else if (commandToken[1] == "sim")
 	{
@@ -119,7 +119,7 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->println("IP: " + NetConfig.ip.toString() + " actual: "+WifiStation.getIP().toString());
 	commandOutput->println("NM: " + NetConfig.netmask.toString()+ " actual: "+WifiStation.getNetworkMask().toString());
 	commandOutput->println("GW: " + NetConfig.gw.toString()+ " actual: "+WifiStation.getNetworkGateway().toString());
-	commandOutput->println((NetConfig.enabledhcp)?"DHCP: on":"DHCP: off");
+	commandOutput->println((NetConfig.enabledhcp[0])?"DHCP: on":"DHCP: off");
 	commandOutput->println((WifiStation.isEnabledDHCP())?"actual DHCP: on":"DHCP: off");
 	commandOutput->println("MQTT Broker: " + NetConfig.mqtt_broker + ":" + String(NetConfig.mqtt_port));
 	commandOutput->println("MQTT ClientID: " + NetConfig.mqtt_clientid);

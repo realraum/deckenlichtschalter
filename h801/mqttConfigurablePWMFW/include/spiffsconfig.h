@@ -16,7 +16,7 @@ public:
 	String mqtt_clientid="test";
 	String mqtt_user;
 	String mqtt_pass;
-	bool enabledhcp=true;
+	bool enabledhcp[MAX_WIFI_SETS]={true,true,true};
 	uint16_t mqtt_port=1883;  //8883 for ssl
 	uint32_t publish_interval=8000;
 	String authtoken;
@@ -35,6 +35,7 @@ public:
 
 	String getWifiSSID() {return wifi_ssid[wifi_settings_idx];}
 	String getWifiPASS() {return wifi_pass[wifi_settings_idx];}
+	bool getEnableDHCP() {return enabledhcp[wifi_settings_idx];}
 	void nextWifi() {wifi_settings_idx++; wifi_settings_idx %= MAX_WIFI_SETS; if (wifi_ssid[wifi_settings_idx].length() == 0) {wifi_settings_idx=0;}}
 
 private:
