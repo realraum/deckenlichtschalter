@@ -72,7 +72,9 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 		NetConfig.fan_threshold = commandToken[2].toInt();
 		commandOutput->printf("%s: '%d'\r\n",commandToken[1].c_str(),NetConfig.fan_threshold);
 	}
-*/	else if (commandToken[1] == "btn1")
+*/
+#ifdef ENABLE_BUTTON
+	else if (commandToken[1] == "btn1")
 	{
 		NetConfig.debounce_interval = commandToken[2].toInt();
 	}
@@ -84,6 +86,7 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	{
 		NetConfig.debounce_button_timer_interval = commandToken[2].toInt();
 	}
+#endif
 	else if (commandToken[1] == "mqttclientid")
 	{
 		commandOutput->printf("%s: '%s'\r\n",commandToken[1].c_str(),commandToken[2].c_str());
@@ -99,6 +102,18 @@ void telnetCmdNetSettings(String commandLine  ,CommandOutput* commandOutput)
 	else if (commandToken[1] == "dhcp")
 	{
 		NetConfig.enabledhcp[0] = commandToken[2] == "1" || commandToken[2] == "true" || commandToken[2] == "yes" || commandToken[2] == "on";
+	}
+	else if (commandToken[1] == "dns0")
+	{
+		IPAddress newip(commandToken[2]);
+		if (!newip.isNull())
+			NetConfig.dns[0] = newip;
+	}
+	else if (commandToken[1] == "dns1")
+	{
+		IPAddress newip(commandToken[2]);
+		if (!newip.isNull())
+			NetConfig.dns[1] = newip;
 	}
 	else if (commandToken[1] == "sim")
 	{
@@ -119,6 +134,7 @@ void telnetCmdPrint(String commandLine  ,CommandOutput* commandOutput)
 	commandOutput->println("IP: " + NetConfig.ip.toString() + " actual: "+WifiStation.getIP().toString());
 	commandOutput->println("NM: " + NetConfig.netmask.toString()+ " actual: "+WifiStation.getNetworkMask().toString());
 	commandOutput->println("GW: " + NetConfig.gw.toString()+ " actual: "+WifiStation.getNetworkGateway().toString());
+	commandOutput->println("DNS: " + NetConfig.dns[0].toString()+ ", "+NetConfig.dns[1].toString());
 	commandOutput->println((NetConfig.enabledhcp[0])?"DHCP: on":"DHCP: off");
 	commandOutput->println((WifiStation.isEnabledDHCP())?"actual DHCP: on":"DHCP: off");
 	commandOutput->println("MQTT Broker: " + NetConfig.mqtt_broker + ":" + String(NetConfig.mqtt_port));
