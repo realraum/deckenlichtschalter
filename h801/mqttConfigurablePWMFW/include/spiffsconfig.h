@@ -10,6 +10,7 @@ public:
 	IPAddress ip = IPAddress(192, 168, 127, 242);
 	IPAddress netmask = IPAddress(255,255,255,0);
 	IPAddress gw = IPAddress(192, 168, 127, 254);
+	IPAddress dns[DNS_MAX_SERVERS] = {IPAddress(89,106,211,33),IPAddress(8,8,8,8)};
 	String wifi_ssid[MAX_WIFI_SETS]={"","",""};
 	String wifi_pass[MAX_WIFI_SETS]={"","",""};
 	String mqtt_broker="mqtt.realraum.at";

@@ -4,7 +4,7 @@ from ipaddress import ip_address
 import os
 import struct
 
-def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp0=True,dhcp1=True,dhcp2=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid=b"",wifi1_pass=b"",wifi2_ssid=b"",wifi2_pass=b"",debounce_interval=15,debounce_interval_longpress=700,debounce_button_timer_interval=500):
+def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_user,mqtt_pass,authtoken,dhcp0=True,dhcp1=True,dhcp2=True,mqtt_port=1883,fan_threshold=2000,simulate_cw_with_rgb=False,chan_ranges=[1000,1000,1000,1000,1000],wifi1_ssid=b"",wifi1_pass=b"",wifi2_ssid=b"",wifi2_pass=b"",debounce_interval=15,debounce_interval_longpress=700,debounce_button_timer_interval=500,dns=[]):
     NET_SETTINGS_FILE = "net.conf"
     WIFISSID0_SETTINGS_FILE = "wifi0.ssid"
     WIFIPASS0_SETTINGS_FILE = "wifi0.pass"
@@ -24,10 +24,24 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
     FAN_SETTINGS_FILE = "fan.conf"
     CHAN_RANGE_SETTINGS_FILE = "chanranges.conf"
     BUTTON_SETTINGS_FILE = "btn.conf"
+    DNS_SERVERS_FILE = "dns"
+    DNS_MAX_SERVERS=2
     DIR="./files/"
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
         fh.write(struct.pack("<I",  int(mqtt_port)))
+    if dns:
+        with open(os.path.join(DIR, DNS_SERVERS_FILE),"wb") as fh:
+            for ipidx in range(0,DNS_MAX_SERVERS):
+                try:
+                    fh.write(struct.pack(">I", int(ip_address(dns[ipidx]))))
+                except IndexError:
+                    fh.write(struct.pack(">I", int(ip_address("8.8.4.4"))))
+    else:
+        try:
+            os.unlink(os.path.join(DIR, DNS_SERVERS_FILE))
+        except:
+            pass
     with open(os.path.join(DIR, CHAN_RANGE_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack("<IIIII", *map(int,chan_ranges)))
     with open(os.path.join(DIR, FAN_SETTINGS_FILE),"wb") as fh:

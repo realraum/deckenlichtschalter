@@ -5,6 +5,9 @@
 extern "C" {
 #endif
 
+	// DNS Server
+	//#define DNS_SERVER_ADDRESS(ipaddr)    (ip4_addr_set_u32(ipaddr, 0x21D36A59)) /* gw.realraum.at(89.106.211.33) */
+
 	// UART config
 	#define SERIAL_BAUD_RATE 115200
 

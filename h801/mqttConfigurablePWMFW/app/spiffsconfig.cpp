@@ -13,6 +13,7 @@ const String MQTTBROKER_SETTINGS_FILE = "mqttbrkr.conf";
 const String AUTHTOKEN_SETTINGS_FILE = "authtoken";
 const String BUTTON_SETTINGS_FILE = "btn.conf";
 const String USEDHCP_SETTINGS_FILE[MAX_WIFI_SETS] = {"dhcp0.flag","dhcp1.flag","dhcp2.flag"};
+const String DNS_SERVERS_FILE = "dns";
 const String FAN_SETTINGS_FILE = "fan.conf";
 const String SIMULATE_CW_SETTINGS_FILE = "simcw.flag";
 const String CHAN_RANGE_SETTINGS_FILE = "chanranges.conf";
@@ -30,6 +31,15 @@ void SpiffsConfigStorage::load()
 		netmask = IPAddress(netsettings[1]);
 		gw = IPAddress(netsettings[2]);
 		mqtt_port = (uint16_t)(netsettings[3]);
+		if (fileExist(DNS_SERVERS_FILE))
+		{
+			uint32_t dnssettings[DNS_MAX_SERVERS];
+			f = fileOpen(DNS_SERVERS_FILE, eFO_ReadOnly);
+			fileRead(f, (void*) dnssettings, DNS_MAX_SERVERS*sizeof(uint32_t));
+			fileClose(f);
+			for (uint32_t d=0; d<DNS_MAX_SERVERS; d++)
+				dns[d] = IPAddress(dnssettings[d]);
+		}
 		for (uint32_t wifi_settings_num=0; wifi_settings_num<MAX_WIFI_SETS; wifi_settings_num++)
 		{
 			wifi_ssid[wifi_settings_num] = fileGetContent(WIFISSID_SETTINGS_FILES[wifi_settings_num]);
@@ -66,6 +76,12 @@ void SpiffsConfigStorage::save()
 	uint32_t netsettings[4] = {ip,netmask,gw, (uint32_t)mqtt_port};
 	file_t f = fileOpen(NET_SETTINGS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
 	fileWrite(f, (void*) netsettings, 4*sizeof(uint32_t));
+	fileClose(f);
+	uint32_t dnssettings[DNS_MAX_SERVERS];
+	for (uint32_t d=0; d<DNS_MAX_SERVERS; d++)
+		dnssettings[d]=(uint32_t)dns[d];
+	f = fileOpen(DNS_SERVERS_FILE, eFO_WriteOnly | eFO_CreateNewAlways);
+	fileWrite(f, (void*) dnssettings, DNS_MAX_SERVERS*sizeof(uint32_t));
 	fileClose(f);
 	for (uint32_t ws=0; ws<MAX_WIFI_SETS; ws++)
 	{

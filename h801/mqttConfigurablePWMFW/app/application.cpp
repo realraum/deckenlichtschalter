@@ -27,12 +27,28 @@ bool button_used_ = false;
 uint8_t wifi_fail_count_ = 0;
 
 
+
 ///////////////////////////////////////
 ///// WIFI Stuff
 ///////////////////////////////////////
 
+void configureDNSServer(uint8_t n, IPAddress a)
+{
+	ip_addr_t adr;
+	ip4_addr_set_u32(&adr, (uint32_t) a);
+	dns_setserver(n,&adr);
+}
+
 void configureWifi()
 {
+	// ip_addr_t ipdnsr3_;
+	// ip_addr_t ipdnsffgraz_;
+	// ip4_addr_set_u32(&ipdnsr3_, 0x21D36A59); //89.106.211.33
+	// ip4_addr_set_u32(&ipdnsffgraz_,0x0A000B0A); //10.12.0.10
+	// dns_setserver(0,&ipdnsr3_);
+	// dns_setserver(1,&ipdnsffgraz_);
+	for (uint8_t d=0; d<DNS_MAX_SERVERS;d++)
+		configureDNSServer(d,NetConfig.dns[d]);
 	WifiAccessPoint.enable(false);
 	WifiStation.enable(true);
 	// Serial.println("clientid: "+NetConfig.mqtt_clientid);
