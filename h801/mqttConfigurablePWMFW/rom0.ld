@@ -5,7 +5,7 @@ MEMORY
   dport0_0_seg :                        org = 0x3FF00000, len = 0x10
   dram0_0_seg :                         org = 0x3FFE8000, len = 0x14000
   iram1_0_seg :                         org = 0x40100000, len = 0x8000
-  irom0_0_seg :                         org = 0x40202010, len = (1M - 0x2010)
+  irom0_0_seg :                         org = 0x40202010, len = 0x3C000
 }
 
 PHDRS
@@ -102,15 +102,11 @@ SECTIONS
     *(.gnu.linkonce.e.*)
     *(.gnu.version_r)
     *(.eh_frame)
-    . = (. + 3) & ~ 3;
     /*  C++ constructor and destructor tables, properly ordered:  */
-	__dso_handle = ABSOLUTE(.);
-    __init_array_start = ABSOLUTE(.);
     KEEP (*crtbegin.o(.ctors))
     KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
     KEEP (*(SORT(.ctors.*)))
     KEEP (*(.ctors))
-    __init_array_end = ABSOLUTE(.);
     KEEP (*crtbegin.o(.dtors))
     KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
     KEEP (*(SORT(.dtors.*)))
@@ -155,22 +151,11 @@ SECTIONS
   } >dram0_0_seg :dram0_0_bss_phdr
 /* __stack = 0x3ffc8000; */
 
-  .irom0.text : ALIGN(4)
-  {
-    _irom0_text_start = ABSOLUTE(.);
-    *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text)
-	out/build/app_app.a:*(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
-  *libsming.a:*(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
-  *libsmingssl.a:*(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
-    _irom0_text_end = ABSOLUTE(.);
-	_flash_code_end = ABSOLUTE(.);
-  } >irom0_0_seg :irom0_0_phdr
-
   .text : ALIGN(4)
   {
     _stext = .;
     _text_start = ABSOLUTE(.);
-     *(.UserEnter.text)
+    *(.UserEnter.text)
     . = ALIGN(16);
     *(.DebugExceptionVector.text)
     . = ALIGN(16);
@@ -198,7 +183,6 @@ SECTIONS
     *(.init.literal)
     *(.init)
     *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
-	  *(.iram.literal .iram.text.literal .iram.text)
     *(.fini.literal)
     *(.fini)
     *(.gnu.version)
@@ -214,7 +198,14 @@ SECTIONS
     *(.gnu.linkonce.lit4.*)
     _lit4_end = ABSOLUTE(.);
   } >iram1_0_seg :iram1_0_phdr
+
+  .irom0.text : ALIGN(4)
+  {
+    _irom0_text_start = ABSOLUTE(.);
+    *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text)
+    _irom0_text_end = ABSOLUTE(.);
+  } >irom0_0_seg :irom0_0_phdr
 }
 
 /* get ROM code address */
-INCLUDE "../ld/eagle.rom.addr.v6.ld"
+INCLUDE "eagle.rom.addr.v6.ld"

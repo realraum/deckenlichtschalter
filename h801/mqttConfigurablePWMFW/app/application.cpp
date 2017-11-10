@@ -150,7 +150,7 @@ void init()
 	Serial.systemDebugOutput(true); // Allow debug print to serial
 	Serial.commandProcessing(true);
 	// Mount file system, in order to work with files
-	int slot = rboot_get_current_rom();
+	uint8_t slot = rboot_get_current_rom();
 #ifndef DISABLE_SPIFFS
 	if (slot == 0) {
 #ifdef RBOOT_SPIFFS_0
