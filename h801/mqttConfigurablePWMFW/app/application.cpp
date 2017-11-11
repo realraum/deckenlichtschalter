@@ -146,26 +146,27 @@ void handleButton()
 
 void init()
 {
-	Serial.begin(115200);
+	Serial.begin(SERIAL_BAUD_RATE);
 	Serial.systemDebugOutput(true); // Allow debug print to serial
 	Serial.commandProcessing(true);
 	// Mount file system, in order to work with files
 	uint8_t slot = rboot_get_current_rom();
+	debugf("\r\nrunning rom %d.\r\n", slot);
 #ifndef DISABLE_SPIFFS
 	if (slot == 0) {
 #ifdef RBOOT_SPIFFS_0
-		// debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_0, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at 0x%08x, length %d", RBOOT_SPIFFS_0, SPIFF_SIZE);
 		spiffs_mount_manual(RBOOT_SPIFFS_0, SPIFF_SIZE);
 #else
-		// debugf("trying to mount spiffs at %x, length %d", 0x100000, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at 0x%08x, length %d", 0x100000, SPIFF_SIZE);
 		spiffs_mount_manual(0x100000, SPIFF_SIZE);
 #endif
 	} else {
 #ifdef RBOOT_SPIFFS_1
-		// debugf("trying to mount spiffs at %x, length %d", RBOOT_SPIFFS_1, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at 0x%08x, length %d", RBOOT_SPIFFS_1, SPIFF_SIZE);
 		spiffs_mount_manual(RBOOT_SPIFFS_1, SPIFF_SIZE);
 #else
-		// debugf("trying to mount spiffs at %x, length %d", 0x300000, SPIFF_SIZE);
+		// debugf("trying to mount spiffs at 0x%08x, length %d", 0x300000, SPIFF_SIZE);
 		spiffs_mount_manual(0x300000, SPIFF_SIZE);
 #endif
 	}

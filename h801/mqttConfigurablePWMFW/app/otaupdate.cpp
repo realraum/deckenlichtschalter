@@ -30,11 +30,11 @@ void OtaUpdate_CallBack(rBootHttpUpdate& client, bool result) {
 		// set to boot new rom and then reboot
 		// Serial.printf("Firmware updated, rebooting to rom %d...\r\n", slot);
 		rboot_set_current_rom(slot);
+		System.restart();
 	} else {
 		// fail
 		// Serial.println("Firmware update failed!");
 	}
-	System.restart();
 }
 
 void OtaUpdate(String rom0url, String rom1url, String spiffsurl) {
