@@ -106,6 +106,54 @@ function handleExternalActivateScript(data) {
   }
 }
 
+
+// {version:0.8,presets:[{name:"MyPreset", settings:{ceiling1:{r:0,g:0,b:0,ww:0,cw:0,uv:0}}},{...}]}
+//
+//
+var local_favorite_presets_ = {version:0};
+function loadLocalFancyPresets() {
+  //TODO: clear local presets div
+  local_favorite_presets_ = JSON.parse(localStorage.getItem("ceilingfavs"));
+  if (local_favorite_presets_.version==0.8)
+  {
+    for (var p=0; p<local_favorite_presets_.presents.length,p++)
+    {
+      //TODO: add present with index p and name local_favorite_presets_.presents.name div that does not yet exist
+    }
+  }
+}
+
+function applyFancyPreset(presetid)
+{
+  var preset = local_favorite_presets_.presets[presetid];
+  console.log("applying preset "+ preset.name);
+  Object.keys(preset.settings).forEach(function(fancylightname){
+      sendMQTT(mqtttopic_fancylight(fancylightname), preset.settings[fancylightname]);
+    });
+}
+
+function saveFancyPreset(name)
+{
+  var currentsettings={};
+  Object.keys(fancycolorstate_).forEach(function(fancylightname){
+    currentsettings[fancylightname]={};
+    ["r","g","b","cw","ww","uv"].forEach(function(lvn){
+      currentsettings[fancylightname][lvn]=fancycolorstate_[fancylightname][lvn];
+    });
+  });
+  local_favorite_presets_.version=0.8;
+  local_favorite_presets_.presets.push({name:name,settings:currentsettings});
+  localStorage.setItem("ceilingfavs",JSON.stringify(local_favorite_presets_));
+}
+
+function clickedSaveFancyPreset()
+{
+  //TODO: display box with settings and dialog that asks for name
+  //saveFancyPreset(name);
+  //loadLocalFancyPresets();
+}
+
+
 var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
 var cgiUrl = '/cgi-bin/fallback.cgi';
 
