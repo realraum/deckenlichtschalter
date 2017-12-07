@@ -5,12 +5,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/btittelbach/pubsub"
-	"github.com/codegangsta/martini"
+	"github.com/codegangsta/negroni"
 	"github.com/gorilla/websocket"
 	"github.com/realraum/door_and_sensors/r3events"
 )
@@ -389,6 +390,9 @@ func webHandleWebSocket(w http.ResponseWriter, r *http.Request, retained_json_ch
 					LogWS_.Printf("webHandleWebSocket Error: %v", err)
 				}
 				break
+			} else if err, ok := err.(net.Error); ok && err.Timeout() {
+				LogWS_.Printf("goChatWithClientAboutCardList Timeout: %v", err)
+				break
 			} else {
 				LogWS_.Printf("webHandleWebSocket nonfatal Error: %v", err)
 			}
@@ -422,20 +426,20 @@ func webRedirectToFallbackHTML(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func goRunMartini() {
-	m := martini.Classic()
-	//m.Use(martini.Static("/var/lib/cloud9/static/"))
-	/*	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) {
-		goTalkWithClient(w, r, ps)
-	})*/
+func goRunWebserver() {
+
+	n := negroni.Classic() // Includes some default middlewares
+
 	retained_json_chan := make(chan JsonFuture, 20)
 	go goJSONMarshalStuffForWebSockClientsAndRetain(retained_json_chan)
 
-	m.Get("/sock", func(w http.ResponseWriter, r *http.Request) { webHandleWebSocket(w, r, retained_json_chan) })
-	m.Get("/cgi-bin/fallback.cgi", webHandleCGICtxData)
-	m.Get("/cgi-bin/rfswitch.cgi", webRedirectToFallbackHTML)
-	m.Get("/cgi-bin/mswitch.cgi", webRedirectToFallbackHTML)
-	m.Get("/cgi-bin/fancylight.cgi", webRedirectToFallbackHTML)
-	m.Get("/cgi-bin/ledpipe.cgi", webRedirectToFallbackHTML)
-	m.RunOnAddr(EnvironOrDefault("GOMQTTWEBFRONT_HTTP_INTERFACE", DEFAULT_GOMQTTWEBFRONT_HTTP_INTERFACE))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/sock", func(w http.ResponseWriter, r *http.Request) { webHandleWebSocket(w, r, retained_json_chan) })
+	mux.HandleFunc("/cgi-bin/fallback.cgi", func(w http.ResponseWriter, r *http.Request) { webHandleCGICtxData(w, r, retained_json_chan) })
+	mux.HandleFunc("/cgi-bin/rfswitch.cgi", webRedirectToFallbackHTML)
+	mux.HandleFunc("/cgi-bin/mswitch.cgi", webRedirectToFallbackHTML)
+	mux.HandleFunc("/cgi-bin/fancylight.cgi", webRedirectToFallbackHTML)
+	mux.HandleFunc("/cgi-bin/ledpipe.cgi", webRedirectToFallbackHTML)
+	n.UseHandler(mux)
+	http.ListenAndServe(EnvironOrDefault("GOMQTTWEBFRONT_HTTP_INTERFACE", DEFAULT_GOMQTTWEBFRONT_HTTP_INTERFACE), n)
 }

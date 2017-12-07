@@ -95,7 +95,7 @@ func main() {
 	}
 
 	go goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime()
-	go goRunMartini()
+	go goRunWebserver()
 
 	// wait on Ctrl-C or sigInt or sigKill
 	func() {
