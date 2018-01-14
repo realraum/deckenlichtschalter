@@ -116,7 +116,7 @@ function loadLocalFancyPresets() {
   local_favorite_presets_ = JSON.parse(localStorage.getItem("ceilingfavs"));
   if (local_favorite_presets_.version==0.8)
   {
-    for (var p=0; p<local_favorite_presets_.presents.length,p++)
+    for (var p=0; p<local_favorite_presets_.presents.length;p++)
     {
       //TODO: add present with index p and name local_favorite_presets_.presents.name div that does not yet exist
     }
