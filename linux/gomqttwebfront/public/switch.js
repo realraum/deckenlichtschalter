@@ -311,16 +311,18 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "regalleinwand":"LEDs Regal Leinwand",
   "floodtesla":"TESLA Deckenfluter",
   "bluebar":"Blaue LEDs Bar",
-  "couchwhite":"LEDS Couch White",
+  "couchwhite":"Couch White LEDs",
   "cxleds":"CX Gang LEDs",
   "mashadecke":"MaSha Werkstatt Decke",
+  "floodoutside":"Außenfluter",
+  "logo":"r3 Logo Auslage",
   "allrf":"Alle Funksteckdosen",
   "ambientlights":"Ambient Lichter",
   "boilerolga":"Warmwasser OLGA"
 });
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
-  "couchred":"LEDs Couch Red",
+  "couchred":"Couch Ducks & Red-LEDs",
   "tesla":"TESLA Labortisch",
   "lothrboiler":"Warmwasser LoTHR",
   "druckerstrom":"Laserjet8000",

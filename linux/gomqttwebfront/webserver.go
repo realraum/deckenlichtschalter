@@ -59,6 +59,8 @@ var (
 		"action/GoLightCtrl/regalleinwand",
 		"action/GoLightCtrl/labortisch",
 		"action/GoLightCtrl/floodtesla",
+		"action/GoLightCtrl/floodoutside",
+		"action/GoLightCtrl/logo",
 		"action/GoLightCtrl/boilerolga",
 		"action/GoLightCtrl/fancyvortrag",
 		"action/ceilingscripts/activatescript"}
