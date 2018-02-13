@@ -122,6 +122,15 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "floodoutside", "logo", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
+func ConvertCeilingLightsStateTomap(states []bool, offset int) CeilingLightStateMap {
+	rv := make(map[string]bool, 6)
+	for i, st := range states {
+		lightname := fmt.Sprintf("ceiling%d", i+offset)
+		rv[lightname] = st
+	}
+	return rv
+}
+
 func GoSwitchNameAsync() {
 FORLOOP:
 	for snc := range switch_name_chan_ {
@@ -167,7 +176,7 @@ func SwitchName(name string, onoff bool) (err error) {
 		MQTT_chan_ <- nm
 
 	case ActionBasicLight:
-		SetCeilingLightsState(nm.light, onoff)
+		CeilingLightsSwitch_.SetCeilingLightsState(nm.light, onoff)
 
 	case ActionMeta:
 		if len(nm.metaaction) == 0 {
@@ -190,7 +199,7 @@ func SwitchName(name string, onoff bool) (err error) {
 	case ActionMeta, ActionIRCmdMQTT, ActionRFCode:
 		ps_.PubNonBlocking(jsonButtonUsed{name}, PS_IRRF433_CHANGED)
 	case ActionBasicLight:
-		ps_.PubNonBlocking(ConvertCeilingLightsStateTomap(GetCeilingLightsState(), 1), PS_LIGHTS_CHANGED)
+		ps_.PubNonBlocking(ConvertCeilingLightsStateTomap(CeilingLightsSwitch_.GetCeilingLightsStates(), 1), PS_LIGHTS_CHANGED)
 	}
 
 	return

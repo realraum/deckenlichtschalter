@@ -17,18 +17,18 @@ import (
 )
 
 const (
-	DEFAULT_GOLIGHTCTRL_MQTTBROKER   string = "tcp://mqtt.realraum.at:1883"
-	DEFAULT_GOLIGHTCTRL_RF433TTYDEV  string = "/dev/ttyACM0"
-	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV string = "/dev/ttyACM1"
+	DEFAULT_GOLIGHTCTRL_MQTTBROKER      string = "tcp://mqtt.realraum.at:1883"
+	DEFAULT_GOLIGHTCTRL_RF433TTYDEV     string = "/dev/ttyACM0"
+	DEFAULT_GOLIGHTCTRL_BUTTONTTYDEV    string = "/dev/ttyACM1"
+	DEFAULT_GOLIGHTCTRL_BASICCTRLTTYDEV string = "/dev/ttyBasicCtrl"
 )
-
-type SerialLine []byte
 
 var (
 	UseFakeGPIO_         bool
 	DebugFlags_          string
 	ps_                  *pubsub.PubSub
 	topic_lightctrl_pre_ string = r3events.TOPIC_ACTIONS + r3events.CLIENTID_LIGHTCTRL + "/"
+	CeilingLightsSwitch_ CeilingLightsSwitch
 )
 
 func init() {
@@ -106,12 +106,6 @@ func main() {
 		LogEnable(strings.Split(DebugFlags_, ",")...)
 	}
 
-	if UseFakeGPIO_ {
-		FakeGPIOinit()
-	} else {
-		GPIOinit()
-	}
-
 	var err error
 	var tty_button_chan chan SerialLine
 	var tty_rf433_chan chan SerialLine
@@ -123,6 +117,7 @@ func main() {
 			}
 		}()
 		tty_button_chan = make(chan SerialLine, 1)
+		CeilingLightsSwitch_ = CeilinglightsGPIO_FakeGPIOinit()
 	} else {
 		tty_rf433_chan, _, err = OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_RF433TTYDEV", DEFAULT_GOLIGHTCTRL_RF433TTYDEV), 9600)
 		if err != nil {
@@ -133,6 +128,17 @@ func main() {
 		if err != nil {
 			panic("can't open GOLIGHTCTRL_BUTTONTTYDEV")
 		}
+
+		tty_basicctrl_write_chan, tty_basicctrl_read_chan, err := OpenAndHandleSerial(EnvironOrDefault("GOLIGHTCTRL_BASICCTRLTTYDEV", DEFAULT_GOLIGHTCTRL_BASICCTRLTTYDEV), 9600)
+		if err != nil {
+			LogMain_.Println("can't open GOLIGHTCTRL_BASICCTRLTTYDEV")
+			LogMain_.Println("switching CeilingLights via RPi GPIO")
+			CeilingLightsSwitch_ = CeilinglightsGPIO_GPIOinit()
+		} else {
+			LogMain_.Println("switching CeilingLights via BasicCtrl tty")
+			CeilingLightsSwitch_ = NewBasicCtrl(tty_basicctrl_read_chan, tty_basicctrl_write_chan)
+		}
+
 	}
 
 	go GoSwitchNameAsync()
