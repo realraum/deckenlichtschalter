@@ -1,6 +1,15 @@
 H801 MQTT controllable light
 ============================
 
+It's firmware for a H801 ESP8266 based LED or LED-Strip controller. Control light-levels using JSON messages sent over MQTT and mix RGB,CW,WW. Optinally use UV. Optinally emulate CW by RGB. Supports blinking and fading effects. Supports a Default-Power-On Light Setting. Doesn't get rid of the ESP8266 bootloader pin-config though, which often causes a flash on power-up. There is also a rudimentary and terribly insecure telnet shell for changing configuration values. (Unfortunately I could find no space in H801's flash for tinySSL or HTML pages). Supports Over-The-Air Update.
+
+Compiling
+=========
+
+The firmware uses the Sming Framework. Follow the [Sming Getting Started](https://github.com/SmingHub/Sming) Guide. e.g: this one: https://github.com/SmingHub/Sming/wiki/Linux-Quickstart
+
+Once you have set your environment variables <tt>ESP_HOME</tt> and <tt>SMING_HOME</tt> are set correctly and <tt>$ESP_HOME/xtensa-lx106-elf/bin</tt> is in your <tt>PATH</tt>, you just need to <tt>make</tt> this firmware.
+
 Blink Codes & Userfeedback
 ==========================
 
