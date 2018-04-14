@@ -6,7 +6,7 @@ It's firmware for a H801 ESP8266 based LED or LED-Strip controller. Control ligh
 Compiling
 =========
 
-The firmware uses the Sming Framework. Follow the [Sming Getting Started](https://github.com/SmingHub/Sming) Guide. e.g: this one: https://github.com/SmingHub/Sming/wiki/Linux-Quickstart
+The firmware uses the Sming Framework. (last tested with 1.5.1) Follow the [Sming Getting Started](https://github.com/SmingHub/Sming) Guide. e.g: this one: https://github.com/SmingHub/Sming/wiki/Linux-Quickstart
 
 Once you have set your environment variables <tt>ESP_HOME</tt> and <tt>SMING_HOME</tt> are set correctly and <tt>$ESP_HOME/xtensa-lx106-elf/bin</tt> is in your <tt>PATH</tt>, you just need to <tt>make</tt> this firmware.
 
