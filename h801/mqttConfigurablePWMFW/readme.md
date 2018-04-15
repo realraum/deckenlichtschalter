@@ -29,6 +29,46 @@ Flashing on Linux
 5. optional: <tt>make flashinit</tt>
 6. <tt>make flash</tt>
 
+Compilation Options
+--------------------
+
+### SSL
+
+Solder a larger flash onto the H801, then knock yourselve out by setting <tt>ENABLE_SSL=0</tt> to <tt>1</tt>.
+
+### Button
+
+There is limited support for a button connected between GND and GPIO0. (the pins you normally close to flash the H801).
+
+Short Press will toggle between OFF and the DefaultLight State.
+
+Long Press will cycle through some colours settings.
+
+Enable by uncommenting <tt>USER_CFLAGS += DENABLE_BUTTON=1</tt> in <tt>Makefile-user.mk</tt>.
+
+Then comment out <tt>USER_CFLAGS += -DTELNET_CMD_LIGHTTEST=1</tt> to free some space in flash. The <tt>light</tt> command is only useful for initial testing anyway.
+
+
+### replace CW-LEDs with UV-Strip
+
+ColdWhite can be emulated by setting RGB to identical values on a decent color balanced LED strip. That free's a MosFET connector on the H801 on which a UV-LED-Strip can be connected.
+
+Enable by uncommenting <tt>USER_CFLAGS += -DREPLACE_CW_WITH_UV=1</tt> in <tt>Makefile-user.mk</tt>.
+
+You might also want to set <tt>simulate_cw_with_rgb=True</tt> in <tt>makeconfig......py</tt>.
+
+
+Compilation Settings in include/pwmchannels.h
+---------------------------------------------
+
+### rename MQTT Topics
+
+see <tt>JSON_TOPIC1</tt>* constants in <tt>include/pwmchannels.h</tt>.
+
+### change Telnet Port
+
+per Default it's 2323. Change it in <tt>include/pwmchannels.h</tt>.
+
 
 Blink Codes & Userfeedback
 ==========================
