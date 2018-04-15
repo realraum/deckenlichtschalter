@@ -29,6 +29,18 @@ Flashing on Linux
 5. optional: <tt>make flashinit</tt>
 6. <tt>make flash</tt>
 
+Flashing multiple devices
+--------------------------
+
+I recommend creating multiple <tt>makeconfig_...py</tt> files and running
+
+
+    for c in makeconfig*py; do make spiff_clean; ./$c; make spiff_update; echo -e "\n\n\nPress Enter to flash"; read ; make flash; done
+    
+
+or scripting the whole thing in python with multiple calls to <tt>writeConfig(..)</tt>
+
+
 Compilation Options
 --------------------
 
