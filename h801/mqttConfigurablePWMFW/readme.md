@@ -10,6 +10,26 @@ The firmware uses the Sming Framework. (last tested with 1.5.1) Follow the [Smin
 
 Once you have set your environment variables <tt>ESP_HOME</tt> and <tt>SMING_HOME</tt> are set correctly and <tt>$ESP_HOME/xtensa-lx106-elf/bin</tt> is in your <tt>PATH</tt>, you just need to <tt>make</tt> this firmware.
 
+
+Configuring SPIFFS
+------------------
+
+1. copy <tt>makeconfig_sample.py</tt>.
+2. edit as needed for your H801.
+3. run it to create the necessary config files in <tt>./files</tt> which will be flashed onto the ESP8266.
+4. <tt>make spiff_update</tt>
+
+Flashing on Linux
+--------------------------
+
+1. Solder PIN headers onto your H801 (search google for better guides)
+2. Short the Flash Jumper (GPIO0 to GND)
+3. connect USB-Serial-TTL to H801
+4. if necessary: <tt>export COM_PORT=/dev/ttyUSB0; export COM_SPEED_ESPTOOL=288000</tt>
+5. optional: <tt>make flashinit</tt>
+6. <tt>make flash</tt>
+
+
 Blink Codes & Userfeedback
 ==========================
 
