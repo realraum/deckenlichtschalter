@@ -28,6 +28,8 @@
 #define JSONKEY_DURATION "duration"
 #define JSONKEY_PERIOD "period"
 #define JSONKEY_FORWARD "cc"
+#define JSONKEY_IP "ip"
+#define JSONKEY_ONLINE "online"
 
 const String MQTT_TOPIC1 = "action/";
 const String MQTT_TOPIC2_ALL ="ceilingAll";
@@ -35,6 +37,7 @@ const String MQTT_TOPIC3_LIGHT = "/light";
 const String MQTT_TOPIC3_DEFAULTLIGHT = "/defaultlight";
 const String MQTT_TOPIC3_PLEASEREPEAT = "/pleaserepeat";
 const String MQTT_TOPIC3_BUTTONONLIGHT = "/btnlight";
+const String MQTT_TOPIC3_DEVICEONLINE = "/online";
 
 const uint32_t TELNET_PORT_ = 2323;
 

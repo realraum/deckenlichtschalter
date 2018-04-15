@@ -264,6 +264,21 @@ void onMessageReceived(String topic, String message)
 	}
 }
 
+void publishDeviceOnlineStatusString(MqttClient *mqttc)
+{
+	StaticJsonBuffer<256> jsonBuffer;
+	String message;
+
+	JsonObject& root = jsonBuffer.createObject();
+	root[JSONKEY_IP] = WifiStation.getIP().toString();
+	root[JSONKEY_ONLINE] = false;
+	root.printTo(message);
+	mqttc->setWill(getMQTTTopic(MQTT_TOPIC3_DEVICEONLINE),message,true);
+	root[JSONKEY_ONLINE] = true;
+	root.printTo(message);
+	mqttc->publish(getMQTTTopic(MQTT_TOPIC3_DEVICEONLINE),message,true);
+}
+
 // Run MQTT client, connect to server, subscribe topics
 void startMqttClient()
 {
@@ -301,6 +316,8 @@ void startMqttClient()
 #ifdef ENABLE_BUTTON
 	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_BUTTONONLIGHT,false));
 #endif
+
+	publishDeviceOnlineStatusString(mqtt);
 
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
 }
