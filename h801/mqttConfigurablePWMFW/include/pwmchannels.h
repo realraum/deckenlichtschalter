@@ -29,12 +29,12 @@
 #define JSONKEY_PERIOD "period"
 #define JSONKEY_FORWARD "cc"
 
-const String JSON_TOPIC1 = "action/";
-const String JSON_TOPIC2_ALL ="ceilingAll";
-const String JSON_TOPIC3_LIGHT = "/light";
-const String JSON_TOPIC3_DEFAULTLIGHT = "/defaultlight";
-const String JSON_TOPIC3_PLEASEREPEAT = "/pleaserepeat";
-const String JSON_TOPIC3_BUTTONONLIGHT = "/btnlight";
+const String MQTT_TOPIC1 = "action/";
+const String MQTT_TOPIC2_ALL ="ceilingAll";
+const String MQTT_TOPIC3_LIGHT = "/light";
+const String MQTT_TOPIC3_DEFAULTLIGHT = "/defaultlight";
+const String MQTT_TOPIC3_PLEASEREPEAT = "/pleaserepeat";
+const String MQTT_TOPIC3_BUTTONONLIGHT = "/btnlight";
 
 const uint32_t TELNET_PORT_ = 2323;
 

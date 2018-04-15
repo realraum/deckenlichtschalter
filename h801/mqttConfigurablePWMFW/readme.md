@@ -75,7 +75,7 @@ Compilation Settings in include/pwmchannels.h
 
 ### rename MQTT Topics
 
-see <tt>JSON_TOPIC1</tt>* constants in <tt>include/pwmchannels.h</tt>.
+see <tt>MQTT_TOPIC1</tt>* constants in <tt>include/pwmchannels.h</tt>.
 
 ### change Telnet Port
 

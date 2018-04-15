@@ -15,7 +15,7 @@ MqttClient *mqtt = nullptr;
 
 String getMQTTTopic(String topic3, bool all=false)
 {
-	return JSON_TOPIC1+((all) ? JSON_TOPIC2_ALL : NetConfig.mqtt_clientid)+topic3;
+	return MQTT_TOPIC1+((all) ? MQTT_TOPIC2_ALL : NetConfig.mqtt_clientid)+topic3;
 }
 
 #ifdef ENABLE_BUTTON
@@ -156,7 +156,7 @@ void publishCurrentLightSetting(StaticJsonBuffer<1024> &jsonBuffer, String &mess
 	root[JSONKEY_WW] = effect_target_values_[CHAN_WW] * NetConfig.chan_range[CHAN_WW] / pwm_period;
 	root.printTo(message);
 	//publish to myself (where presumably everybody else also listens), the current settings
-	mqtt->publish(getMQTTTopic(JSON_TOPIC3_LIGHT), message, false);
+	mqtt->publish(getMQTTTopic(MQTT_TOPIC3_LIGHT), message, false);
 }
 
 void mqttPublishCurrentLightSetting()
@@ -179,7 +179,7 @@ void onMessageReceived(String topic, String message)
 
 	// pleaserepeat does not care about message content, thus it is checked before using the jsonBuffer for parsing
 	// (as JsonBuffer should not be reused) This allows us to use that buffer for sending a message ourselves
-	if (topic.endsWith(JSON_TOPIC3_PLEASEREPEAT))
+	if (topic.endsWith(MQTT_TOPIC3_PLEASEREPEAT))
 	{
 		publishCurrentLightSetting(jsonBuffer, message);
 		return; //return so we don't reuse the now used jsonBuffer
@@ -194,7 +194,7 @@ void onMessageReceived(String topic, String message)
 	  return;
 	}
 
-	if (topic.endsWith(JSON_TOPIC3_LIGHT))
+	if (topic.endsWith(MQTT_TOPIC3_LIGHT))
 	{
 		setArrayFromKey(root, effect_target_values_, JSONKEY_RED, CHAN_RED);
 		setArrayFromKey(root, effect_target_values_, JSONKEY_GREEN, CHAN_GREEN);
@@ -233,7 +233,7 @@ void onMessageReceived(String topic, String message)
 			stopAndRestoreValues(true); //disable any Effects
 			applyValues(effect_target_values_); //apply light
 		}
-	} else if (topic.endsWith(JSON_TOPIC3_DEFAULTLIGHT))
+	} else if (topic.endsWith(MQTT_TOPIC3_DEFAULTLIGHT))
 	{
 		uint32_t pwm_duty_default[PWM_CHANNELS] = {0,0,0,0,0};
 		setArrayFromKey(root, pwm_duty_default, JSONKEY_RED, CHAN_RED);
@@ -248,7 +248,7 @@ void onMessageReceived(String topic, String message)
 #endif
 		DefaultLightConfig.save(pwm_duty_default);
 		flashSingleChannel(1,CHAN_BLUE);
-	} else if (topic.endsWith(JSON_TOPIC3_BUTTONONLIGHT))
+	} else if (topic.endsWith(MQTT_TOPIC3_BUTTONONLIGHT))
 	{
 		setArrayFromKey(root, button_on_values_, JSONKEY_RED, CHAN_RED);
 		setArrayFromKey(root, button_on_values_, JSONKEY_GREEN, CHAN_GREEN);
@@ -292,14 +292,14 @@ void startMqttClient()
 	// debugf("connecting to to MQTT broker");
 	mqtt->connect(NetConfig.mqtt_clientid, NetConfig.mqtt_user, NetConfig.mqtt_pass, true);
 	// debugf("connected to MQTT broker");
-	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,true));
-	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
-	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
-	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
-	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
-	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_LIGHT,true));
+	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_DEFAULTLIGHT,true));
+	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_PLEASEREPEAT,true));
+	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_LIGHT,false));
+	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_DEFAULTLIGHT,false));
+	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_PLEASEREPEAT,false));
 #ifdef ENABLE_BUTTON
-	mqtt->subscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
+	mqtt->subscribe(getMQTTTopic(MQTT_TOPIC3_BUTTONONLIGHT,false));
 #endif
 
 	procMQTTTimer.initializeMs(20 * 1000, publishMessage).start(); // every 20 seconds
@@ -307,14 +307,14 @@ void startMqttClient()
 
 void stopMqttClient()
 {
-	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,true));
-	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,true));
-	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,true));
-	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_LIGHT,false));
-	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_DEFAULTLIGHT,false));
-	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_PLEASEREPEAT,false));
+	mqtt->unsubscribe(getMQTTTopic(MQTT_TOPIC3_LIGHT,true));
+	mqtt->unsubscribe(getMQTTTopic(MQTT_TOPIC3_DEFAULTLIGHT,true));
+	mqtt->unsubscribe(getMQTTTopic(MQTT_TOPIC3_PLEASEREPEAT,true));
+	mqtt->unsubscribe(getMQTTTopic(MQTT_TOPIC3_LIGHT,false));
+	mqtt->unsubscribe(getMQTTTopic(MQTT_TOPIC3_DEFAULTLIGHT,false));
+	mqtt->unsubscribe(getMQTTTopic(MQTT_TOPIC3_PLEASEREPEAT,false));
 #ifdef ENABLE_BUTTON
-	mqtt->unsubscribe(getMQTTTopic(JSON_TOPIC3_BUTTONONLIGHT,false));
+	mqtt->unsubscribe(getMQTTTopic(MQTT_TOPIC3_BUTTONONLIGHT,false));
 #endif
 	mqtt->setKeepAlive(0);
 	mqtt->setPingRepeatTime(0);
