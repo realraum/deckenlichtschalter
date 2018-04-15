@@ -27,6 +27,8 @@ def writeConfig(ip,nm,gw,wifi0_ssid,wifi0_pass,mqtt_broker,mqtt_clientid,mqtt_us
     DNS_SERVERS_FILE = "dns"
     DNS_MAX_SERVERS=2
     DIR="./files/"
+    if not os.path.isdir(DIR):
+        os.mkdir(DIR)
     with open(os.path.join(DIR, NET_SETTINGS_FILE),"wb") as fh:
         fh.write(struct.pack(">III", int(ip_address(ip)), int(ip_address(nm)), int(ip_address(gw))))
         fh.write(struct.pack("<I",  int(mqtt_port)))
