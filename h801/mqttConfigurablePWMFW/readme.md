@@ -17,7 +17,7 @@ Configuring SPIFFS
 1. copy <tt>makeconfig_sample.py</tt>.
 2. edit as needed for your H801.
 3. run it to create the necessary config files in <tt>./files</tt> which will be flashed onto the ESP8266.
-4. <tt>make spiff_update</tt>
+4. <tt>make; make spiff_update</tt> as make alone does update spiff
 
 Flashing on Linux
 --------------------------
