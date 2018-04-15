@@ -3,6 +3,11 @@ H801 MQTT controllable light
 
 It's firmware for a H801 ESP8266 based LED or LED-Strip controller. Control light-levels using JSON messages sent over MQTT and mix RGB,CW,WW. Optinally use UV. Optinally emulate CW by RGB. Supports blinking and fading effects. Supports a Default-Power-On Light Setting. Doesn't get rid of the ESP8266 bootloader pin-config though, which often causes a flash on power-up. There is also a rudimentary and terribly insecure telnet shell for changing configuration values. (Unfortunately I could find no space in H801's flash for tinySSL or HTML pages). Supports Over-The-Air Update.
 
+#### Fotos of devices using this firmware
+
+- https://galley.realraum.at/index.php?/category/142
+- https://galley.realraum.at/index.php?/category/137
+
 Compiling
 =========
 
