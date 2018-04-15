@@ -70,7 +70,7 @@ SPI_SIZE=1M
 RBOOT_BIG_FLASH=0
 RBOOT_TWO_ROMS=1
 SPIFF_SIZE=0x15000
-SHELL=/bin/zsh
+
 ## H801 flash is 1MiB big
 ## flash ends at    0x100000
 ## half of flash is 0x080000
@@ -92,6 +92,8 @@ SHELL=/bin/zsh
 ## 0x0e7000 spiffs1  <-- this is where our app will load spiffs from
 ## 0x0fc000 expressif ssid settings, etc
 ## 0x100000 end
+## zsh is better for hex calculation, but let's not require it
+#SHELL=/bin/zsh
 RBOOT_SPIFFS_0   ?= $(shell echo $$((  0x80000 - $(SPIFF_SIZE) )) )
 RBOOT_SPIFFS_1   ?= $(shell echo $$((  0xfc000 - $(SPIFF_SIZE) )) )
 
