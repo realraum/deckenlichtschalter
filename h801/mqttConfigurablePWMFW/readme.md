@@ -227,7 +227,7 @@ Unset values will remain unchanged.
 					"description": "effect duration in ms",
 					"type": "integer",
 					"minimum": 100,
-					"maximum": 60000,
+					"maximum": 120000,
 				},
 				"cc": {
 					"title": "carbon copy",
@@ -247,11 +247,17 @@ Unset values will remain unchanged.
 			"type": "object"
 			"required": [],
 			"properties": {
+				"period":	{
+					"description": "flash duration and repetitions period",
+					"type": "integer",
+					"minimum": 20,
+					"maximum": 1500,
+				},
 				"repetitions":	{
 					"description": "number of repetitions of flash effect",
 					"type": "integer",
 					"minimum": 1,
-					"maximum": 10,
+					"maximum": 40,
 				},
 				"cc": {
 					"title": "carbon copy",
@@ -287,6 +293,11 @@ Unset values will remain unchanged.
 ### Example: Flash Green 5 times, then report back
 
     mosquitto_pub -t action/ceiling1/light -m '{"r":0,"g":1000,"b":0,"cw":0,"ww":0,"flash":{"repetitions":5, "cc":["action/ceilingcoordinator/ceiling1/flashdone"]}}'
+
+### Example: Flash for Lightning Simulation
+
+    mosquitto_pub -t action/ceilingAll/light -m '{"cw":1000,"ww":1000,"r":0,"g":0,"b":0,"flash":{"period":50,"repetitions":2}}'
+
 
 
 Topic ```action/ceilingAll/pleaserepeat```
