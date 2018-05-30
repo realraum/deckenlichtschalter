@@ -314,7 +314,7 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "couchwhite":"Couch White LEDs",
   "cxleds":"CX Gang LEDs",
   "mashadecke":"MaSha Werkstatt Decke",
-  "floodoutside":"Außenfluter",
+  "laserball":"LaserBall",
   "logo":"r3 Logo Auslage",
   "allrf":"Alle Funksteckdosen",
   "ambientlights":"Ambient Lichter",

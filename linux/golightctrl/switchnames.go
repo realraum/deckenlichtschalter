@@ -25,7 +25,7 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	//RF Power Outlets
 	"regalleinwand": ActionRFCode{codeon: []byte{0xa2, 0xa0, 0xa8}, codeoff: []byte{0xa2, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote B 1
 	"bluebar":       ActionRFCode{codeon: []byte{0xa8, 0xa0, 0xa8}, codeoff: []byte{0xa8, 0xa0, 0x28}, handler: RFCode2TTY},  //white remote C 1
-	"floodoutside":  ActionRFCode{codeon: []byte{0xa2, 0xa2, 0x8a}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH}, //polling 01000 a
+	"laserball":     ActionRFCode{codeon: []byte{0xa2, 0xa2, 0x8a}, codeoff: []byte{0xa2, 0xa2, 0x2a}, handler: RFCode2BOTH}, //polling 01000 a
 	// "??":            ActionNameHandler{codeon: []byte{0xa2, 0x2a, 0x8a}, codeoff: []byte{0xa2, 0x2a, 0x2a}, handler: RFCode2BOTH}, //polling 01000 c
 	"floodtesla": ActionRFCode{codeon: []byte{0xa2, 0xaa, 0x88}, codeoff: []byte{0xa2, 0xaa, 0x28}, handler: RFCode2BOTH}, //polling 01000 b
 	"logo":       ActionRFCode{codeon: []byte{0x8a, 0xa0, 0x8a}, codeoff: []byte{0x8a, 0xa0, 0x2a}, handler: RFCode2TTY},  //pollin 00101 a
@@ -118,8 +118,8 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"ceilingAll":    ActionMeta{metaaction: []string{"basiclightAll"}},
 	"basiclightAll": ActionMeta{metaaction: []string{"ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 	"fancyvortrag":  ActionMeta{metaaction: []string{"fancy1off", "fancy6off", "fancy2cw1", "fancy5cw1", "fancy3cw2", "fancy4cw2", "floodtesla"}},
-	"allrf":         ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "floodoutside", "logo", "ymhpower", "floodtesla"}},
-	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "floodoutside", "logo", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"allrf":         ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "laserball", "logo", "ymhpower", "floodtesla"}},
+	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "laserball", "logo", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 }
 
 func ConvertCeilingLightsStateTomap(states []bool, offset int) CeilingLightStateMap {
