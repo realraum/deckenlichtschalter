@@ -95,14 +95,14 @@ var (
 	}
 	topics_sonoff_info = []string{
 		"realraum/couchred/POWER",
-		"realraum/tesla/POWER",
+		"realraum/arrowlight/POWER",
 		"realraum/olgaboiler/POWER",
 		"realraum/lothrboiler/POWER",
 		"realraum/druckerstrom/POWER",
 	}
 	topics_sonoff_action = []string{
 		"action/couchred/power",
-		"action/tesla/power",
+		"action/arrowlight/power",
 		"action/olgaboiler/power",
 		"action/lothrboiler/power",
 		"action/druckerstrom/power",

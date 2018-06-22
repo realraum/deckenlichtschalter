@@ -221,13 +221,13 @@ function calcColorFromDayLevel(day_factor, value)
 
 function calcCompoundRGB(data, name)
 {
-  var warmwhite_representation  = [255.0/255, 250.0/255, 192/255];
+  var warmwhite_representation = [255.0/255, 250.0/255, 192/255];
   var coldwhite_representation = [220.0/255, 220.0/255, 255/255];
 
   //fill data with zero if missing
-  data.r = data.r || 0;
-  data.g = data.g || 0;
-  data.b = data.b || 0;
+  data.r  = data.r  || 0;
+  data.g  = data.g  || 0;
+  data.b  = data.b  || 0;
   data.ww = data.ww || 0;
   data.cw = data.cw || 0;
 
