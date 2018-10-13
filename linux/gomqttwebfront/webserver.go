@@ -146,6 +146,7 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 			return
 		case webmsg_i := <-msgtoall_chan:
 			if webmsg, castok := webmsg_i.(wsMessage); castok {
+			SWITCHCTX:
 				switch webmsg.Ctx {
 				case topic_fancy_ceiling_all:
 					for _, tp := range topics_fancy_ceiling {
@@ -159,21 +160,19 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 					for _, tp := range topics_basic_ceiling { //convert oldbasic to new basic
 						atomized_wsout_chan <- wsMessage{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
 					}
-				case topics_oldbasic_ceiling[0]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[0], webmsg.Data}
-				case topics_oldbasic_ceiling[1]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[1], webmsg.Data}
-				case topics_oldbasic_ceiling[2]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[2], webmsg.Data}
-				case topics_oldbasic_ceiling[3]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[3], webmsg.Data}
-				case topics_oldbasic_ceiling[4]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[4], webmsg.Data}
-				case topics_oldbasic_ceiling[5]: //convert oldbasic to new basic
-					atomized_wsout_chan <- wsMessage{topics_basic_ceiling[5], webmsg.Data}
-				case topics_sonoff_info[0]:
-					atomized_wsout_chan <- wsMessage{topics_sonoff_action[0], webmsg.Data}
 				default:
+					for idx, topicmatch := range topics_oldbasic_ceiling {
+						if webmsg.Ctx == topicmatch {
+							atomized_wsout_chan <- wsMessage{topics_basic_ceiling[idx], webmsg.Data}
+							break SWITCHCTX
+						}
+					}
+					for idx, topicmatch := range topics_sonoff_info {
+						if webmsg.Ctx == topicmatch {
+							atomized_wsout_chan <- wsMessage{topics_sonoff_action[idx], webmsg.Data}
+							break SWITCHCTX
+						}
+					}
 					atomized_wsout_chan <- webmsg
 				}
 			}
