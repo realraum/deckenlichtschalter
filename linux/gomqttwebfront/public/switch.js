@@ -322,9 +322,10 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 });
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
-  "couchred":"Couch Ducks & Red-LEDs",
-  "arrowlight":"Arrow Licht",
-  "lothrboiler":"Warmwasser LoTHR",
+  "couchred":    "Couch Ducks & Red-LEDs",
+  "hallwaylight":"Stiegenhaus Licht",
+  "arrowlight":  "Arrow Licht",
+  "lothrboiler": "Warmwasser LoTHR",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
