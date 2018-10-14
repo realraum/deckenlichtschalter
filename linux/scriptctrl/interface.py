@@ -119,7 +119,7 @@ class CeilingScriptClass():
         self.default__participating = lst
         self._participating = lst
 
-    def setLight(self, light,r=None,g=None,b=None,cw=None,ww=None,fade_duration=None,flash_repetitions=None,cc=[],trigger_on_complete=[], include_scriptname=True):
+    def setLight(self, light,r=None,g=None,b=None,cw=None,ww=None,fade_duration=None,flash_repetitions=None,flash_period=None,cc=[],trigger_on_complete=[], include_scriptname=True):
         if not (light == self.lightidall) and not light in self._participating:
             return
         msg = {"r":r, "g":g, "b":b, "cw":cw, "ww": ww}
@@ -149,8 +149,12 @@ class CeilingScriptClass():
             cc=None  # we don't want to be triggerd by x lights at once
         if fade_duration != None and fade_duration >= 100 and fade_duration <= 120000:
             msg["fade"]={"duration":fade_duration, "cc":cc}
-        elif flash_repetitions != None and flash_repetitions >= 1 and flash_repetitions <= 10:
-            msg["fade"]={"repetitions":flash_repetitions, "cc":cc}
+        else:
+            msg["flash"]={}
+            if flash_period != None and flash_period >= 20 and flash_period <= 1500:
+                msg["flash"].update({"period":flash_period, "cc":cc})
+            if flash_repetitions != None and flash_repetitions >= 1 and flash_repetitions <= 40:
+                msg["flash"].update({"repetitions":flash_repetitions, "cc":cc})
         self.ceiling.client.publish(format_ceiling_topic % light, json.dumps(msg), 0, False)
         return self
 
@@ -219,7 +223,7 @@ class CeilingClass():
         self.client.on_disconnect=self.onmqttdisconnect
         self.client.connect(*args, **kwargs)
         while self.keep_running:
-            self.client.loop()
+            self.client.loop(0.1) #timeout after 0.1s
             if self._active_script:
                 self._scripts[self._active_script].loop()
         self.deactivateCurrentScript()

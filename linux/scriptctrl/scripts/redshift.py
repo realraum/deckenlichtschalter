@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from Pysolar import solar
+try:
+    from Pysolar import solar
+except ImportError:
+    from pysolar import solar
 import datetime
 
 hsvvalue_=0.5

@@ -14,7 +14,7 @@ interval_=60.0
 
 
 def activate(scr, newsettings):
-    global hsvvalue_, fade_duration_
+    global hsvvalue_, fade_duration_, interval_
     if "value" in newsettings and isinstance(newsettings["value"],(int,float)) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:

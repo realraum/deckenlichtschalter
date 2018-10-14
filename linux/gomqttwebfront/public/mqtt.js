@@ -11,10 +11,10 @@ function mqtttopic_sonoff(name) {
   return "action/"+name+"/power"
 }
 
-var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave"];
-var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor"];
+var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
+var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor","sparkle"];
 var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
-var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor","wave","colorfade","ceilingsinus"];
+var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor","wave","colorfade","ceilingsinus","sparkle"];
 var mqtt_fancylights_all = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor"]
 var mqtt_fancylights_all_with_ceilingall = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","ceilingAll"]
 var mqtt_fancylights_ceilingonly = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6"]

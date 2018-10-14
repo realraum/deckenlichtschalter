@@ -279,6 +279,9 @@ function handleExternalActivateScript(data) {
   } else if (data.script == "wave") {
     // -------- Script wave ---------
     //add stuff here for this script
+  } else if (data.script == "sparkle") {
+    // -------- Script wave ---------
+    //add stuff here for this script
   } else {
     // -------- Script OFF ---------
     $(".scriptctrl_checkbox").each(function(elem) {
