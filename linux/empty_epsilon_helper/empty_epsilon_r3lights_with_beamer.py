@@ -46,7 +46,7 @@ def setAlert(alerttext):
         setLights(mqtt_client_, {"r":1000,"b":0,"g":0,"ww":0,"cw":0})
         setLights(mqtt_client_, {"r":1000*0.7,"b":0,"g":0,"ww":0,"cw":0,"flash":flashoptions})
     else:
-        setLights(mqtt_client_, {"r":0,"b":0,"g":0,"ww":500,"cw":500,"fade":{}})
+        setLights(mqtt_client_, {"r":0,"b":0,"g":0,"ww":200,"cw":200,"fade":{}})
 
 def updateLights():
     pass

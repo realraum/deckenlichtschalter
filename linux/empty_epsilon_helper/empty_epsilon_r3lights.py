@@ -36,13 +36,13 @@ def setAlert(alerttext):
     alert_level_=alerttext
     flashoptions={"duration":900,"repetitions":5}
     if alert_level_.startswith("YELLOW"):
-        sendR3Message(mqtt_client_, "action/ceilingAll/light",{"b":0,"ww":100,"cw":0,"g":185,"r":1000})
-        sendR3Message(mqtt_client_, "action/ceilingAll/light",{"b":0,"ww":100*0.7,"cw":0,"g":185*0.7,"r":1000*0.7,"flash":flashoptions})
+        sendR3Message(mqtt_client_, "action/ceilingAll/light",{"b":0,"ww":80,"cw":0,"g":185,"r":1000})
+        sendR3Message(mqtt_client_, "action/ceilingAll/light",{"b":0,"ww":80*0.7,"cw":0,"g":185*0.7,"r":1000*0.7,"flash":flashoptions})
     elif alert_level_.startswith("RED"):
         sendR3Message(mqtt_client_, "action/ceilingAll/light",{"r":1000,"b":0,"g":0,"ww":0,"cw":0})
         sendR3Message(mqtt_client_, "action/ceilingAll/light",{"r":1000*0.7,"b":0,"g":0,"ww":0,"cw":0,"flash":flashoptions})
     else:
-        sendR3Message(mqtt_client_, "action/ceilingAll/light",{"r":0,"b":0,"g":0,"ww":500,"cw":500,"fade":{}})
+        sendR3Message(mqtt_client_, "action/ceilingAll/light",{"r":0,"b":0,"g":0,"ww":200,"cw":200,"fade":{}})
 
 def updateLights():
     pass
