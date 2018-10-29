@@ -69,6 +69,17 @@ nav a {
     transition: background-color 0.5s;
 }
 
+.basiclight.dark {
+    background-image: url("imgs/ceilinglight_dark.jpg");
+    background-size: cover;
+}
+
+.basiclight.bright {
+    background-image: url("imgs/ceilinglight_bright.jpg");
+    background-size: cover;
+}
+
+
 .light.fancylight {
     z-index:11;
     width: 7%;
@@ -123,15 +134,15 @@ nav a {
 }
 
 #fancylight1redshift, #fancylight1popup, #fancylight6redshift, #fancylight6popup {
-    left: 77%;
+    left: 70%;
 }
 
 #fancylight2redshift, #fancylight2popup, #fancylight5redshift, #fancylight5popup {
-    left: 47%;
+    left: 40%;
 }
 
 #fancylight3redshift, #fancylight3popup, #fancylight4redshift, #fancylight4popup {
-    left: 20%;
+    left: 13%;
 }
 
 #fancylight1popup, #fancylight2popup, #fancylight3popup  {
@@ -143,11 +154,11 @@ nav a {
 }
 
 #fancylight1redshift, #fancylight2redshift, #fancylight3redshift  {
-    top: 27.8%;
+    top: 43%;
 }
 
 #fancylight4redshift, #fancylight5redshift, #fancylight6redshift  {
-    top: 64%;
+    top: 79%;
 }
 
 #fancylight8redshift, #fancylight8popup {
@@ -211,7 +222,7 @@ nav a {
 
 .onoffswitch {
     z-index:11;
-    width: 7%;
+    width: 14%;
     height:3.5%;
     position: absolute;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
@@ -237,14 +248,14 @@ nav a {
     box-sizing: border-box;
 }
 .onoffswitch-inner:before {
-    content: "Red>>";
-    padding-left: 0%;
+    content: "Automodus On";
+    padding-left: 5%;
     background-color: #49E845; color: #FFFFFF;
     padding-bottom:100%;
 }
 .onoffswitch-inner:after {
-    content: "Off";
-    padding-right: 10%;
+    content: "Auto Off";
+    padding-right: 5%;
     background-color: #FFFFFF; color: #666666;
     text-align: right;
     padding-bottom:100%

@@ -21,9 +21,12 @@ function renderButtonStates() {
       continue;
     }
     if (buttons[id]) {
-      ceilings[i].style.background = 'green';
+      $(ceilings[i]).removeClass('dark');
+      $(ceilings[i]).addClass('bright');
     } else {
-      ceilings[i].style.background = 'red';
+      $(ceilings[i]).removeClass('bright');
+      $(ceilings[i]).addClass('dark');
+
     }
   }
 }
