@@ -178,6 +178,12 @@ nav a {
     border:1px solid black;
 }
 
+#standalone_button_alloff {
+    left:64%;
+    top:2%;
+    border:1px solid black;
+}
+
 #regalleinwand {
     top: 10%;
     right: 0%;
