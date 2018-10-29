@@ -430,6 +430,10 @@ func webRedirectToFallbackHTML(w http.ResponseWriter, r *http.Request) {
 func goRunWebserver() {
 
 	n := negroni.Classic() // Includes some default middlewares
+	negroni_recovery_on_panic := negroni.NewRecovery()
+	negroni_recovery_on_panic.PrintStack = false
+	negroni_recovery_on_panic.PanicHandlerFunc = func(x *negroni.PanicInformation) { panic(x) }
+	n.Use(negroni_recovery_on_panic)
 
 	retained_json_chan := make(chan JsonFuture, 20)
 	go goJSONMarshalStuffForWebSockClientsAndRetain(retained_json_chan)
