@@ -435,6 +435,9 @@ function ceilingPreset_AllOff()
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("bluebar"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("regalleinwand"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("couchred"), {Action:"off"});
 }
 
 function ceilingPreset_ColorWave()
