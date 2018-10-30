@@ -9,8 +9,6 @@ function isMobileBrowser() {
 var popupselect = {
 	target:undefined,
 	openinprogress:false,
-	openx:-1,
-	openy:-1,
 	options: {
 		class_triggerpopup:"popupselect_trigger",
 		class_popupoverlay:"popupselect_overlay",
@@ -32,8 +30,6 @@ var popupselect = {
 			x = event.pageX;
 			y = event.pageY;
 		}
-		popupselect.openx=x;
-		popupselect.openy=y;
 		var optionselementid = event.target.getAttribute("optionsid");
 		var oelem = $(document.getElementById(optionselementid));
 		var optionscopyattr = event.target.getAttribute("optionscopyattr");
@@ -49,12 +45,6 @@ var popupselect = {
 
 	popupselectSelect:function(event) {
 		event.stopPropagation();
-		if (event.pageX == popupselect.openx && event.pageY == popupselect.openy)
-		{	//only close if mouse x/y is not exactly the same as open
-			popupselect.openx = -1;
-			popupselect.openy = -1;
-			return;
-		}
 		//Array.from(document.getElementsByClassName(popupselect.options.class_popupoverlay)).forEach(function(elem) {elem.style.visibility="hidden";elem.style.display="none";});
 		var allmypopups = document.getElementsByClassName(popupselect.options.class_popupoverlay)
 		for (var i=0; i<allmypopups.length; i++) {
@@ -68,8 +58,6 @@ var popupselect = {
 			var fun = $(event.target).data("popupfunc");
 			if (fun) {fun(event);}
 		}
-		popupselect.openx = -1;
-		popupselect.openy = -1;
 	},
 
 	init: function(options) {
@@ -87,8 +75,9 @@ var popupselect = {
 		$("."+this.options.class_triggerpopup).on("touchstart",this.popupselectOpen);
 		$("."+this.options.class_triggerpopup).on("click",this.popupselectOpen);
 		//$("."+this.options.class_option).on("click",this.popupselectSelect);
-		$(document).on("touchend",this.popupselectSelect);
-		$(document).on("mouseup",this.popupselectSelect);
+		//$(document).on("touchend",this.popupselectSelect);
+		//$(document).on("mouseup",this.popupselectSelect);
+		$(document).on("click",this.popupselectSelect);
 	},
 
 	addSelectHandler:function(elem, func) {
