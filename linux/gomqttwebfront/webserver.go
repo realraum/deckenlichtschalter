@@ -13,6 +13,7 @@ import (
 	"github.com/btittelbach/pubsub"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/websocket"
+	"github.com/hexadecy/nocache"
 	"github.com/realraum/door_and_sensors/r3events"
 )
 
@@ -429,11 +430,13 @@ func webRedirectToFallbackHTML(w http.ResponseWriter, r *http.Request) {
 
 func goRunWebserver() {
 
-	n := negroni.Classic() // Includes some default middlewares
+	static := nocache.NoCacheStatic(negroni.NewStatic(http.Dir("public")))
 	negroni_recovery_on_panic := negroni.NewRecovery()
 	negroni_recovery_on_panic.PrintStack = false
 	negroni_recovery_on_panic.PanicHandlerFunc = func(x *negroni.PanicInformation) { panic(x) }
-	n.Use(negroni_recovery_on_panic)
+	logger := negroni.NewLogger()
+	n := negroni.New(negroni_recovery_on_panic, logger, static)
+	// n := negroni.Classic() // Includes some default middlewares
 
 	retained_json_chan := make(chan JsonFuture, 20)
 	go goJSONMarshalStuffForWebSockClientsAndRetain(retained_json_chan)
