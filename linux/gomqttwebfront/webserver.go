@@ -141,6 +141,13 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
 	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
 	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
+	sendnonblockingToAtomizedWSOutChan := func(wsmsg wsMessage) {
+		select {
+		case atomized_wsout_chan <- wsmsg: //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+		default:
+			LogWS_.Printf("ERROR: goAtomizeCeilingAll can't write to full atomized_wsout_chan")
+		}
+	}
 	for {
 		select {
 		case <-shutdown_chan:
@@ -151,30 +158,30 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 				switch webmsg.Ctx {
 				case topic_fancy_ceiling_all:
 					for _, tp := range topics_fancy_ceiling {
-						atomized_wsout_chan <- wsMessage{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+						sendnonblockingToAtomizedWSOutChan(wsMessage{Ctx: tp, Data: webmsg.Data}) //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
 					}
 				case topic_basic_ceiling_all:
 					for _, tp := range topics_basic_ceiling {
-						atomized_wsout_chan <- wsMessage{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+						sendnonblockingToAtomizedWSOutChan(wsMessage{Ctx: tp, Data: webmsg.Data}) //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
 					}
 				case topic_oldbasic_ceiling_all:
 					for _, tp := range topics_basic_ceiling { //convert oldbasic to new basic
-						atomized_wsout_chan <- wsMessage{Ctx: tp, Data: webmsg.Data} //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
+						sendnonblockingToAtomizedWSOutChan(wsMessage{Ctx: tp, Data: webmsg.Data}) //just pointer. should be ok to use webmsg.Data multiple times since we never change single bytes
 					}
 				default:
 					for idx, topicmatch := range topics_oldbasic_ceiling {
 						if webmsg.Ctx == topicmatch {
-							atomized_wsout_chan <- wsMessage{topics_basic_ceiling[idx], webmsg.Data}
+							sendnonblockingToAtomizedWSOutChan(wsMessage{topics_basic_ceiling[idx], webmsg.Data})
 							break SWITCHCTX
 						}
 					}
 					for idx, topicmatch := range topics_sonoff_info {
 						if webmsg.Ctx == topicmatch {
-							atomized_wsout_chan <- wsMessage{topics_sonoff_action[idx], webmsg.Data}
+							sendnonblockingToAtomizedWSOutChan(wsMessage{topics_sonoff_action[idx], webmsg.Data})
 							break SWITCHCTX
 						}
 					}
-					atomized_wsout_chan <- webmsg
+					sendnonblockingToAtomizedWSOutChan(webmsg)
 				}
 			}
 		}
@@ -187,7 +194,7 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 // AND so that conversion to JSON is done only once for every connected websocket
 func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFuture) {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
-	atomized_wsout_chan := make(chan wsMessage, 30)
+	atomized_wsout_chan := make(chan wsMessage, 400)
 	retained_json_map := make(map[string][]byte, len(ws_allowed_ctx_sendtoclientonconnect))
 
 	go goAtomizeCeilingAll(ps_, atomized_wsout_chan) //subscribes to PS_WEBSOCK_ALL and gives us possibly replaced wsMessage structs

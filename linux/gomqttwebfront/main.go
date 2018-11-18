@@ -32,7 +32,7 @@ var (
 
 func init() {
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
-	ps_ = pubsub.New(50)
+	ps_ = pubsub.NewNonBlocking(100)
 }
 
 //Connect and keep trying to connect to MQTT Broker

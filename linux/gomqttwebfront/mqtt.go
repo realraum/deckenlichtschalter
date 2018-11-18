@@ -116,7 +116,14 @@ func SubscribeAndAttachCallback(mqttc mqtt.Client, filter string, callback mqtt.
 
 func SubscribeAndForwardToChannel(mqttc mqtt.Client, filter string) (channel chan mqtt.Message) {
 	channel = make(chan mqtt.Message, 100)
-	tk := mqttc.Subscribe(filter, 0, func(mqttc mqtt.Client, msg mqtt.Message) { channel <- msg })
+	tk := mqttc.Subscribe(filter, 0, func(mqttc mqtt.Client, msg mqtt.Message) {
+		select {
+		case channel <- msg:
+			LogMQTT_.Printf("forwarding mqtt msg to channel %+v", msg)
+		default:
+			LogMQTT_.Printf("ERROR, can't forward mqtt msg to full channel: %+v", msg)
+		}
+	})
 	tk.Wait()
 	if tk.Error() != nil {
 		LogMQTT_.Fatalf("Error subscribing to %s:%s", filter, tk.Error())
@@ -134,8 +141,13 @@ func SubscribeMultipleAndForwardToChannel(mqttc mqtt.Client, filters []string) (
 		filtermap[topicfilter] = 0 //qos == 0
 	}
 	tk := mqttc.SubscribeMultiple(filtermap, func(mqttc mqtt.Client, msg mqtt.Message) {
-		LogMQTT_.Printf("forwarding mqtt message to channel %+v", msg)
-		channel <- msg
+		select {
+		case channel <- msg:
+			LogMQTT_.Printf("forwarding mqtt msg to channel %+v", msg)
+		default:
+			LogMQTT_.Printf("ERROR, can't forward mqtt msg to full channel: %+v", msg)
+		}
+
 	})
 	tk.Wait()
 	if tk.Error() != nil {
