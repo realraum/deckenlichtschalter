@@ -341,6 +341,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 "ceiling6":{desc:"Decke Tesla", hasbasic:true, allbasic:false, uv:false},
 "flooddoor":{desc:"Deckenfluter Tür", hasbasic:false, allbasic:false, uv:false},
 "abwasch":{desc:"Abwasch/Bar", hasbasic:false, allbasic:false, uv:true},
+"funkbude":{desc:"Funkbude", hasbasic:false, allbasic:false, uv:false},
 });
 
 (function() {

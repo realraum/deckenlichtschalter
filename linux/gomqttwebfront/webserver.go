@@ -77,6 +77,7 @@ var (
 		"action/ceiling6/light",
 		"action/abwasch/light",
 		"action/flooddoor/light",
+		"action/funkbude/light",
 	}
 	topics_basic_ceiling = []string{
 		"action/GoLightCtrl/basiclight1",

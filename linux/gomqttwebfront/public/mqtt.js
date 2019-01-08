@@ -18,6 +18,9 @@ var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor","
 var mqtt_fancylights_all = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor"]
 var mqtt_fancylights_all_with_ceilingall = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","ceilingAll"]
 var mqtt_fancylights_ceilingonly = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6"]
+var mqtt_fancylights_w2realfunk = ["funkbude"]
+var mqtt_fancylights_w2r2w2 = []
+var mqtt_fancylights_w2tesla = []
 
 
 var r3_led_factors_ = {
@@ -78,6 +81,13 @@ var r3_led_factors_ = {
     cw_factor:18,
   },
   "abwasch": {
+    r_factor:4,
+    g_factor:4,
+    b_factor:4,
+    ww_factor:12,
+    cw_factor:12,
+  },
+  "funkbude": {
     r_factor:4,
     g_factor:4,
     b_factor:4,
@@ -173,7 +183,7 @@ function colorFancyLightPresent(elem) {
 //takes function with signature (fancyid, data)
 //and calls it if fancy light updates externally
 function registerFunctionForFancyLightUpdate(fun) {
-  ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","ceilingAll"].forEach(function(fancyid) {
+  ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","funkbude","ceilingAll"].forEach(function(fancyid) {
     ws.registerContext("action/"+fancyid+"/light",function(fancyid){
       return function(data) {
         fun(fancyid, data);
