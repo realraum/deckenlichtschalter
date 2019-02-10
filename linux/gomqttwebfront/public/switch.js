@@ -416,9 +416,9 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
       ws.registerContext(topic, function(elem) {
         return function(data) {
           console.log(data);
-          if (data == "on")
+          if (data == "ON")
             elem.checked = true;
-          else if (data == "toggle")
+          else if (data == "TOGGLE")
             elem.checked = !elem.checked;
           else
             elem.checked = false;

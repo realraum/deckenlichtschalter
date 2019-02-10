@@ -8,7 +8,7 @@ function mqtttopic_fancylight(fancyid) {
   return "action/"+fancyid+"/light";
 }
 function mqtttopic_sonoff(name) {
-  return "action/"+name+"/power"
+  return "action/"+name+"/POWER"
 }
 
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
@@ -160,11 +160,11 @@ function eventOnSonOffButton(event) {
   if (!power && event.target.getAttribute("type")=="checkbox")
   {
     if (event.target.checked)
-      power="on";
+      power="ON";
     else
-      power="off";
+      power="OFF";
   }
-  if (power != "on" && power != "off" && power != "toggle") {return;}
+  if (power != "ON" && power != "OFF" && power != "TOGGLE") {return;}
   sendMQTT(mqtttopic_sonoff(name),power);
 };
 

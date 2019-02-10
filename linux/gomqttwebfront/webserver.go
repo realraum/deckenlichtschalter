@@ -95,19 +95,13 @@ var (
 		"action/GoLightCtrl/ceiling5",
 		"action/GoLightCtrl/ceiling6",
 	}
-	topics_sonoff_info = []string{
-		"realraum/couchred/POWER",
-		"realraum/arrowlight/POWER",
-		"realraum/olgaboiler/POWER",
-		"realraum/lothrboiler/POWER",
-		"realraum/hallwaylight/POWER",
-	}
 	topics_sonoff_action = []string{
-		"action/couchred/power",
-		"action/arrowlight/power",
-		"action/olgaboiler/power",
-		"action/lothrboiler/power",
-		"action/hallwaylight/power",
+		"action/couchred/POWER",
+		"action/arrowlight/POWER",
+		"action/olgaboiler/POWER",
+		"action/lothrboiler/POWER",
+		"action/hallwaylight/POWER",
+		"action/r2w2whiteboard/POWER",
 	}
 
 	ws_allowed_ctx_all = append(
@@ -116,14 +110,12 @@ var (
 				append(
 					append(
 						append(
-							append(
-								append(topics_other, topics_fancy_ceiling...),
-								topics_basic_ceiling...),
-							topics_oldbasic_ceiling...),
-						topic_basic_ceiling_all),
-					topic_fancy_ceiling_all),
-				topic_oldbasic_ceiling_all),
-			topics_sonoff_info...),
+							append(topics_other, topics_fancy_ceiling...),
+							topics_basic_ceiling...),
+						topics_oldbasic_ceiling...),
+					topic_basic_ceiling_all),
+				topic_fancy_ceiling_all),
+			topic_oldbasic_ceiling_all),
 		topics_sonoff_action...)
 	ws_allowed_ctx_sendtoclientonconnect = append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_sonoff_action...)
 )
@@ -173,12 +165,6 @@ func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessag
 					for idx, topicmatch := range topics_oldbasic_ceiling {
 						if webmsg.Ctx == topicmatch {
 							sendnonblockingToAtomizedWSOutChan(wsMessage{topics_basic_ceiling[idx], webmsg.Data})
-							break SWITCHCTX
-						}
-					}
-					for idx, topicmatch := range topics_sonoff_info {
-						if webmsg.Ctx == topicmatch {
-							sendnonblockingToAtomizedWSOutChan(wsMessage{topics_sonoff_action[idx], webmsg.Data})
 							break SWITCHCTX
 						}
 					}
@@ -437,7 +423,6 @@ func webRedirectToFallbackHTML(w http.ResponseWriter, r *http.Request) {
 }
 
 func goRunWebserver() {
-
 	static := nocache.NoCacheStatic(negroni.NewStatic(http.Dir("public")))
 	negroni_recovery_on_panic := negroni.NewRecovery()
 	negroni_recovery_on_panic.PrintStack = false
