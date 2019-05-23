@@ -102,6 +102,7 @@ var (
 		"action/lothrboiler/POWER",
 		"action/hallwaylight/POWER",
 		"action/r2w2whiteboard/POWER",
+		"action/twang/POWER",
 	}
 
 	ws_allowed_ctx_all = append(

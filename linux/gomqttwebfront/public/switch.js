@@ -329,6 +329,7 @@ populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "hallwaylight":"Stiegenhaus Licht",
   "arrowlight":  "Arrow Licht",
   "lothrboiler": "Warmwasser LoTHR",
+  "twang": "Twang im R2W2",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
