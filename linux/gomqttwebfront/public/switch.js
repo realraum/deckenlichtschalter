@@ -304,7 +304,7 @@ function setLedPipePattern(data) {
   sendMQTT(mqtttopic_pipeledpattern, data);
 }
 
-var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
+var webSocketUrl = 'ws://'+window.location.host+'/sock';
 var cgiUrl = '/cgi-bin/mswitch.cgi';
 //var cgiUrl = 'fake.json';
 

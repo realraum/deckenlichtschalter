@@ -157,7 +157,7 @@ function clickedSaveFancyPreset()
 }
 
 
-var webSocketUrl = 'ws://'+window.location.hostname+'/sock';
+var webSocketUrl = 'ws://'+window.location.host+'/sock';
 var cgiUrl = '/cgi-bin/fallback.cgi';
 
 var webSocketSupport = null;
