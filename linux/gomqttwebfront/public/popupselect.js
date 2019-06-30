@@ -65,18 +65,7 @@ var popupselect = {
 		{
 			$.extend(this.options,options)
 		}
-		if (isMobileBrowser()) {
-/*			$("."+this.options.class_triggerpopup).on("click",this.popupselectOpen);
-			$("."+this.options.class_option).on("click",this.popupselectSelect);*/
-		} else {
-			$("."+this.options.class_triggerpopup).on("mousedown",this.popupselectOpen);
-			//$(document).on("mouseup",this.popupselectSelect);
-		}
-		$("."+this.options.class_triggerpopup).on("touchstart",this.popupselectOpen);
 		$("."+this.options.class_triggerpopup).on("click",this.popupselectOpen);
-		//$("."+this.options.class_option).on("click",this.popupselectSelect);
-		//$(document).on("touchend",this.popupselectSelect);
-		//$(document).on("mouseup",this.popupselectSelect);
 		$(document).on("click",this.popupselectSelect);
 	},
 
