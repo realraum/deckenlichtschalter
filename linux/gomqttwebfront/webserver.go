@@ -97,7 +97,7 @@ var (
 	}
 	topics_sonoff_action = []string{
 		"action/couchred/POWER",
-		"action/arrowlight/POWER",
+		"action/subtable/POWER",
 		"action/olgaboiler/POWER",
 		"action/lothrboiler/POWER",
 		"action/hallwaylight/POWER",

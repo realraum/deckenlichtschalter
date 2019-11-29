@@ -335,6 +335,7 @@ function ceilingPreset_BeamerTalkMode()
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:660,b:0,ww:500,cw:500,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:800,cw:800,fade:{duration:8000}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
 }
 
 function ceilingPreset_BeamerTalkPauseMode()
@@ -355,6 +356,7 @@ function ceilingPreset_BeamerTalkPauseMode()
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:1000,b:0,ww:1000,cw:800,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
 }
 
 function ceilingPreset_BeamerMovieMode()
@@ -370,13 +372,14 @@ function ceilingPreset_BeamerMovieMode()
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"off"});
 }
 
 function ceilingPreset_RedShiftMost()
 {
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
-  sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:["ceiling1","ceiling2","ceiling3","ceiling6"],"value":1.0});
+  sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:["ceiling1","ceiling2","ceiling3","ceiling6"],"value":0.99});
 }
 
 function ceilingPreset_AlienSky()
@@ -391,6 +394,7 @@ function ceilingPreset_AlienSky()
     "cw":{"amplitude":80,"offset":100,"phase":4},
     "fadeduration":3000}
     );
+  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
 }
 
 function ceilingPreset_DimRandomColor()
@@ -406,6 +410,7 @@ function ceilingPreset_SuperFullEverything()
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"on"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:1000,g:500,b:200,ww:1000,cw:1000});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
+  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
 }
 
 function ceilingPreset_MostBasic()
@@ -448,6 +453,7 @@ function ceilingPreset_AllOff()
   sendMQTT(mqtttopic_golightctrl("bluebar"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("regalleinwand"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("couchred"), {Action:"off"});
+  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"off"});
 }
 
 function ceilingPreset_ColorWave()

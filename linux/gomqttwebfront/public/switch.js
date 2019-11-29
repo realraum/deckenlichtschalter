@@ -326,8 +326,8 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "couchred":    "Couch Ducks & Red-LEDs",
-  "hallwaylight":"Stiegenhaus Licht",
-  "arrowlight":  "Arrow Licht",
+  "hallwaylight":"Stiegenhauslicht",
+  "subtable":  "Untertischlicht",
   "lothrboiler": "Warmwasser LoTHR",
   "twang": "Twang im R2W2",
 });
