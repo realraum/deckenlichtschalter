@@ -117,7 +117,12 @@ void handleButton()
 		button_longpress_inprogress_ = true; //publish results later
 	} else if (button->wasPressed()) {
 		button_used_ = true;
-		if (effect_target_values_[CHAN_RED] | effect_target_values_[CHAN_GREEN] | effect_target_values_[CHAN_BLUE] | effect_target_values_[CHAN_WW] | effect_target_values_[CHAN_UV] > 0)
+		uint32_t any_channel_on=0;
+		for (uint32_t i=0;i<PWM_CHANNELS;i++)
+		{
+			any_channel_on |= effect_target_values_[i];
+		}
+		if (any_channel_on > 0)
 		{
 			//Switch OFF: save current values
 			for (uint8_t i=0;i<PWM_CHANNELS;i++)
