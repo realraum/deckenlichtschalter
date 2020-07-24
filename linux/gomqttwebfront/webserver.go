@@ -55,7 +55,6 @@ var (
 		"action/GoLightCtrl/couchred",
 		"action/GoLightCtrl/abwasch",
 		"action/GoLightCtrl/cxleds",
-		"action/GoLightCtrl/mashadecke",
 		"action/GoLightCtrl/spots",
 		"action/GoLightCtrl/regalleinwand",
 		"action/GoLightCtrl/labortisch",
@@ -96,6 +95,7 @@ var (
 		"action/GoLightCtrl/ceiling6",
 	}
 	topics_sonoff_action = []string{
+		"action/mashadecke/POWER",
 		"action/couchred/POWER",
 		"action/subtable/POWER",
 		"action/olgaboiler/POWER",

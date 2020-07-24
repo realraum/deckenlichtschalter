@@ -135,8 +135,7 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 	[]ButtonAction{ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "ceiling6", offaction}, ActionMQTTMsg{fancytopic(6), payload_off}}},
 	//button6
 	[]ButtonAction{
-		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{fancytopic_all, payload_off}, ActionMQTTMsg{topic_lightctrl_pre_ + "regalleinwand", offaction}, ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)}},
-		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "floodtesla", offaction}},
+		ButtonAction{ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{fancytopic_all, payload_off}, ActionMQTTMsg{topic_lightctrl_pre_ + "regalleinwand", offaction}, ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)}, ActionMQTTMsg{topic_lightctrl_pre_ + "floodtesla", offaction}, ActionMQTTMsg{sonofftopic("subtable"), []byte("off")}},
 	},
 	//button7
 	[]ButtonAction{
@@ -160,7 +159,7 @@ var name_actions_ [][]ButtonAction = [][]ButtonAction{
 			ActionMQTTMsg{fancytopic(5), payload_off},
 			ActionMQTTMsg{fancytopic(6), payload_off},
 		},
-		ButtonAction{ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)}, ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{topic_lightctrl_pre_ + "fancyvortrag", offaction}},
+		ButtonAction{ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)}, ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction}, ActionMQTTMsg{topic_lightctrl_pre_ + "fancyvortrag", offaction}, ActionMQTTMsg{sonofftopic("subtable"), []byte("on")}},
 		ButtonAction{ActionMQTTMsg{r3events.ACT_ACTIVATE_SCRIPT, payload_script("off", 0.0)},
 			ActionMQTTMsg{topic_lightctrl_pre_ + "basiclightAll", offaction},
 			ActionMQTTMsg{fancytopic(1), payload_off},

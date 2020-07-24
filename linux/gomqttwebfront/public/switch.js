@@ -316,7 +316,6 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "bluebar":"Blaue LEDs Bar",
   "couchwhite":"Couch White LEDs",
   "cxleds":"CX Gang LEDs",
-  "mashadecke":"MaSha Werkstatt Decke",
   "laserball":"LaserBall",
   "logo":"r3 Logo Auslage",
   "allrf":"Alle Funksteckdosen",
@@ -325,6 +324,7 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 });
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
+  "mashadecke":"MaSha Werkstatt Decke",
   "couchred":    "Couch Ducks & Red-LEDs",
   "hallwaylight":"Stiegenhauslicht",
   "subtable":  "Untertischlicht",
