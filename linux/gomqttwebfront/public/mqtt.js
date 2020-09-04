@@ -413,6 +413,14 @@ function ceilingPreset_SuperFullEverything()
   sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
 }
 
+function ceilingPreset_AlmostEverything()
+{
+  sendMQTT(mqtttopic_activatescript, {script:"off"});
+  sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"on"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:1000,g:500,b:200,ww:1000,cw:1000});
+  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
+}
+
 function ceilingPreset_MostBasic()
 {
   sendMQTT(mqtttopic_activatescript, {script:"off"});
@@ -434,7 +442,6 @@ function ceilingPreset_MixedForWork()
   sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"on"});
-  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
   sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0});
   sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:0});
   sendMQTT(mqtttopic_fancylight("ceiling3"), {r:0,g:0,b:0,ww:1000,cw:0});
