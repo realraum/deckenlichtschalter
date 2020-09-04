@@ -408,8 +408,8 @@ function ceilingPreset_SuperFullEverything()
 {
   sendMQTT(mqtttopic_activatescript, {script:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"on"});
-  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:1000,g:500,b:200,ww:1000,cw:1000});
-  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
+  sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:1000,g:1000,b:1000,ww:1000,cw:1000});
+  //sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
   sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
 }
 
