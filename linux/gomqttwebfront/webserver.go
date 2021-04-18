@@ -97,7 +97,6 @@ var (
 	topics_sonoff_action = []string{
 		"action/mashadecke/POWER",
 		"action/couchred/POWER",
-		"action/subtable/POWER",
 		"action/olgaboiler/POWER",
 		"action/lothrboiler/POWER",
 		"action/hallwaylight/POWER",
@@ -106,9 +105,11 @@ var (
 	}
 	topics_esphome_state = []string{
 		"realraum/olgadecke/state",
+		"realraum/subtable/state",
 	}
 	topics_esphome_command = []string{
 		"action/olgadecke/command",
+		"action/subtable/command",
 	}
 
 	ws_allowed_ctx_all = append(

@@ -346,12 +346,12 @@ populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "mashadecke":"MaSha Werkstatt Decke",
   "couchred":    "Couch Ducks & Red-LEDs",
   "hallwaylight":"Stiegenhauslicht",
-  "subtable":  "Untertischlicht",
   "lothrboiler": "Warmwasser LoTHR",
   "twang": "Twang im R2W2",
 });
 
 populatedivesphomer3(document.getElementById("divrfswitchboxes"), {
+  "subtable":  "Untertischlicht",
   "olgadecke":"OLGA Decke",
 });
 
