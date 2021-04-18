@@ -451,13 +451,13 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     });
 
     $(".esphomer3_checkbox").each(function(oelem){
-      var topic = mqtttopic_esphome_r3(oelem.getAttribute("name"));
+      var topic = mqtttopic_esphome_r3_status(oelem.getAttribute("name"));
       ws.registerContext(topic, function(elem) {
         return function(data) {
           console.log(data);
-          if (data == "ON")
+          if (data.state == "ON")
             elem.checked = true;
-          else if (data == "TOGGLE")
+          else if (data.state == "TOGGLE")
             elem.checked = !elem.checked;
           else
             elem.checked = false;

@@ -104,7 +104,10 @@ var (
 		"action/r2w2whiteboard/POWER",
 		"action/twang/POWER",
 	}
-	topics_esphome_action = []string{
+	topics_esphome_state = []string{
+		"realraum/olgadecke/state",
+	}
+	topics_esphome_command = []string{
 		"action/olgadecke/command",
 	}
 
@@ -115,15 +118,17 @@ var (
 					append(
 						append(
 							append(
-								append(topics_other, topics_fancy_ceiling...),
-								topics_basic_ceiling...),
-							topics_oldbasic_ceiling...),
-						topic_basic_ceiling_all),
-					topic_fancy_ceiling_all),
-				topic_oldbasic_ceiling_all),
-			topics_sonoff_action...),
-		topics_esphome_action...)
-	ws_allowed_ctx_sendtoclientonconnect = append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_sonoff_action...), topics_esphome_action...)
+								append(
+									append(topics_other, topics_fancy_ceiling...),
+									topics_basic_ceiling...),
+								topics_oldbasic_ceiling...),
+							topic_basic_ceiling_all),
+						topic_fancy_ceiling_all),
+					topic_oldbasic_ceiling_all),
+				topics_sonoff_action...),
+			topics_esphome_command...),
+		topics_esphome_state...)
+	ws_allowed_ctx_sendtoclientonconnect = append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_sonoff_action...), topics_esphome_state...)
 )
 
 const (

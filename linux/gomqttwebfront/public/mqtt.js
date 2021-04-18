@@ -10,8 +10,11 @@ function mqtttopic_fancylight(fancyid) {
 function mqtttopic_sonoff(name) {
   return "action/"+name+"/POWER"
 }
-function mqtttopic_esphome_r3(name) {
+function mqtttopic_esphome_r3_action(name) {
   return "action/"+name+"/command"
+}
+function mqtttopic_esphome_r3_status(name) {
+  return "realraum/"+name+"/state"
 }
 
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
@@ -183,7 +186,7 @@ function eventOnEspHomeButton(event) {
       power="OFF";
   }
   if (power != "ON" && power != "OFF" && power != "TOGGLE") {return;}
-  sendMQTT(mqtttopic_esphome_r3(name),{state:power});
+  sendMQTT(mqtttopic_esphome_r3_action(name),{state:power});
 };
 
 function colorFancyLightPresent(elem) {
