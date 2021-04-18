@@ -10,6 +10,9 @@ function mqtttopic_fancylight(fancyid) {
 function mqtttopic_sonoff(name) {
   return "action/"+name+"/POWER"
 }
+function mqtttopic_esphome_r3(name) {
+  return "action/"+name+"/command"
+}
 
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor","sparkle"];
@@ -166,6 +169,21 @@ function eventOnSonOffButton(event) {
   }
   if (power != "ON" && power != "OFF" && power != "TOGGLE") {return;}
   sendMQTT(mqtttopic_sonoff(name),power);
+};
+
+function eventOnEspHomeButton(event) {
+  var name = event.target.getAttribute("name");
+  if (!name) { return;  }
+  var power = event.target.getAttribute("power");
+  if (!power && event.target.getAttribute("type")=="checkbox")
+  {
+    if (event.target.checked)
+      power="ON";
+    else
+      power="OFF";
+  }
+  if (power != "ON" && power != "OFF" && power != "TOGGLE") {return;}
+  sendMQTT(mqtttopic_esphome_r3(name),{state:power});
 };
 
 function colorFancyLightPresent(elem) {

@@ -59,6 +59,25 @@ function populatedivsonfoff(elem, names) {
   });
 }
 
+function populatedivesphomer3(elem, names) {
+  Object.keys(names).forEach(function(lightname) {
+    $(elem).append('\
+      <div class="switchbox">\
+          <span class="alignbuttonsleft">\
+            <div class="onoffswitch">\
+                <input type="checkbox" class="onoffswitch-checkbox esphomer3_checkbox" name="'+lightname+'" id="'+lightname+'ctonoff">\
+                  <label class="onoffswitch-label" for="'+lightname+'ctonoff">\
+                      <span class="onoffswitch-inner"></span>\
+                      <span class="onoffswitch-switch"></span>\
+                  </label>\
+              </div>\
+          </span>\
+          <div class="switchnameright">'+names[lightname]+'</div>\
+      </div>\
+      <br>');
+  });
+}
+
 function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
     var extrahtml="";
@@ -332,6 +351,10 @@ populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "twang": "Twang im R2W2",
 });
 
+populatedivesphomer3(document.getElementById("divrfswitchboxes"), {
+  "olgadecke":"OLGA Decke",
+});
+
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
 "ceilingAll":{desc:"Alle Deckenlichter", hasbasic:false, allbasic:true, uv:false},
 "ceiling1":{desc:"Decke Leinwand", hasbasic:true, allbasic:false, uv:false},
@@ -427,6 +450,21 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
       }(oelem));
     });
 
+    $(".esphomer3_checkbox").each(function(oelem){
+      var topic = mqtttopic_esphome_r3(oelem.getAttribute("name"));
+      ws.registerContext(topic, function(elem) {
+        return function(data) {
+          console.log(data);
+          if (data == "ON")
+            elem.checked = true;
+          else if (data == "TOGGLE")
+            elem.checked = !elem.checked;
+          else
+            elem.checked = false;
+        }
+      }(oelem));
+    });
+
     // register MQTT Update Handler: Fancy Lights
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
     // register MQTT Update Handler: ScriptCtrl
@@ -446,6 +484,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $("input.fancybalanceslider").on("change",updateColdWarmWhiteBalanceIntensity)
   $("input.fancyuvslider").on("change",updateUVIntensity)
   $("input.sonoff_checkbox").on("click",eventOnSonOffButton);
+  $("input.esphomer3_checkbox").on("click",eventOnEspHomeButton);
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
   $(document).on("click",function(event){
     if (!document.getElementById("fancycolorpicker").contains(event.target) &&
