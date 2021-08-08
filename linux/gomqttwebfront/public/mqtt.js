@@ -1,6 +1,7 @@
 
 var mqtttopic_activatescript = "action/ceilingscripts/activatescript";
 var mqtttopic_pipeledpattern = "action/PipeLEDs/pattern";
+
 function mqtttopic_golightctrl(lightname) {
   return "action/GoLightCtrl/"+lightname;
 }
@@ -15,6 +16,15 @@ function mqtttopic_esphome_r3_action(name) {
 }
 function mqtttopic_esphome_r3_status(name) {
   return "realraum/"+name+"/state"
+}
+//@arg whg_and_name e.g.: 'w1/OutletBlueLEDBar'
+function mqtttopic_zigbee2mqtt_status(whg_and_name)
+{
+  return "zigbee2mqtt/"+whg_and_name
+}
+function mqtttopic_zigbee2mqtt_action(whg_and_name)
+{
+  return mqtttopic_zigbee2mqtt_status(whg_and_name)+"/set"
 }
 
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
@@ -187,6 +197,21 @@ function eventOnEspHomeButton(event) {
   }
   if (power != "ON" && power != "OFF" && power != "TOGGLE") {return;}
   sendMQTT(mqtttopic_esphome_r3_action(name),{state:power});
+};
+
+function eventOnZigbee2MqttButton(event) {
+  var name = event.target.getAttribute("name");
+  if (!name) { return;  }
+  var power = event.target.getAttribute("power");
+  if (!power && event.target.getAttribute("type")=="checkbox")
+  {
+    if (event.target.checked)
+      power="ON";
+    else
+      power="OFF";
+  }
+  if (power != "ON" && power != "OFF" && power != "TOGGLE") {return;}
+  sendMQTT(mqtttopic_zigbee2mqtt_action(name),{state:power});
 };
 
 function colorFancyLightPresent(elem) {

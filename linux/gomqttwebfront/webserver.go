@@ -111,6 +111,12 @@ var (
 		"action/olgadecke/command",
 		"action/subtable/command",
 	}
+	topics_zigbee2mqtt_state = []string{
+		"zigbee2mqtt/w1/OutletBlueLEDBar",
+	}
+	topics_zigbee2mqtt_action = []string{
+		"zigbee2mqtt/w1/OutletBlueLEDBar/set",
+	}
 
 	ws_allowed_ctx_all = append(
 		append(
@@ -120,16 +126,20 @@ var (
 						append(
 							append(
 								append(
-									append(topics_other, topics_fancy_ceiling...),
-									topics_basic_ceiling...),
-								topics_oldbasic_ceiling...),
-							topic_basic_ceiling_all),
-						topic_fancy_ceiling_all),
-					topic_oldbasic_ceiling_all),
-				topics_sonoff_action...),
-			topics_esphome_command...),
-		topics_esphome_state...)
-	ws_allowed_ctx_sendtoclientonconnect = append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_sonoff_action...), topics_esphome_state...)
+									append(
+										append(
+											append(topics_other, topics_fancy_ceiling...),
+											topics_basic_ceiling...),
+										topics_oldbasic_ceiling...),
+									topic_basic_ceiling_all),
+								topic_fancy_ceiling_all),
+							topic_oldbasic_ceiling_all),
+						topics_sonoff_action...),
+					topics_esphome_command...),
+				topics_esphome_state...),
+			topics_zigbee2mqtt_state...),
+		topics_zigbee2mqtt_action...)
+	ws_allowed_ctx_sendtoclientonconnect = append(append(append(append(append(topics_other, topics_fancy_ceiling...), topics_basic_ceiling...), topics_sonoff_action...), topics_esphome_state...), topics_zigbee2mqtt_state...)
 )
 
 const (
@@ -204,7 +214,7 @@ func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFutu
 			return
 
 		case webmsg := <-atomized_wsout_chan:
-			LogWS_.Printf("goJSONMarshalStuffForWebSockClientsAndRetain", webmsg)
+			LogWS_.Println("goJSONMarshalStuffForWebSockClientsAndRetain", webmsg)
 			if webjson, err := json.Marshal(webmsg); err == nil {
 				ps_.Pub(webjson, PS_WEBSOCK_ALL_JSON)
 				retained_json_map[webmsg.Ctx] = webjson
@@ -454,5 +464,7 @@ func goRunWebserver() {
 	mux.HandleFunc("/cgi-bin/fancylight.cgi", webRedirectToFallbackHTML)
 	mux.HandleFunc("/cgi-bin/ledpipe.cgi", webRedirectToFallbackHTML)
 	n.UseHandler(mux)
-	http.ListenAndServe(EnvironOrDefault("GOMQTTWEBFRONT_HTTP_INTERFACE", DEFAULT_GOMQTTWEBFRONT_HTTP_INTERFACE), n)
+	if err := http.ListenAndServe(EnvironOrDefault("GOMQTTWEBFRONT_HTTP_INTERFACE", DEFAULT_GOMQTTWEBFRONT_HTTP_INTERFACE), n); err != nil {
+		panic(err)
+	}
 }

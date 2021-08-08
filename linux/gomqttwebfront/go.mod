@@ -10,4 +10,5 @@ require (
 	github.com/hexadecy/nocache v0.0.0-20150529180811-23f57cc2066d
 	github.com/realraum/door_and_sensors v0.0.0-20190522203015-ddeb2cc0c3f2
 	github.com/schleibinger/sio v0.0.0-20130717070631-2cc3e40bedc0
+	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )

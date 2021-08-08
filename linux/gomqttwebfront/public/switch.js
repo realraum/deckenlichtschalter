@@ -78,6 +78,25 @@ function populatedivesphomer3(elem, names) {
   });
 }
 
+function populatedivZigbee2MqttOutletLight(elem, names) {
+  Object.keys(names).forEach(function(lightname) {
+    $(elem).append('\
+      <div class="switchbox">\
+          <span class="alignbuttonsleft">\
+            <div class="onoffswitch">\
+                <input type="checkbox" class="onoffswitch-checkbox zigbee2mqtt_checkbox" name="'+lightname+'" id="'+lightname+'ctonoff">\
+                  <label class="onoffswitch-label" for="'+lightname+'ctonoff">\
+                      <span class="onoffswitch-inner"></span>\
+                      <span class="onoffswitch-switch"></span>\
+                  </label>\
+              </div>\
+          </span>\
+          <div class="switchnameright">'+names[lightname]+'</div>\
+      </div>\
+      <br>');
+  });
+}
+
 function populatedivfancyswitchboxes(elem, names) {
   Object.keys(names).forEach(function(lightname) {
     var extrahtml="";
@@ -332,7 +351,6 @@ var webSocketSupport = null;
 populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "regalleinwand":"LEDs Regal Leinwand",
   "floodtesla":"TESLA Deckenfluter",
-  "bluebar":"Blaue LEDs Bar",
   "couchwhite":"Couch White LEDs",
   "cxleds":"CX Gang LEDs",
   "laserball":"LaserBall",
@@ -353,6 +371,10 @@ populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
 populatedivesphomer3(document.getElementById("divrfswitchboxes"), {
   "subtable":  "Untertischlicht",
   "olgadecke":"OLGA Decke",
+});
+
+populatedivZigbee2MqttOutletLight(document.getElementById("divrfswitchboxes"), {
+  "w1/OutletBlueLEDBar":  "Blaue LEDs Bar",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
@@ -465,6 +487,19 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
       }(oelem));
     });
 
+    $(".zigbee2mqtt_checkbox").each(function(oelem){
+      var topic = mqtttopic_zigbee2mqtt_status(oelem.getAttribute("name"));
+      ws.registerContext(topic, function(elem) {
+        return function(data) {
+          console.log(data);
+          if (data.state == "ON")
+            elem.checked = true;
+          else
+            elem.checked = false;
+        }
+      }(oelem));
+    });
+
     // register MQTT Update Handler: Fancy Lights
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
     // register MQTT Update Handler: ScriptCtrl
@@ -485,6 +520,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
   $("input.fancyuvslider").on("change",updateUVIntensity)
   $("input.sonoff_checkbox").on("click",eventOnSonOffButton);
   $("input.esphomer3_checkbox").on("click",eventOnEspHomeButton);
+  $("input.zigbee2mqtt_checkbox").on("click",eventOnZigbee2MqttButton);
   $(".fancylightcolourtempselectorbutton").on("click",popupFancyColorPicker);
   $(document).on("click",function(event){
     if (!document.getElementById("fancycolorpicker").contains(event.target) &&
