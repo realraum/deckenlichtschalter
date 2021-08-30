@@ -6,6 +6,7 @@ import signal
 import traceback
 import json
 import time
+import datetime
 import sys
 from collections import defaultdict
 
@@ -59,6 +60,9 @@ class CeilingScriptClass():
                     self.triggers[trigger](self)
                 except:
                     traceback.print_exc()
+                    with open("/tmp/light_exceptions", "w+") as logfile:
+                        err_ts = datetime.datetime.now().strftime('%b-%d-%H:%M-Uhr-%G')
+                        logfile.write(f"{err_ts} - {traceback.format_exc()}")
                     self.ceiling.removeScript(self.scriptname)
 
     def activate(self, newsettings):
