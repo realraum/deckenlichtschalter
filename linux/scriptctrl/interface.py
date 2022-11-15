@@ -54,7 +54,7 @@ class CeilingScriptClass():
             try:
                 payload = json.loads(msg.payload.decode("utf-8"))
             except Exception as e:
-                 print("Exception in callcallback: ",e,file=sys.stderr)
+                print("Exception in callcallback: ",e,file=sys.stderr)
             if "sq" in payload and self.trigger_expected_seq_num[trigger] == payload["sq"]:
                 try:
                     self.triggers[trigger](self)
@@ -232,7 +232,8 @@ class CeilingClass():
                 self._scripts[self._active_script].loop()
         self.deactivateCurrentScript()
         offscript = CeilingScriptClass(self,"off")
-        offscript.setLight(offscript.lightidall,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
+        for l in offscript.lightids():
+            offscript.setLight(l,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
 
     def subscribe(self, topic):
         self._subscribed_topics[topic] = True
