@@ -388,7 +388,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 "flooddoor":{desc:"Deckenfluter Tür", hasbasic:false, allbasic:false, uv:false},
 "abwasch":{desc:"Abwasch/Bar", hasbasic:false, allbasic:false, uv:true},
 "funkbude":{desc:"Funkbude", hasbasic:false, allbasic:false, uv:false},
-"ducttape-ledstrip":{desc:"Ledstrip", hasbasic:false, allbasic:false, uv:false},
+"ducttape-ledstrip":{desc:"Ducttape-LedStrip", hasbasic:false, allbasic:false, uv:false},
 });
 
 (function() {

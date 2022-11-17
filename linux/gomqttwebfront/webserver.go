@@ -77,7 +77,7 @@ var (
 		"action/abwasch/light",
 		"action/flooddoor/light",
 		"action/funkbude/light",
-		"action/rgb-ledstrip/status",
+		"action/ducttape-ledstrip/light",
 	}
 	topics_basic_ceiling = []string{
 		"action/GoLightCtrl/basiclight1",
