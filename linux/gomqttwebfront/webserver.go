@@ -114,9 +114,11 @@ var (
 	}
 	topics_zigbee2mqtt_state = []string{
 		"zigbee2mqtt/w1/OutletBlueLEDBar",
+		"zigbee2mqtt/w1/OutletAuslageW1",
 	}
 	topics_zigbee2mqtt_action = []string{
 		"zigbee2mqtt/w1/OutletBlueLEDBar/set",
+		"zigbee2mqtt/w1/OutletAuslageW1/set",
 	}
 
 	ws_allowed_ctx_all = append(

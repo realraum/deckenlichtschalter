@@ -375,6 +375,7 @@ populatedivesphomer3(document.getElementById("divrfswitchboxes"), {
 
 populatedivZigbee2MqttOutletLight(document.getElementById("divrfswitchboxes"), {
   "w1/OutletBlueLEDBar":  "Blaue LEDs Bar",
+  "w1/OutletAuslageW1":  "LasercutLantern",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
