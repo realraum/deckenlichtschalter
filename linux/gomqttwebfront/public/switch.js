@@ -363,11 +363,11 @@ var cgiUrl = '/cgi-bin/mswitch.cgi';
 var webSocketSupport = null;
 
 populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
-  "regalleinwand":"LEDs Regal Leinwand",
-  "floodtesla":"TESLA Deckenfluter",
-  "couchwhite":"Couch White LEDs",
+  // "regalleinwand":"LEDs Regal Leinwand",
+  "floodtesla":"LoTHR Deckenfluter",
+  "couchwhite":"Kassa Red LEDs",
   "cxleds":"CX Gang LEDs",
-  "laserball":"LaserBall",
+  // "laserball":"LaserBall",
   "logo":"r3 Logo Auslage",
   "allrf":"Alle Funksteckdosen",
   "ambientlights":"Ambient Lichter",
