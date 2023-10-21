@@ -26,6 +26,10 @@ function mqtttopic_zigbee2mqtt_action(whg_and_name)
 {
   return mqtttopic_zigbee2mqtt_status(whg_and_name)+"/set"
 }
+function mqtttopic_wled_action(wled_name)
+{
+  return "action/wled/"+wled_name+"/api"
+}
 
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor","sparkle"];

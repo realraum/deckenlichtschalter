@@ -40,6 +40,20 @@ function populatedivrfswitchboxes(elem, names) {
   });
 }
 
+function populateWLED(elem, names) {
+  Object.keys(names).forEach(function(lightname) {
+    $(elem).append('\
+      <div class="switchbox">\
+          <span class="alignbuttonsleft">\
+          <button class="wledonbutton" lightname="'+lightname+'" action="on">On</button>\
+          <button class="wledoffbutton" lightname="'+lightname+'" action="off">Off</button>\
+          </span>\
+          <div class="switchnameright">'+names[lightname]+'</div>\
+      </div>\
+      <br>');
+  });
+}
+
 function populatedivsonfoff(elem, names) {
   Object.keys(names).forEach(function(lightname) {
     $(elem).append('\
@@ -360,6 +374,12 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   "boilerolga":"Warmwasser OLGA"
 });
 
+populateWLED(document.getElementById("divrfswitchboxes"), {
+  "deconflower":"CX deconstFire",
+  "quadrings": "LoTHR QuadRings",
+  "copperkey": "W2 CopperKey"
+});
+
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "mashadecke":"MaSha Werkstatt Decke",
   "couchred":    "Couch Ducks & Red-LEDs",
@@ -407,9 +427,23 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
     if (lightname) {
       var topic = mqtttopic_golightctrl(lightname);
       onoffbtn[i].addEventListener('click', function(topic, action) {
-        return function() {  sendMQTT(topic,{Action:action});  };
+        return function() {  sendMQTT(topic,{"Action":action});  };
       }(topic, action));
       topics_to_subscribe[topic] = lightname;
+    }
+  }
+  var wledonbtns = [].slice.call(document.getElementsByClassName('wledonbutton'));
+  var wledoffbtns = [].slice.call(document.getElementsByClassName('wledoffbutton'));
+  var wledonoffbtn = Array.prototype.concat(wledonbtns,wledoffbtns);
+  for (var i = 0; i < wledonoffbtn.length; i++) {
+    var lightname = wledonoffbtn[i].getAttribute("lightname");
+    var action = "on" == wledonoffbtn[i].getAttribute("action");
+    if (lightname) {
+      var topic = mqtttopic_wled_action(lightname);
+      wledonoffbtn[i].addEventListener('click', function(topic, action) {
+        return function() {  sendMQTT(topic,{"on":action});  };
+      }(topic, action));
+      // topics_to_subscribe[topic] = lightname;
     }
   }
   $(".basiclight_checkbox").on("click",function(event){

@@ -122,6 +122,11 @@ var (
 		"zigbee2mqtt/w1/OutletBlueLEDBar/set",
 		"zigbee2mqtt/w1/OutletAuslageW1/set",
 	}
+	topics_wled_action = []string{
+		"action/wled/deconflower/api",
+		"action/wled/quadrings/api",
+		"action/wled/copperkey/api",
+	}
 
 	ws_allowed_ctx_all = append(
 		append(
@@ -133,7 +138,10 @@ var (
 								append(
 									append(
 										append(
-											append(topics_other, topics_fancy_ceiling...),
+											append(
+												append(topics_other,
+													topics_wled_action...), 
+												topics_fancy_ceiling...),
 											topics_basic_ceiling...),
 										topics_oldbasic_ceiling...),
 									topic_basic_ceiling_all),

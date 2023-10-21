@@ -85,6 +85,24 @@ span.alignbuttonsleft {
     margin: 0px;
 }
 
+.wledonbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    background-color: lime;
+    margin: 0px;
+    border-radius: 4px;
+}
+
+.wledoffbutton {
+    font-size:11pt;
+    width: 40px;
+    height: 32px;
+    background-color: red;
+    margin: 0px;
+    border-radius: 4px;
+}
+
 .sendbutton {
     font-size:11pt;
     width: 40px;
