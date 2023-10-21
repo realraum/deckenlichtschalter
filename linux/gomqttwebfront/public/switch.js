@@ -40,15 +40,15 @@ function populatedivrfswitchboxes(elem, names) {
   });
 }
 
-function populateWLED(elem, names) {
-  Object.keys(names).forEach(function(lightname) {
+function populateWLED(elem, lightdata) {
+  Object.keys(lightdata).forEach(function(lightname) {
     $(elem).append('\
       <div class="switchbox">\
           <span class="alignbuttonsleft">\
           <button class="wledonbutton" lightname="'+lightname+'" action="on">On</button>\
           <button class="wledoffbutton" lightname="'+lightname+'" action="off">Off</button>\
           </span>\
-          <div class="switchnameright">'+names[lightname]+'</div>\
+          <div class="switchnameright"><a href="'+lightdata[lightname].url+'" target="_new">'+lightdata[lightname].desc+'</a></div>\
       </div>\
       <br>');
   });
@@ -375,9 +375,9 @@ populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
 });
 
 populateWLED(document.getElementById("divrfswitchboxes"), {
-  "deconflower":"CX deconstFire",
-  "quadrings": "LoTHR QuadRings",
-  "copperkey": "W2 CopperKey"
+  "quadrings": {"desc":"LoTHR QuadRings","url":"http://quadrings.iot.realraum.at/"},
+  "deconflower":{"desc":"CX deconstFire","url":"http://cxdeconflower.iot.realraum.at/"},
+  "copperkey": {"desc":"W2 CopperKey","url":"http://copperkey.iot.realraum.at/"}
 });
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
