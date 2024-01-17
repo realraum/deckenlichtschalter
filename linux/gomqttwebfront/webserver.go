@@ -126,6 +126,7 @@ var (
 		"action/wled/deconflower/api",
 		"action/wled/quadrings/api",
 		"action/wled/copperkey/api",
+		"action/wled/kaltlichtschrank/api",
 	}
 
 	ws_allowed_ctx_all = append(
