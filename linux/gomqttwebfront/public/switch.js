@@ -378,6 +378,7 @@ populateWLED(document.getElementById("divrfswitchboxes"), {
   "quadrings": {"desc":"LoTHR QuadRings","url":"http://quadrings.iot.realraum.at/"},
   "deconflower":{"desc":"CX deconstFire","url":"http://cxdeconflower.iot.realraum.at/"},
   "copperkey": {"desc":"W2 CopperKey","url":"http://copperkey.iot.realraum.at/"}
+  "kaltlichtschrank": {"desc":"W1 KaltLichtSchrank","url":"http://kaltlichtschrank.iot.realraum.at/"}
 });
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
