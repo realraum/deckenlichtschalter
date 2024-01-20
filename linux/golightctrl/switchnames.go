@@ -114,12 +114,12 @@ var actionname_map_ map[string]ActionNameHandler = map[string]ActionNameHandler{
 	"fancy9cw2":   ActionMQTTMsg{fancytopic(9), payload_cw2},
 
 	//Meta Events
-	"ambientlights": ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla"}},
+	"ambientlights": ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "floodtesla", "memberregal"}},
 	"ceilingAll":    ActionMeta{metaaction: []string{"basiclightAll"}},
 	"basiclightAll": ActionMeta{metaaction: []string{"ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
 	"fancyvortrag":  ActionMeta{metaaction: []string{"fancy1off", "fancy6off", "fancy2cw1", "fancy5cw1", "fancy3cw2", "fancy4cw2", "floodtesla"}},
 	"allrf":         ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "laserball", "logo", "ymhpower", "floodtesla"}},
-	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "laserball", "logo", "subtable", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6"}},
+	"all":           ActionMeta{metaaction: []string{"regalleinwand", "bluebar", "couchred", "couchwhite", "abwasch", "labortisch", "boiler", "boilerolga", "cxleds", "ymhpower", "floodtesla", "laserball", "logo", "subtable", "ceiling1", "ceiling2", "ceiling3", "ceiling4", "ceiling5", "ceiling6", "memberregal"}},
 }
 
 func ConvertCeilingLightsStateTomap(states []bool, offset int) CeilingLightStateMap {

@@ -7,7 +7,7 @@ triggername_ = "continue"
 
 phase_=0
 colourlist_default_ = [{"r":200,"ww":400,"cw":0,"b":0,"g":0},{"r":0,"ww":200,"cw":200,"b":0,"g":0},{"r":0,"ww":0,"cw":400,"b":20,"g":0},{"r":0,"ww":200,"cw":200,"b":0,"g":0}]
-wavegroups_default_ = [["ceiling1","ceiling6"],["ceiling2","ceiling5","flooddoor"],["ceiling3","ceiling4","abwasch"]]
+wavegroups_default_ = [["ceiling1","ceiling6", "memberregal"],["ceiling2","ceiling5","flooddoor"],["ceiling3","ceiling4","abwasch"]]
 wavegroups_=copy.deepcopy(wavegroups_default_)
 colourlist_=copy.deepcopy(colourlist_default_)
 fade_duration_=20000

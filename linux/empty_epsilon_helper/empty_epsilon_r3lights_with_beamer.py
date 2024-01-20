@@ -22,7 +22,7 @@ def sendR3Message(client, topic, datadict, qos=0, retain=False):
     client.publish(topic, json.dumps(datadict), qos, retain)
 
 def setLights(mqtt_client_, dictdata):
-    for topic in ["action/ceiling2/light","action/ceiling3/light","action/ceiling4/light","action/ceiling5/light","action/ceiling6/light","action/flooddoor/light","action/abwasch/light"]:
+    for topic in ["action/ceiling2/light","action/ceiling3/light","action/ceiling4/light","action/ceiling5/light","action/ceiling6/light","action/flooddoor/light","action/abwasch/light", "action/memberregal/light"]:
         sendR3Message(mqtt_client_, topic,dictdata)
 
 def queryEmptyEpsilon(url,fields):

@@ -35,8 +35,8 @@ var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","ran
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor","sparkle"];
 var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
 var mqtt_scriptctrl_scripts_support_participating_ = ["redshift","randomcolor","wave","colorfade","ceilingsinus","sparkle"];
-var mqtt_fancylights_all = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor"]
-var mqtt_fancylights_all_with_ceilingall = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","ceilingAll"]
+var mqtt_fancylights_all = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor", "memberregal"]
+var mqtt_fancylights_all_with_ceilingall = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","ceilingAll", "memberregal"]
 var mqtt_fancylights_ceilingonly = ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6"]
 var mqtt_fancylights_w2realfunk = ["funkbude"]
 var mqtt_fancylights_w2r2w2 = []
@@ -101,6 +101,13 @@ var r3_led_factors_ = {
     cw_factor:18,
   },
   "abwasch": {
+    r_factor:4,
+    g_factor:4,
+    b_factor:4,
+    ww_factor:12,
+    cw_factor:12,
+  },
+  "memberregal": {
     r_factor:4,
     g_factor:4,
     b_factor:4,
@@ -233,7 +240,7 @@ function colorFancyLightPresent(elem) {
 //takes function with signature (fancyid, data)
 //and calls it if fancy light updates externally
 function registerFunctionForFancyLightUpdate(fun) {
-  ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","funkbude","ceilingAll"].forEach(function(fancyid) {
+  ["ceiling1","ceiling2","ceiling3","ceiling4","ceiling5","ceiling6","abwasch","flooddoor","funkbude","ceilingAll", "memberregal"].forEach(function(fancyid) {
     ws.registerContext("action/"+fancyid+"/light",function(fancyid){
       return function(data) {
         fun(fancyid, data);
@@ -383,6 +390,7 @@ function ceilingPreset_BeamerTalkMode()
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:900,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:660,b:0,ww:500,cw:500,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("memberregal"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:800,cw:800,fade:{duration:8000}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
@@ -404,6 +412,7 @@ function ceilingPreset_BeamerTalkPauseMode()
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:500,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:1000,b:0,ww:1000,cw:800,fade:{duration:8000}});
+  sendMQTT(mqtttopic_fancylight("memberregal"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"on"});
   sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"on"});
@@ -421,6 +430,7 @@ function ceilingPreset_BeamerMovieMode()
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
+  sendMQTT(mqtttopic_fancylight("memberregal"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"off"});
 }

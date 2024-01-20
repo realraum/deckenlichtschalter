@@ -54,6 +54,7 @@ var (
 		"action/GoLightCtrl/couchwhite",
 		"action/GoLightCtrl/couchred",
 		"action/GoLightCtrl/abwasch",
+		"action/GoLightCtrl/memberregal",
 		"action/GoLightCtrl/cxleds",
 		"action/GoLightCtrl/spots",
 		"action/GoLightCtrl/regalleinwand",

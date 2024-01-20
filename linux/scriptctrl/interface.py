@@ -38,7 +38,7 @@ class CeilingScriptClass():
 
     @property
     def lightids(self):
-        return list(["ceiling%d" % x for x in range(1,9)] + ["abwasch","flooddoor"])
+        return list(["ceiling%d" % x for x in range(1,9)] + ["abwasch","flooddoor", "memberregal"])
 
     @property
     def lightidsceiling(self):
