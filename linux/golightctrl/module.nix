@@ -40,7 +40,7 @@ in
         User = "licht";
         DynamicUser = true;
         EnvironmentFile = format.generate "golightctrl.env" cfg.settings;
-        ExecStart="/home/licht/bin/golightctrl";
+        ExecStart="${pkgs.golightctrl}/bin/golightctrl";
         SyslogIdentifier = "%i";
         Restart = "always";
         RestartSec="3s";
