@@ -61,7 +61,7 @@ func goConnectToMQTTBrokerAndFunctionWithoutInTheMeantime(tty_rf433_chan chan Se
 	//
 	//now try connect to mqtt daemon until it works once
 	for {
-		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GONAMECTRL_CLIENTID", r3events.CLIENTID_LIGHTCTRL))
+		mqttc := ConnectMQTTBroker(EnvironOrDefault("GOLIGHTCTRL_MQTTBROKER", DEFAULT_GOLIGHTCTRL_MQTTBROKER), EnvironOrDefault("GOLIGHTCTRL_MQTTCLIENTID", r3events.CLIENTID_LIGHTCTRL))
 		//start real goroutines after mqtt connected
 		if mqttc != nil {
 			SubscribeAndAttachCallback(mqttc, r3events.ACT_LIGHTCTRL_NAME, func(c mqtt.Client, msg mqtt.Message) {
