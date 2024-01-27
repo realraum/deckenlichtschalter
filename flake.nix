@@ -7,20 +7,21 @@
   outputs = { self, nixpkgs }:
 
     let
-      supportedSystems = [ "x86_64-linux" "armv6l-linux" "arm64-linux" ];
+      supportedSystems = [ "x86_64-linux" "armv6l-linux" "aarch64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
     in
 
     {
       overlays.default = import ./overlay.nix;
 
-      defaultPackage = forAllSystems (system: (import nixpkgs {
+      packages = forAllSystems (system: (import nixpkgs {
         inherit system;
         overlays = [ self.overlays.default ];
-      }).golightctrl);
+      }));
 
       nixosModules = {
         golightctrl = import ./linux/golightctrl/module.nix;
+        gomqttwebfront = import ./linux/gomqttwebfront/module.nix;
       };
 
     };

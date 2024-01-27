@@ -2,30 +2,6 @@
 , buildGoModule
 }:
 
-# mkNode {
-#   root = ./.;
-#   pnpmLock = ./pnpm-lock.yaml;
-#   nodejs = nodejs;
-# } rec {
-#   buildInputs = [
-#     curl.dev
-#     curl.out
-#   ];
-
-#   nativeBuildInputs = [
-#     makeWrapper
-#   ];
-
-#   postInstall = ''
-    
-#   '';
-# }
-
-
-
-#////////////////////////
-
-
 buildGoModule rec {
   name = "golightctrl";
 
