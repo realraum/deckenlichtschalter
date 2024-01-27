@@ -15,3 +15,4 @@ h801/mqttConfigurablePWMFW/makeconfig*.py
 *.sublime-project
 *.orig
 h801/mqttConfigurablePWMFW/out/
+result*
