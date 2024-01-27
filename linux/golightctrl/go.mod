@@ -8,4 +8,5 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/realraum/door_and_sensors/r3events v0.0.0-20220110204423-4300137760ad
 	github.com/schleibinger/sio v0.0.0-20130717070631-2cc3e40bedc0
+	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )
