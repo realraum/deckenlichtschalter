@@ -253,6 +253,20 @@ $(window).ready(resizeRoomImg);
       }
   });
 
+  $(".esphomer3").on("click",function(event) {
+      var id = this.getAttribute('id');
+      var topic = mqtttopic_sonoff(id);
+      var offset = $(this).offset();
+      var relX = (event.pageX - offset.left) / $(this).width();
+      var relY = (event.pageY - offset.top) / $(this).height();
+      var sendState = relX + relY < 1;
+      if (sendState) {
+        sendMQTT(mqtttopic_esphome_r3_action(name),{state:"on"});
+      } else {
+        sendMQTT(mqtttopic_esphome_r3_action(name),{state:"off"});
+      }
+  });
+
   $(".zigbee2mqtt").on("click",function(event) {
       var id = this.getAttribute('id');
       id = id.substr(0, 2) + "/" + id.substr(2); //first 2 chars should be either w1 or w2

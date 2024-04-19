@@ -109,11 +109,13 @@ var (
 		"realraum/olgadecke/state",
 		"realraum/subtable/state",
 		"realraum/mashacompressor/state",
+		"realraum/loeteckenlicht/state",
 	}
 	topics_esphome_command = []string{
 		"action/olgadecke/command",
 		"action/subtable/command",
 		"action/mashacompressor/command",
+		"action/loeteckenlicht/command",
 	}
 	topics_zigbee2mqtt_state = []string{
 		"zigbee2mqtt/w1/OutletBlueLEDBar",

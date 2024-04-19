@@ -383,7 +383,7 @@ populateWLED(document.getElementById("divrfswitchboxes"), {
 
 populatedivsonfoff(document.getElementById("divrfswitchboxes"), {
   "mashadecke":"MaSha Werkstatt Decke",
-  "couchred":    "Couch Ducks & Red-LEDs",
+  "couchred":    "Auslage Ducks WS2812",
   "hallwaylight":"Stiegenhauslicht",
   "lothrboiler": "Warmwasser LoTHR",
   "twang": "Twang im R2W2",
@@ -393,6 +393,7 @@ populatedivesphomer3(document.getElementById("divrfswitchboxes"), {
   "mashacompressor": "MaSha Compressor",
   "subtable":  "Untertischlicht",
   "olgadecke":"OLGA Decke",
+  "loeteckenlicht":"Lötecke LoTHR",
 });
 
 populatedivZigbee2MqttOutletLight(document.getElementById("divrfswitchboxes"), {

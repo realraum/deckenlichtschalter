@@ -113,6 +113,12 @@ nav a {
     padding-top: 7%;
 }
 
+.light.esphomer3 {
+    background: linear-gradient(-45deg, red 0%, red 50%, green 50%, green 100%);
+    width: 7%;
+    padding-top: 7%;
+}
+
 .light.zigbee2mqtt {
     background: linear-gradient(-45deg, red 0%, red 50%, green 50%, green 100%);
     width: 7%;
@@ -196,12 +202,17 @@ nav a {
 }
 
 #couchred {
-    top: 30%;
-    left: 0%;
+    bottom: 0%;
+    left: 13%;
 }
 
 #couchwhite {
-    bottom: 30%;
+    top: 0%;
+    left: 0%;
+}
+
+#loeteckenlicht {
+    top: 33%;
     left: 0%;
 }
 
