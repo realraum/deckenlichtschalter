@@ -159,6 +159,7 @@ class CeilingScriptClass():
                 msg["flash"].update({"period":flash_period, "cc":cc})
             if flash_repetitions != None and flash_repetitions >= 1 and flash_repetitions <= 40:
                 msg["flash"].update({"repetitions":flash_repetitions, "cc":cc})
+        # print(light, msg) ## DEBUG
         self.ceiling.client.publish(format_ceiling_topic % light, json.dumps(msg), 0, False)
         return self
 
@@ -232,7 +233,7 @@ class CeilingClass():
                 self._scripts[self._active_script].loop()
         self.deactivateCurrentScript()
         offscript = CeilingScriptClass(self,"off")
-        for l in offscript.lightids():
+        for l in offscript.lightids:
             offscript.setLight(l,r=0,g=0,b=0,cw=0,ww=0,include_scriptname=False)
 
     def subscribe(self, topic):
