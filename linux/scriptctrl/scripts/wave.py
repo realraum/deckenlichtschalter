@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import time
 
 triggername_ = "continue"
 
@@ -10,7 +11,7 @@ colourlist_default_ = [{"r":200,"ww":400,"cw":0,"b":0,"g":0},{"r":0,"ww":200,"cw
 wavegroups_default_ = [["ceiling1","ceiling6", "memberregal"],["ceiling2","ceiling5","flooddoor"],["ceiling3","ceiling4","abwasch"]]
 wavegroups_=copy.deepcopy(wavegroups_default_)
 colourlist_=copy.deepcopy(colourlist_default_)
-fade_duration_=20000
+fade_duration_ms_=20000
 
 def validateColorlist(inputlist):
     try:
@@ -23,31 +24,33 @@ def validateColorlist(inputlist):
         return False
 
 def activate(scr, newsettings):
-    global colourlist_, wavegroups_, fade_duration_
+    global colourlist_, wavegroups_, fade_duration_ms_, last_run_
     colourlist_=copy.deepcopy(colourlist_default_)
     wavegroups_=copy.deepcopy(wavegroups_default_)
     if "fadeduration" in newsettings and isinstance(newsettings["fadeduration"], int):
-        fade_duration_= min(60000,max(100,newsettings["fadeduration"]))
+        fade_duration_ms_= min(60000,max(100,newsettings["fadeduration"]))
     elif "speed" in newsettings and isinstance(newsettings["speed"], int):
-        fade_duration_ = 60000 - int(59.9*min(1000,max(0,newsettings["speed"])))
+        fade_duration_ms_ = 60000 - int(59.9*min(1000,max(0,newsettings["speed"])))
     else:
-        fade_duration_ = 20000
+        fade_duration_ms_ = 20000
     if "colourlist" in newsettings and validateColorlist(newsettings["colourlist"]):
         colourlist_= newsettings["colourlist"]
     if "colorlist" in newsettings and validateColorlist(newsettings["colorlist"]):
         colourlist_= newsettings["colorlist"]
     if "reversed" in newsettings:
         wavegroups_= list(reversed(wavegroups_))
-    animateAllLights(scr,initial=True)
+    animateAllLights(scr, initial=True)
+    last_run_ = time.time()
 
 def deactivate(scr):
     pass
 
+last_run_ = 0
 def loop(scr):
-    pass
-
-def triggerMeToContinue(scr):
-    animateAllLights(scr)
+    global last_run_
+    if time.time() - last_run_ > fade_duration_ms_/1000:
+        last_run_ = time.time()
+        animateAllLights(scr)
 
 def animateAllLights(scr, initial=False):
     global phase_
@@ -57,7 +60,7 @@ def animateAllLights(scr, initial=False):
         if initial:
             kwargs["fade_duration"]=300
         else:
-            kwargs["fade_duration"]=fade_duration_
+            kwargs["fade_duration"]=fade_duration_ms_
         kwargs.update(colourlist_[(grpidx + phase_) % len(colourlist_)])
         for lname in wavegroups_[grpidx]:
             if trigger_set:
@@ -65,13 +68,13 @@ def animateAllLights(scr, initial=False):
             else:
                 kwargs["trigger_on_complete"]=[triggername_]
                 trigger_set = True
-            print(lname,kwargs)
+            # print(lname,kwargs)
             scr.setLight(lname, **kwargs)
     phase_=(phase_+1) % len(colourlist_)
 
 def init(scr):
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
-    #scr.registerLoop(loop)
+    scr.registerLoop(loop)
     scr.setDefaultParticipating(scr.lightids)
-    scr.registerTrigger(triggername_, triggerMeToContinue)
+    # scr.registerTrigger(triggername_, triggerMeToContinue)

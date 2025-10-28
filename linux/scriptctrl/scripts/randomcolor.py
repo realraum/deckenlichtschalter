@@ -10,11 +10,11 @@ import time
 mytrigger_ = "continue"
 hsvvalue_="random"
 fade_duration_=600
-interval_=60.0
+interval_s_=60.0
 
 
 def activate(scr, newsettings):
-    global hsvvalue_, fade_duration_, interval_
+    global hsvvalue_, fade_duration_, interval_s_, last_run_
     if "value" in newsettings and isinstance(newsettings["value"],(int,float)) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:
@@ -24,10 +24,11 @@ def activate(scr, newsettings):
     else:
         fade_duration_ = 600
     if "interval" in newsettings and isinstance(newsettings["interval"], int):
-        interval_= min(1200,max(fade_duration_/1000,newsettings["interval"]))
+        interval_s_= min(1200,max(fade_duration_/1000,newsettings["interval"]))
     else:
-        interval_ = 60.0
+        interval_s_ = 60.0
     colorAllLights(scr)
+    last_run_ = time.time()
 
 def deactivate(scr):
     pass
@@ -49,7 +50,7 @@ def colorAllLights(scr):
 last_run_ = 0
 def loop(scr):
     global last_run_
-    if time.time() - last_run_ > interval_:
+    if time.time() - last_run_ > interval_s_:
         last_run_ = time.time()
         colorAllLights(scr)
 

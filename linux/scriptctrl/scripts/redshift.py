@@ -6,9 +6,10 @@ try:
 except ImportError:
     from pysolar import solar
 import datetime
+import time
 
 hsvvalue_=0.5
-fade_duration_=120000
+fade_duration_ms_=120000
 latitude_ = 47.065554
 longitude_ = 15.450435
 transition_high_ = 1.0  # SolarAltitude when light should start fading into warmwhite
@@ -16,15 +17,15 @@ transition_middle_ = -12.0   # Solar Altitude when light should be fully warm wh
 transition_low_ =  -20.0       # Solar Altitude when light should be warmwhite and red
 
 def activate(scr, newsettings):
-    global hsvvalue_, fade_duration_, latitude_, longitude_
+    global hsvvalue_, fade_duration_ms_, latitude_, longitude_, last_run_
     if "value" in newsettings and isinstance(newsettings["value"],(int,float)) and newsettings["value"] >= 0.0 and newsettings["value"] <= 1.0:
         hsvvalue_ = newsettings["value"]
     else:
         hsvvalue_ = 0.5
     if "fadeduration" in newsettings and isinstance(newsettings["fadeduration"], int):
-        fade_duration_= min(120000,max(600,newsettings["fadeduration"]))
+        fade_duration_ms_= min(120000,max(600,newsettings["fadeduration"]))
     else:
-        fade_duration_ = 120000
+        fade_duration_ms_ = 120000
     if "latitude" in newsettings and isinstance(newsettings["latitude"],(int,float)):
         latitude_ = newsettings["latitude"]
     if "longitude" in newsettings and isinstance(newsettings["longitude"],(int,float)):
@@ -38,7 +39,7 @@ def activate(scr, newsettings):
 
     for t in scr.participating:
         redshiftLight(scr, t, True)
-        redshiftLight(scr, t)
+    last_run_ = time.time()
 
 
 def deactivate(scr):
@@ -64,7 +65,10 @@ def calcColorFromDayLevel(day_factor, value):
     return int(r), int(b), int(cw), int(ww)
 
 def redshiftLight(scr, lightid, initial=False):
-    solar_altitude = solar.GetAltitudeFast(latitude_, longitude_, datetime.datetime.utcnow())
+    try:
+        solar_altitude = solar.GetAltitudeFast(latitude_, longitude_, datetime.datetime.utcnow())
+    except AttributeError:
+        solar_altitude = solar.get_altitude_fast(latitude_, longitude_, datetime.datetime.now( datetime.timezone(datetime.timedelta(hours=0)) ))
     daylevel = 1.0
     if solar_altitude >= transition_high_:
         daylevel = 1.0
@@ -76,20 +80,29 @@ def redshiftLight(scr, lightid, initial=False):
         daylevel = -1 * (solar_altitude - transition_middle_) / (transition_low_ - transition_middle_)
     r,b,cw,ww = calcColorFromDayLevel(daylevel, hsvvalue_)
     scr.setLight(lightid,r=r,g=0,b=b,cw=cw,ww=ww,
-        fade_duration=None if initial else fade_duration_,
-        trigger_on_complete=[] if initial else [lightid]
+        fade_duration=None if initial else fade_duration_ms_
         )
 
-def redshiftLightOnTrigger(scr, lightid):
-    if lightid in scr.participating:
-        redshiftLight(scr, lightid)
+# def redshiftLightOnTrigger(scr, lightid):
+#     if lightid in scr.participating:
+#         redshiftLight(scr, lightid)
 
-def mkTriggerClosure(lightid):
-    return lambda scr: redshiftLightOnTrigger(scr, lightid)
+# def mkTriggerClosure(lightid):
+#     return lambda scr: redshiftLightOnTrigger(scr, lightid)
+
+last_run_ = 0
+def loop(scr):
+    global last_run_
+    if time.time() - last_run_ > fade_duration_ms_/1000:
+        last_run_ = time.time()
+        for lightid in scr.lightidsceiling:
+            if lightid in scr.participating:
+                redshiftLight(scr, lightid)
 
 def init(scr):
     scr.setDefaultParticipating(scr.lightidsceiling)
     scr.registerActivate(activate)
     scr.registerDeactivate(deactivate)
-    for t in scr.lightidsceiling:
-        scr.registerTrigger(t,mkTriggerClosure(t))
+    # for t in scr.lightidsceiling:
+    #     scr.registerTrigger(t,mkTriggerClosure(t))
+    scr.registerLoop(loop)
