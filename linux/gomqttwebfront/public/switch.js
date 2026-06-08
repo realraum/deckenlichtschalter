@@ -364,7 +364,6 @@ var webSocketSupport = null;
 
 populatedivrfswitchboxes(document.getElementById("divrfswitchboxes"), {
   // "regalleinwand":"LEDs Regal Leinwand",
-  "floodtesla":"LoTHR Deckenfluter",
   "couchwhite":"Kassa Red LEDs",
   "cxleds":"CX Gang LEDs",
   // "laserball":"LaserBall",
@@ -398,7 +397,10 @@ populatedivesphomer3(document.getElementById("divrfswitchboxes"), {
 
 populatedivZigbee2MqttOutletLight(document.getElementById("divrfswitchboxes"), {
   "w1/OutletBlueLEDBar":  "Blaue LEDs Bar",
-  "w1/OutletAuslageW1":  "LasercutLantern",
+  "w1/OutletAuslageW1":  "Outdoor Flutlicht",
+  "w1/DeckenfluterLoTHRFenster": "Deckenfluter LOTHR Fenster",
+  "w1/UltraHellSackerl-AudioShelf": "UltraHellSackerl AudioShelf",
+  "w1/UltraHellSackerl-Membershelf": "UltraHellSackerl Membershelf",
 });
 
 populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"), {
@@ -409,7 +411,6 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 "ceiling4":{desc:"Decke Lasercutter", hasbasic:true, allbasic:false, uv:false},
 "ceiling5":{desc:"Decke Eingang", hasbasic:true, allbasic:false, uv:false},
 "ceiling6":{desc:"Decke Tesla", hasbasic:true, allbasic:false, uv:false},
-"flooddoor":{desc:"Deckenfluter Tür", hasbasic:false, allbasic:false, uv:false},
 "abwasch":{desc:"Abwasch/Bar", hasbasic:false, allbasic:false, uv:true},
 "funkbude":{desc:"Funkbude", hasbasic:false, allbasic:false, uv:false},
 "memberregal":{desc:"Memberregal", hasbasic:false, allbasic:false, uv:false},

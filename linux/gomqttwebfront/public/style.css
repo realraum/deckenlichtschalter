@@ -216,6 +216,11 @@ nav a {
     left: 0%;
 }
 
+#subtable {
+    top: 40%;
+    left: 60%;
+}
+
 #w1OutletBlueLEDBar {
     top: 11%;
     left: 32%;
@@ -236,9 +241,19 @@ nav a {
     right: 8%;
 }
 
-#floodtesla {
+#w1DeckenfluterLoTHRFenster {
     bottom:0%;
-    left: 70%;
+    left:75%;
+}
+
+#w1UltraHellSackerl-AudioShelf {
+    bottom:0%;
+    left:60%;
+}
+
+#w1UltraHellSackerl-Membershelf {
+    top:11%;
+    left:60%;
 }
 
 .activatedbtn {
