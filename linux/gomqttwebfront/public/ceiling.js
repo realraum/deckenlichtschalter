@@ -255,15 +255,14 @@ $(window).ready(resizeRoomImg);
 
   $(".esphomer3").on("click",function(event) {
       var id = this.getAttribute('id');
-      var topic = mqtttopic_sonoff(id);
       var offset = $(this).offset();
       var relX = (event.pageX - offset.left) / $(this).width();
       var relY = (event.pageY - offset.top) / $(this).height();
       var sendState = relX + relY < 1;
       if (sendState) {
-        sendMQTT(mqtttopic_esphome_r3_action(name),{state:"on"});
+        sendMQTT(mqtttopic_esphome_r3_action(id),{state:"ON"});
       } else {
-        sendMQTT(mqtttopic_esphome_r3_action(name),{state:"off"});
+        sendMQTT(mqtttopic_esphome_r3_action(id),{state:"OFF"});
       }
   });
 
