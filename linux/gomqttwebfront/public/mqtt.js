@@ -516,11 +516,17 @@ function ceilingPreset_AllOff()
   sendMQTT(mqtttopic_activatescript, {script:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
-  sendMQTT(mqtttopic_golightctrl("floodtesla"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("bluebar"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("regalleinwand"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("couchred"), {Action:"off"});
-  sendMQTT(mqtttopic_golightctrl("subtable"), {Action:"off"});
+  sendMQTT(mqtttopic_esphome_r3_action("subtable"),{state:"OFF"});
+  sendMQTT(mqtttopic_esphome_r3_action("loeteckenlicht"),{state:"OFF"});
+  sendMQTT(mqtttopic_zigbee2mqtt_action("w1/DeckenfluterLoTHRFenster"), {state:"OFF"});
+  sendMQTT(mqtttopic_zigbee2mqtt_action("w1/UltraHellSackerl-Membershelf"), {state:"OFF"});
+  sendMQTT(mqtttopic_zigbee2mqtt_action("w1/UltraHellSackerl-AudioShelf"), {state:"OFF"});
+  sendMQTT(mqtttopic_zigbee2mqtt_action("w1/OutletAuslageW1"), {state:"OFF"});
+  sendMQTT(mqtttopic_wled_action("quadrings"),{"on":false});
+  sendMQTT(mqtttopic_wled_action("kaltlichtschrank"),{"on":false});
 }
 
 function ceilingPreset_ColorWave()
