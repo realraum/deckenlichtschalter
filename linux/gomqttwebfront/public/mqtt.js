@@ -8,6 +8,9 @@ function mqtttopic_golightctrl(lightname) {
 function mqtttopic_fancylight(fancyid) {
   return "action/"+fancyid+"/light";
 }
+function mqtttopic_kajplatsgroup(groupname) {
+  return "zigbee2mqtt/w1/"+groupname+"/set";
+}
 function mqtttopic_sonoff(name) {
   return "action/"+name+"/POWER"
 }

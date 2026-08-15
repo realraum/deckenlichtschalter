@@ -123,6 +123,7 @@ var (
 		"zigbee2mqtt/w1/DeckenfluterLoTHRFenster",
 		"zigbee2mqtt/w1/UltraHellSackerl-AudioShelf",
 		"zigbee2mqtt/w1/UltraHellSackerl-Membershelf",
+		"zigbee2mqtt/w1/lothr_kajplats_g1",
 	}
 	topics_zigbee2mqtt_action = []string{
 		"zigbee2mqtt/w1/OutletBlueLEDBar/set",
@@ -130,6 +131,7 @@ var (
 		"zigbee2mqtt/w1/DeckenfluterLoTHRFenster/set",
 		"zigbee2mqtt/w1/UltraHellSackerl-AudioShelf/set",
 		"zigbee2mqtt/w1/UltraHellSackerl-Membershelf/set",
+		"zigbee2mqtt/w1/lothr_kajplats_g1/set",
 	}
 	topics_wled_action = []string{
 		"action/wled/deconflower/api",
