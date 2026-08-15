@@ -34,6 +34,85 @@ function mqtttopic_wled_action(wled_name)
   return "action/wled/"+wled_name+"/api"
 }
 
+/**
+ * Convert RGB, CW, WW values to CIE 1931 color space (x/y), color_mode, and color_temp
+ * @param {number} r - Red value (0-1000)
+ * @param {number} g - Green value (0-1000)
+ * @param {number} b - Blue value (0-1000)
+ * @param {number} cw - Cold white value (0-1000)
+ * @param {number} ww - Warm white value (0-1000)
+ * @returns {object} - Object with properties: color_mode, color_temp, and color (x/y)
+ */
+function rgbCwWwToCIE1931(r, g, b, cw, ww) {
+  // Normalize values to 0-1 range
+  const rNorm = r / 1000;
+  const gNorm = g / 1000;
+  const bNorm = b / 1000;
+  const cwNorm = cw / 1000;
+  const wwNorm = ww / 1000;
+  var onoffstate = "ON";
+  
+  // Calculate total white contribution
+  const totalWhite = cwNorm + wwNorm;
+  
+  if (0 == cw+ww+b+g+r) {
+    onoffstate = "OFF";
+  }
+
+  // If we have significant white values, use color temperature mode
+  if (totalWhite > 0.1 && (rNorm + gNorm + bNorm) < 0.3) {
+    // Calculate color temperature based on CW/WW ratio
+    const tempRatio = cwNorm / (cwNorm + wwNorm);
+    // Map to 2000K-6500K range (Zigbee standard)
+    const colorTemp = Math.round(2000 + (6500 - 2000) * tempRatio);
+    
+    return {
+      brightness: 254,
+      state: onoffstate,
+      color_mode: "color_temp",
+      color_temp: colorTemp,
+      color: {x: 0, y: 0} // Not used in color_temp mode
+    };
+  }
+  // Otherwise use RGB color mode
+  else {
+    // Convert RGB to XYZ color space
+    let x = rNorm * 0.649926 + gNorm * 0.103455 + bNorm * 0.197109;
+    let y = rNorm * 0.234327 + gNorm * 0.743075 + bNorm * 0.022598;
+    let z = rNorm * 0.000000 + gNorm * 0.053077 + bNorm * 1.035763;
+    
+    // Convert XYZ to CIE xy
+    const sum = x + y + z;
+    if (sum === 0) {
+      return {
+        brightness: 0,
+        state: "OFF",        
+        color_mode: "xy",
+        color: {x: 0, y: 0},
+        color_temp: 0
+      };
+    }
+    
+    const cieX = x / sum;
+    const cieY = y / sum;
+    
+    // // Scale to 0-65535 range for Zigbee (some devices expect this)
+    // const scaledX = Math.round(cieX * 65535);
+    // const scaledY = Math.round(cieY * 65535);
+    
+    return {
+      brightness: 254,
+      state: onoffstate,
+      color_mode: "xy",
+      color: {
+        x: cieX,
+        y: cieY
+      },
+      color_temp: 0 // Not used in xy mode
+    };
+  }
+}
+
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor","sparkle"];
 var mqtt_scriptctrl_scripts_uses_trigger_for_each_light_ = ["redshift"];
@@ -179,8 +258,13 @@ function eventOnFancyLightPresent(event) {
   var B = parseInt(event.target.getAttribute("ledb")) || 0;
   var CW = parseInt(event.target.getAttribute("ledcw")) || 0;
   var WW = parseInt(event.target.getAttribute("ledww")) || 0;
-  var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
-  sendMQTT("action/"+name+"/light",settings);
+  if (name.indexOf("lothr_kajplats") !== -1) {
+    var settings = rgbCwWwToCIE1931(R,G,B,CW,WW);
+    sendMQTT(mqtttopic_kajplatsgroup(name),settings);
+  } else {
+    var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
+    sendMQTT("action/"+name+"/light",settings);
+  }
 };
 
 function eventOnSonOffButton(event) {
