@@ -550,7 +550,8 @@ function ceilingPreset_BeamerTalkMode()
   sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:900,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling3"), {r:0,g:0,b:0,ww:0,cw:1000,fade:{duration:8000}});
-  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:0,cw:1000,fade:{duration:8000}});
+  // sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:0,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {"brightness":220,"color_mode":"color_temp","color_temp":200,"state":"ON"});  
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:900,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:660,b:0,ww:500,cw:500,fade:{duration:8000}});
@@ -572,7 +573,8 @@ function ceilingPreset_BeamerTalkPauseMode()
   sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:500,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling3"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
-  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
+  // sendMQTT(mqtttopic_fancylight("ceiling4"), {r:800,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {"brightness":254,"color_mode":"color_temp","color_temp":370,"state":"ON"});  
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:1000,cw:1000,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:500,fade:{duration:8000}});
   sendMQTT(mqtttopic_fancylight("abwasch"), {r:0,g:1000,b:0,ww:1000,cw:800,fade:{duration:8000}});
@@ -589,7 +591,8 @@ function ceilingPreset_BeamerMovieMode()
   sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling3"), {r:50,g:0,b:0,ww:100,cw:0,fade:{}});
-  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:50,g:0,b:0,ww:100,cw:0,fade:{}});
+  // sendMQTT(mqtttopic_fancylight("ceiling4"), {r:50,g:0,b:0,ww:100,cw:0,fade:{}});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {"brightness":60,"color":{"x":0.7350000508904125,"y":0.2649999491095874},"color_mode":"xy","state":"ON"});
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:0,cw:0,fade:{}});
@@ -603,6 +606,7 @@ function ceilingPreset_RedShiftMost()
 {
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {state:"OFF"});
   sendMQTT(mqtttopic_activatescript, {script:"redshift",participating:["ceiling1","ceiling2","ceiling3","ceiling6"],"value":0.99});
 }
 
@@ -610,6 +614,7 @@ function ceilingPreset_AlienSky()
 {
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {state:"OFF"});
   sendMQTT(mqtttopic_activatescript, {"script":"ceilingsinus",
     "g":{"amplitude":200,"offset":300,"phase":0},
     "ww":{"amplitude":90,"offset":300,"phase":1},
@@ -625,6 +630,7 @@ function ceilingPreset_DimRandomColor()
 {
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {state:"OFF"});
   sendMQTT(mqtttopic_activatescript, {"script":"randomcolor","value":0.3});
 }
 
@@ -651,7 +657,8 @@ function ceilingPreset_MostBasic()
   sendMQTT(mqtttopic_golightctrl("basiclight1"), {Action:"on"});
   sendMQTT(mqtttopic_golightctrl("basiclight2"), {Action:"on"});
   sendMQTT(mqtttopic_golightctrl("basiclight3"), {Action:"on"});
-  sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"off"});
+  // sendMQTT(mqtttopic_golightctrl("basiclight4"), {Action:"off"});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {state:"OFF"});
   sendMQTT(mqtttopic_golightctrl("basiclight5"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclight6"), {Action:"on"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
@@ -669,7 +676,8 @@ function ceilingPreset_MixedForWork()
   sendMQTT(mqtttopic_fancylight("ceiling1"), {r:0,g:0,b:0,ww:0,cw:0});
   sendMQTT(mqtttopic_fancylight("ceiling2"), {r:0,g:0,b:0,ww:0,cw:0});
   sendMQTT(mqtttopic_fancylight("ceiling3"), {r:0,g:0,b:0,ww:1000,cw:0});
-  sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:600,cw:0});
+  // sendMQTT(mqtttopic_fancylight("ceiling4"), {r:0,g:0,b:0,ww:600,cw:0});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {"brightness":190,"color_mode":"color_temp","color_temp":482,state:"ON"});  
   sendMQTT(mqtttopic_fancylight("ceiling5"), {r:0,g:0,b:0,ww:600,cw:0});
   sendMQTT(mqtttopic_fancylight("ceiling6"), {r:0,g:0,b:0,ww:0,cw:0});
   sendMQTT(mqtttopic_fancylight("flooddoor"), {r:0,g:0,b:0,ww:600,cw:300});
@@ -680,6 +688,12 @@ function ceilingPreset_AllOff()
   sendMQTT(mqtttopic_activatescript, {script:"off"});
   sendMQTT(mqtttopic_golightctrl("basiclightAll"), {Action:"off"});
   sendMQTT(mqtttopic_fancylight("ceilingAll"), {r:0,g:0,b:0,ww:0,cw:0});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g1"), {state:"OFF"});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g2"), {state:"OFF"});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g3"), {state:"OFF"});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g4"), {state:"OFF"});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g5"), {state:"OFF"});
+  sendMQTT(mqtttopic_kajplatsgroup("lothr_kajplats_g6"), {state:"OFF"});
   sendMQTT(mqtttopic_golightctrl("bluebar"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("regalleinwand"), {Action:"off"});
   sendMQTT(mqtttopic_golightctrl("couchred"), {Action:"off"});
