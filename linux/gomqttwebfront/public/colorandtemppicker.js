@@ -186,6 +186,7 @@ function drawcolourpicker(elemid) {
 	  	var G = Math.trunc(rgb[1]);
 	  	var B = Math.trunc(rgb[2]);
 	  }
+	  //TODO: only use for old-style fancy-lights .. remove in future
 	  calcCeilingValuesFrom(colortemppickerstate, R, G, B, colortemppicker_ledfactor_name_);
 	  updateColorPreview(colortemppicker_ledfactor_name_);
 	};

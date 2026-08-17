@@ -249,6 +249,15 @@ function handleExternalFancySetting(fancyid, data)
     $("input.fancyuvslider[name="+fancyid+"]").val(data.uv);
 }
 
+
+function handleExternalKajplatsSetting(kajplats_id, data_cie)
+{
+  var data = cie1931ToRgbCwWw(data_cie)
+  var fancyid = mqtt_kajplats_fancylights_name[kajplats_id]
+  if (typeof fancyid == 'undefined') {return;}
+  handleExternalFancySetting(fancyid, data);
+}
+
 function updateColdWarmWhiteBalanceIntensity(event)
 {
   var fancyid = event.target.getAttribute("name");
@@ -542,6 +551,7 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
 
     // register MQTT Update Handler: Fancy Lights
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
+    registerFunctionForKajplatsUpdate(handleExternalKajplatsSetting);
     // register MQTT Update Handler: ScriptCtrl
     ws.registerContext(mqtttopic_activatescript, handleExternalActivateScript);
   }
@@ -576,8 +586,13 @@ populatedivfancyswitchboxes(document.getElementById("divfancylightswitchboxes"),
       var B = parseInt($('#B input').val()) || 0;
       var CW = parseInt($('#CW input').val()) || 0;
       var WW = parseInt($('#WW input').val()) || 0;
-      var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
-      sendMQTT(mqtttopic_fancylight(fancycolorpicker_apply_name),settings);
+      if (mqtt_fancylights_kajplats_name[fancycolorpicker_apply_name]) {
+        var settings = rgbCwWwToCIE1931(R,G,B,CW,WW);
+        sendMQTT(mqtttopic_kajplatsgroup(mqtt_fancylights_kajplats_name[fancycolorpicker_apply_name]),settings);
+      } else {
+        var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
+        sendMQTT(mqtttopic_fancylight(fancycolorpicker_apply_name),settings);
+      }
   });
   //draw color picker canvases
   init_colour_temp_picker();

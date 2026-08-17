@@ -43,6 +43,7 @@ function mqtttopic_wled_action(wled_name)
  * @param {number} ww - Warm white value (0-1000)
  * @returns {object} - Object with properties: color_mode, color_temp, and color (x/y)
  */
+
 function rgbCwWwToCIE1931(r, g, b, cw, ww) {
   // Normalize values to 0-1 range
   const rNorm = r / 1000;
@@ -62,16 +63,15 @@ function rgbCwWwToCIE1931(r, g, b, cw, ww) {
   // If we have significant white values, use color temperature mode
   if (totalWhite > 0.1 && (rNorm + gNorm + bNorm) < 0.3) {
     // Calculate color temperature based on CW/WW ratio
-    const tempRatio = cwNorm / (cwNorm + wwNorm);
+    const tempRatio = ((-1*cwNorm + wwNorm)+1)/2;
     // Map to 2000K-6500K range (Zigbee standard)
-    const colorTemp = Math.round(2000 + (6500 - 2000) * tempRatio);
-    
+    const colorTemp = Math.round(153 + (555 - 153) * tempRatio);
+
     return {
-      brightness: 254,
+      brightness: 255,
       state: onoffstate,
       color_mode: "color_temp",
       color_temp: colorTemp,
-      color: {x: 0, y: 0} // Not used in color_temp mode
     };
   }
   // Otherwise use RGB color mode
@@ -101,7 +101,7 @@ function rgbCwWwToCIE1931(r, g, b, cw, ww) {
     // const scaledY = Math.round(cieY * 65535);
     
     return {
-      brightness: 254,
+      brightness: 255,
       state: onoffstate,
       color_mode: "xy",
       color: {
@@ -112,6 +112,58 @@ function rgbCwWwToCIE1931(r, g, b, cw, ww) {
     };
   }
 }
+
+function cie1931ToRgbCwWw(state) {
+  if (!state || state.state === "OFF") {
+    return { r: 0, g: 0, b: 0, cw: 0, ww: 0 };
+  }
+
+  if (state.color_mode === "color_temp") {
+    const t = Math.max(153, Math.min(555, state.color_temp));
+    const tempRatio = (t - 153) / (555 - 153); // inverse of colorTemp formula
+
+    // Assumes cwNorm + wwNorm = 1 and r=g=b=0 (this info is lost by the forward fn)
+    const wwNorm = tempRatio;
+    const cwNorm = 1 - tempRatio;
+
+    return {
+      r: 0, g: 0, b: 0,
+      cw: Math.round(cwNorm * 1000),
+      ww: Math.round(wwNorm * 1000)
+    };
+  }
+
+  // color_mode === "xy"
+  const { x: cieX = 0, y: cieY = 0 } = state.color || {};
+
+  if (cieX === 0 && cieY === 0) {
+    return { r: 0, g: 0, b: 0, cw: 0, ww: 0 };
+  }
+
+  // Assume luminance Y = 1 (absolute scale unrecoverable)
+  const Y = 1;
+  const X = (cieX / cieY) * Y;
+  const Z = ((1 - cieX - cieY) / cieY) * Y;
+
+  // Inverse of the RGB->XYZ matrix used in the forward function
+  let r = 1.612891 * X - 0.202829 * Y - 0.302365 * Z;
+  let g = -0.509836 * X + 1.412086 * Y + 0.066062 * Z;
+  let b = 0.026082 * X - 0.072345 * Y + 0.962317 * Z;
+
+  // Clip out-of-gamut negatives
+  r = Math.max(0, r);
+  g = Math.max(0, g);
+  b = Math.max(0, b);
+
+  // Normalize brightest channel to 1000 (scale is arbitrary/unrecoverable)
+  const maxC = Math.max(r, g, b, 1e-9);
+  r = Math.round((r / maxC) * 1000);
+  g = Math.round((g / maxC) * 1000);
+  b = Math.round((b / maxC) * 1000);
+
+  return { r, g, b, cw: 0, ww: 0 };
+}
+
 
 var mqtt_scriptctrl_scripts_ = ["off","redshift","ceilingsinus","colorfade","randomcolor","wave","sparkle"];
 var mqtt_scriptctrl_scripts_uses_loop_ = ["randomcolor","sparkle"];
@@ -125,13 +177,28 @@ var mqtt_fancylights_w2r2w2 = []
 var mqtt_fancylights_w2tesla = []
 
 
+const reverseMapping = (obj) => {
+    const reversed = {};
+    Object.keys(obj).forEach((key) => {
+        reversed[obj[key]] = reversed[obj[key]] || [];
+        reversed[obj[key]].push(key);
+    });
+    return reversed;
+};
+
+var mqtt_fancylights_kajplats_name = {
+  "ceiling4":"lothr_kajplats_g1",
+}
+
+var mqtt_kajplats_fancylights_name = reverseMapping(mqtt_fancylights_kajplats_name)
+
 var r3_led_factors_ = {
   "_default_": {
     r_factor:1,
-    g_factor:5, //green 5 times as bright as red
-    b_factor:10, //blue 2 times as bright as green
-    ww_factor:22, //yes warmwhite is about 22 times as bright as red
-    cw_factor:18,
+    g_factor:1,
+    b_factor:1,
+    ww_factor:1,
+    cw_factor:1,
   },
   "flooddoor": {
     r_factor:4,
@@ -163,10 +230,10 @@ var r3_led_factors_ = {
   },
   "ceiling4": {
     r_factor:1,
-    g_factor:5, //green 5 times as bright as red
-    b_factor:10, //blue 2 times as bright as green
-    ww_factor:22, //yes warmwhite is about 22 times as bright as red
-    cw_factor:18,
+    g_factor:1, 
+    b_factor:1, 
+    ww_factor:1,
+    cw_factor:1,
   },
   "ceiling5": {
     r_factor:1,
@@ -258,9 +325,9 @@ function eventOnFancyLightPresent(event) {
   var B = parseInt(event.target.getAttribute("ledb")) || 0;
   var CW = parseInt(event.target.getAttribute("ledcw")) || 0;
   var WW = parseInt(event.target.getAttribute("ledww")) || 0;
-  if (name.indexOf("lothr_kajplats") !== -1) {
+  if (mqtt_fancylights_kajplats_name[name]) {
     var settings = rgbCwWwToCIE1931(R,G,B,CW,WW);
-    sendMQTT(mqtttopic_kajplatsgroup(name),settings);
+    sendMQTT(mqtttopic_kajplatsgroup(mqtt_fancylights_kajplats_name[name]),settings);
   } else {
     var settings = {r:R,g:G,b:B,cw:CW,ww:WW,fade:{}};
     sendMQTT("action/"+name+"/light",settings);
@@ -333,6 +400,16 @@ function registerFunctionForFancyLightUpdate(fun) {
         fun(fancyid, data);
       }
     }(fancyid));
+  });
+}
+
+function registerFunctionForKajplatsUpdate(fun) {
+  ["lothr_kajplats_g1","lothr_kajplats_g2","lothr_kajplats_g3","lothr_kajplats_g4","lothr_kajplats_g5","lothr_kajplats_g6"].forEach(function(lightid) {
+    ws.registerContext("zigbee2mqtt/w1/"+lightid,function(lightid){
+      return function(data) {
+        fun(lightid, data);
+      }
+    }(lightid));
   });
 }
 

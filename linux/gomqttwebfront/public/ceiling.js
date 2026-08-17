@@ -68,6 +68,30 @@ function handleExternalFancySetting(fancyid, data)
     redshift_checkboxes[0].checked = (data.s && data.s == "redshift");
 }
 
+function handleExternalKajplatsSetting(kajplats_id, data_cie)
+{
+  var data = cie1931ToRgbCwWw(data_cie)
+  var fancyid = mqtt_kajplats_fancylights_name[kajplats_id]
+  if (typeof fancyid == 'undefined') {return;}
+
+  //save data for next color chooser popup
+  fancycolorstate_[fancyid] = data;
+  //calc compound RGB from light data
+  calcCompoundRGB(fancycolorstate_[fancyid], fancyid);
+
+  //set compound RGB to background-color of button
+  var rgbstring = "rgb("+fancycolorstate_[fancyid].compound_r+","+fancycolorstate_[fancyid].compound_g+","+fancycolorstate_[fancyid].compound_b+")";
+  var elem = $(".popupselect_trigger[name="+fancyid+"]");
+  if (elem) {
+    elem.css("background-color",rgbstring);
+  }
+  //calculcate and set balance/intensity slider
+  var cwwwslidedata = calcDayLevelFromColor(data);
+  $("input.fancyintensityslider[name="+fancyid+"]").val(Math.floor(cwwwslidedata["intensity"]*1000));
+  $("input.fancybalanceslider[name="+fancyid+"]").val(Math.floor((1000-cwwwslidedata["balance"]*1000)/2));
+
+}
+
 function enableRedShift(event) {
   var participating = Array();
   {
@@ -220,6 +244,7 @@ $(window).ready(resizeRoomImg);
 
     ws.registerContext(mqtttopic_activatescript,handleExternalActivateScript);
     registerFunctionForFancyLightUpdate(handleExternalFancySetting);
+    registerFunctionForKajplatsUpdate(handleExternalKajplatsSetting);
   }
 
   var rfirs = document.getElementsByClassName('rfir');
