@@ -43,88 +43,72 @@ function mqtttopic_wled_action(wled_name)
  * @param {number} ww - Warm white value (0-1000)
  * @returns {object} - Object with properties: color_mode, color_temp, and color (x/y)
  */
-
+// 2. rgbCwWwToCIE1931 — swap const/let for var
 function rgbCwWwToCIE1931(r, g, b, cw, ww) {
-  // Normalize values to 0-1 range
-  const rNorm = r / 1000;
-  const gNorm = g / 1000;
-  const bNorm = b / 1000;
-  const cwNorm = cw / 1000;
-  const wwNorm = ww / 1000;
+  var rNorm = r / 1000;
+  var gNorm = g / 1000;
+  var bNorm = b / 1000;
+  var cwNorm = cw / 1000;
+  var wwNorm = ww / 1000;
   var onoffstate = "ON";
-  
-  // Calculate total white contribution
-  const totalWhite = cwNorm + wwNorm;
-  
+
+  var totalWhite = cwNorm + wwNorm;
+
   if (0 == cw+ww+b+g+r) {
     onoffstate = "OFF";
   }
 
-  // If we have significant white values, use color temperature mode
   if (totalWhite > 0.1 && (rNorm + gNorm + bNorm) < 0.3) {
-    // Calculate color temperature based on CW/WW ratio
-    const tempRatio = ((-1*cwNorm + wwNorm)+1)/2;
-    // Map to 2000K-6500K range (Zigbee standard)
-    const colorTemp = Math.round(153 + (555 - 153) * tempRatio);
+    var tempRatio = ((-1*cwNorm + wwNorm)+1)/2;
+    var colorTemp = Math.round(153 + (555 - 153) * tempRatio);
 
     return {
       brightness: 255,
       state: onoffstate,
       color_mode: "color_temp",
-      color_temp: colorTemp,
+      color_temp: colorTemp
     };
   }
-  // Otherwise use RGB color mode
   else {
-    // Convert RGB to XYZ color space
-    let x = rNorm * 0.649926 + gNorm * 0.103455 + bNorm * 0.197109;
-    let y = rNorm * 0.234327 + gNorm * 0.743075 + bNorm * 0.022598;
-    let z = rNorm * 0.000000 + gNorm * 0.053077 + bNorm * 1.035763;
-    
-    // Convert XYZ to CIE xy
-    const sum = x + y + z;
+    var x = rNorm * 0.649926 + gNorm * 0.103455 + bNorm * 0.197109;
+    var y = rNorm * 0.234327 + gNorm * 0.743075 + bNorm * 0.022598;
+    var z = rNorm * 0.000000 + gNorm * 0.053077 + bNorm * 1.035763;
+
+    var sum = x + y + z;
     if (sum === 0) {
       return {
         brightness: 0,
-        state: "OFF",        
+        state: "OFF",
         color_mode: "xy",
         color: {x: 0, y: 0},
         color_temp: 0
       };
     }
-    
-    const cieX = x / sum;
-    const cieY = y / sum;
-    
-    // // Scale to 0-65535 range for Zigbee (some devices expect this)
-    // const scaledX = Math.round(cieX * 65535);
-    // const scaledY = Math.round(cieY * 65535);
-    
+
+    var cieX = x / sum;
+    var cieY = y / sum;
+
     return {
       brightness: 255,
       state: onoffstate,
       color_mode: "xy",
-      color: {
-        x: cieX,
-        y: cieY
-      },
-      color_temp: 0 // Not used in xy mode
+      color: { x: cieX, y: cieY },
+      color_temp: 0
     };
   }
 }
-
+// 3. cie1931ToRgbCwWw — swap const/let for var, replace destructuring
 function cie1931ToRgbCwWw(state) {
   if (!state || state.state === "OFF") {
     return { r: 0, g: 0, b: 0, cw: 0, ww: 0 };
   }
 
   if (state.color_mode === "color_temp") {
-    const t = Math.max(153, Math.min(555, state.color_temp));
-    const tempRatio = (t - 153) / (555 - 153); // inverse of colorTemp formula
+    var t = Math.max(153, Math.min(555, state.color_temp));
+    var tempRatio = (t - 153) / (555 - 153);
 
-    // Assumes cwNorm + wwNorm = 1 and r=g=b=0 (this info is lost by the forward fn)
-    const wwNorm = tempRatio;
-    const cwNorm = 1 - tempRatio;
+    var wwNorm = tempRatio;
+    var cwNorm = 1 - tempRatio;
 
     return {
       r: 0, g: 0, b: 0,
@@ -134,34 +118,32 @@ function cie1931ToRgbCwWw(state) {
   }
 
   // color_mode === "xy"
-  const { x: cieX = 0, y: cieY = 0 } = state.color || {};
+  var stateColor = state.color || {};
+  var cieX = (typeof stateColor.x === 'undefined') ? 0 : stateColor.x;
+  var cieY = (typeof stateColor.y === 'undefined') ? 0 : stateColor.y;
 
   if (cieX === 0 && cieY === 0) {
     return { r: 0, g: 0, b: 0, cw: 0, ww: 0 };
   }
 
-  // Assume luminance Y = 1 (absolute scale unrecoverable)
-  const Y = 1;
-  const X = (cieX / cieY) * Y;
-  const Z = ((1 - cieX - cieY) / cieY) * Y;
+  var Y = 1;
+  var X = (cieX / cieY) * Y;
+  var Z = ((1 - cieX - cieY) / cieY) * Y;
 
-  // Inverse of the RGB->XYZ matrix used in the forward function
-  let r = 1.612891 * X - 0.202829 * Y - 0.302365 * Z;
-  let g = -0.509836 * X + 1.412086 * Y + 0.066062 * Z;
-  let b = 0.026082 * X - 0.072345 * Y + 0.962317 * Z;
+  var r = 1.612891 * X - 0.202829 * Y - 0.302365 * Z;
+  var g = -0.509836 * X + 1.412086 * Y + 0.066062 * Z;
+  var b = 0.026082 * X - 0.072345 * Y + 0.962317 * Z;
 
-  // Clip out-of-gamut negatives
   r = Math.max(0, r);
   g = Math.max(0, g);
   b = Math.max(0, b);
 
-  // Normalize brightest channel to 1000 (scale is arbitrary/unrecoverable)
-  const maxC = Math.max(r, g, b, 1e-9);
+  var maxC = Math.max(r, g, b, 1e-9);
   r = Math.round((r / maxC) * 1000);
   g = Math.round((g / maxC) * 1000);
   b = Math.round((b / maxC) * 1000);
 
-  return { r, g, b, cw: 0, ww: 0 };
+  return { r: r, g: g, b: b, cw: 0, ww: 0 };
 }
 
 
@@ -177,14 +159,14 @@ var mqtt_fancylights_w2r2w2 = []
 var mqtt_fancylights_w2tesla = []
 
 
-const reverseMapping = (obj) => {
-    const reversed = {};
-    Object.keys(obj).forEach((key) => {
+function reverseMapping(obj) {
+    var reversed = {};
+    Object.keys(obj).forEach(function(key) {
         reversed[obj[key]] = reversed[obj[key]] || [];
         reversed[obj[key]].push(key);
     });
     return reversed;
-};
+}
 
 var mqtt_fancylights_kajplats_name = {
   "ceiling4":"lothr_kajplats_g1",
