@@ -27,12 +27,12 @@ type SerialLine []byte
 
 var (
 	DebugFlags_ string
-	ps_         *pubsub.PubSub
+	ps_         *pubsub.PubSub[any]
 )
 
 func init() {
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
-	ps_ = pubsub.NewNonBlocking(100)
+	ps_ = pubsub.New[any](100)
 }
 
 //Connect and keep trying to connect to MQTT Broker

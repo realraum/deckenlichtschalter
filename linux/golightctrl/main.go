@@ -26,7 +26,7 @@ const (
 var (
 	UseFakeGPIO_         bool
 	DebugFlags_          string
-	ps_                  *pubsub.PubSub
+	ps_                  *pubsub.PubSub[any]
 	topic_lightctrl_pre_ string = r3events.TOPIC_ACTIONS + r3events.CLIENTID_LIGHTCTRL + "/"
 	CeilingLightsSwitch_ CeilingLightsSwitch
 )
@@ -34,7 +34,7 @@ var (
 func init() {
 	flag.BoolVar(&UseFakeGPIO_, "fakegpio", false, "For testing")
 	flag.StringVar(&DebugFlags_, "debug", "", "List of DebugFlags separated by ,")
-	ps_ = pubsub.New(50)
+	ps_ = pubsub.New[any](50)
 }
 
 //Connect and keep trying to connect to MQTT Broker

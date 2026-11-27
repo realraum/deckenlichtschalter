@@ -205,7 +205,7 @@ func SwitchName(name string, onoff bool) (err error) {
 	return
 }
 
-func goLinearizeRFSenders(ps *pubsub.PubSub, rfchan <-chan RFCmdToSend, rf433_tty_chan_ chan SerialLine, mqttc mqtt.Client) {
+func goLinearizeRFSenders(ps *pubsub.PubSub[any], rfchan <-chan RFCmdToSend, rf433_tty_chan_ chan SerialLine, mqttc mqtt.Client) {
 	shutdown1_c := ps.SubOnce(PS_SHUTDOWN)
 	shutdown2_c := ps.SubOnce(PS_SHUTDOWN_CONSUMER)
 

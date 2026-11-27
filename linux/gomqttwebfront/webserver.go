@@ -177,9 +177,9 @@ const (
 var wsupgrader = websocket.Upgrader{} // use default options with Origin Check
 
 //Atomizing because we take a CeilingAll msg and split it and send on its parts Ceiling1 .. Ceiling9
-func goAtomizeCeilingAll(ps_ *pubsub.PubSub, atomized_wsout_chan chan<- wsMessage) {
+func goAtomizeCeilingAll(ps_ *pubsub.PubSub[any], atomized_wsout_chan chan<- wsMessage) {
 	shutdown_chan := ps_.SubOnce(PS_SHUTDOWN)
-	msgtoall_chan := ps_.Sub(PS_WEBSOCK_ALL)
+	msgtoall_chan := ps_.SubButOkToLooseMsgsIfBlock(PS_WEBSOCK_ALL) //was non-blocking Sub with old pubsub.NewNonBlocking
 	defer ps_.Unsub(msgtoall_chan, PS_WEBSOCK_ALL)
 	sendnonblockingToAtomizedWSOutChan := func(wsmsg wsMessage) {
 		select {
@@ -276,7 +276,7 @@ func goJSONMarshalStuffForWebSockClientsAndRetain(getretained_chan chan JsonFutu
 // goroutine responsible for talking TO a websocket client connected to /sock
 func goWriteToClient(ws *websocket.Conn) {
 	shutdown_c := ps_.SubOnce(PS_SHUTDOWN)
-	udpate_c := ps_.Sub(PS_WEBSOCK_ALL_JSON)
+	udpate_c := ps_.SubButOkToLooseMsgsIfBlock(PS_WEBSOCK_ALL_JSON) //was non-blocking Sub with old pubsub.NewNonBlocking
 	ticker := time.NewTicker(ws_ping_period_)
 	defer ps_.Unsub(udpate_c, PS_WEBSOCK_ALL_JSON)
 	for {

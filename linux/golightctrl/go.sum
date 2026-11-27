@@ -2,6 +2,8 @@ github.com/btittelbach/go-bbhw v0.0.0-20181002125330-d30b01ebb2d4 h1:CcEAN0ZeDO5
 github.com/btittelbach/go-bbhw v0.0.0-20181002125330-d30b01ebb2d4/go.mod h1:7sVQHJ1HGAAu5GwG5+7J1j5d+bp2cpmcEXNMMDZmyyg=
 github.com/btittelbach/pubsub v0.0.0-20181118220834-3d9462d72339 h1:LUWUt9S/nWR1Y/hdRaqVbm1LzCfcuj9fYGOFwludPzY=
 github.com/btittelbach/pubsub v0.0.0-20181118220834-3d9462d72339/go.mod h1:sfldyIbBO1Ws7cBOePsyB1RxGKbqwuNKTUEgnnFn3Lw=
+github.com/btittelbach/pubsub v1.2.0 h1:uw7gfCIYFk4o0wvWluCZdmdRZIpFwMnJ3mPkj2yc5Io=
+github.com/btittelbach/pubsub v1.2.0/go.mod h1:9sFB+CAbWg9MMji+8gnL6L8NqOpw+Vro7Uj7uer1jZs=
 github.com/eclipse/paho.mqtt.golang v1.2.0/go.mod h1:H9keYFcgq3Qr5OUJm/JZI/i6U7joQ8SYLhZwfeOo6Ts=
 github.com/eclipse/paho.mqtt.golang v1.5.2 h1:4pcXsR3nR9gJuHCpBC8UF6rTehpIoHrYRm+hGOCq7ZM=
 github.com/eclipse/paho.mqtt.golang v1.5.2/go.mod h1:rDbBdvBJ0K2cDnnazZcu0/cu7y3bFiICNVUOUWHnOOg=
@@ -9,6 +11,8 @@ github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aN
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/realraum/door_and_sensors/r3events v0.0.0-20220110204423-4300137760ad h1:IxuFsyH+9PxwbUOkRItS3utLfdq78CxXq436cCnzCz4=
 github.com/realraum/door_and_sensors/r3events v0.0.0-20220110204423-4300137760ad/go.mod h1:37G8uEgNC2Sy6bqxfmvOqGQHd7qKZVudUDK2bJHT7Pk=
+github.com/realraum/door_and_sensors/r3events v0.0.0-20261127120914-848a4eecc2f1 h1:xQ4kdEMsRsTtF0znCOkVsru8R5Hn0MCdZZolC/st99g=
+github.com/realraum/door_and_sensors/r3events v0.0.0-20261127120914-848a4eecc2f1/go.mod h1:t8rgE+OGnySKqIMztqPtIZokBNXw9BlcjM2bAeBbY+8=
 github.com/schleibinger/sio v0.0.0-20130717070631-2cc3e40bedc0 h1:+zqi+jqEVTqupUr2w6E0diz3TKNBzaD01D5i4+Pvqio=
 github.com/schleibinger/sio v0.0.0-20130717070631-2cc3e40bedc0/go.mod h1:e07TMiZ8iTjzDWnGXfDSMLJ3F07CV3IvQRMvp2W1Eus=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
